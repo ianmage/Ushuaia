@@ -1,0 +1,156 @@
+#include "light.h"
+#include <bx/math.h>
+#include "shader.h"
+
+
+namespace My3D
+{
+
+	static bgfx::UniformHandle uhLightsCnt;
+	static bgfx::UniformHandle uhAmbientColor;
+	static bgfx::UniformHandle uhDirectionalColor;
+	static bgfx::UniformHandle uhDirectionalDir;
+	static bgfx::UniformHandle uhPointColor;
+	static bgfx::UniformHandle uhPointPos;
+	static bgfx::UniformHandle uhPointAttnOuter;
+	static bgfx::UniformHandle uhSpotDirInner;
+
+
+	decltype(Light::ambLight) Light::ambLight;
+	decltype(Light::dirLight) Light::dirLight;
+	decltype(Light::s_pointLights) Light::s_pointLights;
+	decltype(Light::s_spotLights) Light::s_spotLights;
+
+
+	uint8_t const MAX_POINT_LIGHT = 6;
+	uint8_t const MAX_SPOT_LIGHT = 2;
+
+
+	static std::vector<Color4F> s_lightColorBuf;
+	static std::vector<Vector4> s_lightPosBuf;
+	static std::vector<Vector4> s_lightAttnOuterBuf;
+	static std::vector<Vector4> s_spotDirInnerBuf;
+	static Vector4 s_lightsCnt;
+
+
+	void Light::init()
+	{
+		uhLightsCnt = Shader::addUniform("u_lightsCnt", bgfx::UniformType::Vec4);
+		uhAmbientColor = Shader::addUniform("u_lightAmbColor", bgfx::UniformType::Vec4);
+		uhDirectionalColor = Shader::addUniform("u_lightDirColor", bgfx::UniformType::Vec4);
+		uhDirectionalDir = Shader::addUniform("u_lightDirDir", bgfx::UniformType::Vec4);
+		uhPointColor = Shader::addUniform("u_lightColor", bgfx::UniformType::Vec4);
+		uhPointPos = Shader::addUniform("u_lightPos", bgfx::UniformType::Vec4);
+		uhPointAttnOuter = Shader::addUniform("u_lightAttnOuter", bgfx::UniformType::Vec4);
+		uhSpotDirInner = Shader::addUniform("u_lightDirInner", bgfx::UniformType::Vec4);
+	}
+
+
+	void Light::clearAll()
+	{
+		s_lightsCnt.Set(0, 0, 0, 0);
+		s_lightColorBuf.clear();
+		s_lightPosBuf.clear();
+		s_lightAttnOuterBuf.clear();
+		s_spotDirInnerBuf.clear();
+
+		ambLight.color.Set(0, 0, 0, 0);
+		dirLight.color.Set(0, 0, 0, 0);
+		dirLight.color.Set(0, 0, 0, 0);
+
+		s_pointLights.clear();
+		s_spotLights.clear();
+	}
+
+
+	inline static void vec4MulMtxFirst3(Vector4 & out, Vector4 const & in, Matrix4x4 const & mtx)
+	{
+		bx::vec3MulMtx(out.v, in.v, mtx.v);
+		out.w = in.w;
+	}
+
+
+	void Light::updateAll(Matrix4x4 const & mtxView)
+	{
+		s_lightsCnt.Set(0, 0, 0, 0);
+		s_lightColorBuf.clear();
+		s_lightPosBuf.clear();
+		s_lightAttnOuterBuf.clear();
+		s_spotDirInnerBuf.clear();
+
+		dirLight.calcViewParam(mtxView);
+		s_lightsCnt.x = s_lightsCnt.y = 1.f;
+
+		uint8_t const plCnt = std::min(MAX_POINT_LIGHT , (uint8_t)s_pointLights.size());
+		uint8_t const spCnt = std::min(MAX_SPOT_LIGHT, (uint8_t)s_spotLights.size());
+		uint8_t const lightBufSize = (spCnt > 0) ? MAX_POINT_LIGHT + spCnt : plCnt;
+		s_lightColorBuf.resize(lightBufSize);
+		s_lightPosBuf.resize(lightBufSize);
+		s_lightAttnOuterBuf.resize(lightBufSize);
+		s_spotDirInnerBuf.resize(spCnt);
+
+		for (uint8_t i = 0; i < plCnt; ++i)
+		{
+			auto & pl = s_pointLights[i];
+			s_lightColorBuf[i] = pl.color;
+			vec4MulMtxFirst3(s_lightPosBuf[i], pl.pos, mtxView);
+			s_lightAttnOuterBuf[i] = pl.attn;
+		}
+		s_lightsCnt.z = plCnt;
+
+		for (uint8_t i = 0; i < spCnt; ++i)
+		{
+			auto & sl = s_spotLights[i];
+			uint8_t const bufIdx = MAX_POINT_LIGHT + i;
+			s_lightColorBuf[bufIdx] = sl.color;
+			vec4MulMtxFirst3(s_lightPosBuf[bufIdx], sl.pos, mtxView);
+			s_lightAttnOuterBuf[bufIdx] = sl.attnOuter;
+			vec4MulMtxFirst3(s_spotDirInnerBuf[i], sl.dirInner, mtxView);
+		}
+		s_lightsCnt.w = spCnt;
+	}
+
+
+	uint16_t Light::addPointLight(bool isSpot)
+	{
+		size_t ret = 0;
+		if (!isSpot)
+		{
+			ret = s_pointLights.size();
+			s_pointLights.emplace_back();
+		}
+		else
+		{
+			ret = s_spotLights.size();
+			s_spotLights.emplace_back();
+		}
+		return static_cast<uint16_t>(ret);
+	}
+
+
+	void Light::submit()
+	{
+		bgfx::setUniform(uhLightsCnt, &s_lightsCnt);
+
+		bgfx::setUniform(uhAmbientColor, &ambLight.color);
+
+		bgfx::setUniform(uhDirectionalColor, &dirLight.color);
+		bgfx::setUniform(uhDirectionalDir, &dirLight.dir);
+
+		uint8_t const plCnt = std::min(MAX_POINT_LIGHT, (uint8_t)s_pointLights.size());
+		uint8_t const spCnt = std::min(MAX_SPOT_LIGHT, (uint8_t)s_spotLights.size());
+		uint8_t const lightBufSize = (spCnt > 0) ? MAX_POINT_LIGHT + spCnt : plCnt;
+
+		bgfx::setUniform(uhPointColor, s_lightColorBuf.data(), lightBufSize);
+		bgfx::setUniform(uhPointPos, s_lightPosBuf.data(), lightBufSize);
+		bgfx::setUniform(uhPointAttnOuter, s_lightAttnOuterBuf.data(), lightBufSize);
+		bgfx::setUniform(uhSpotDirInner, s_spotDirInnerBuf.data(), spCnt);
+	}
+
+
+	void DirLight::calcViewParam(Matrix4x4 const & mtxView)
+	{
+		vec4MulMtxFirst3(dirVS, dir, mtxView);
+	}
+
+}

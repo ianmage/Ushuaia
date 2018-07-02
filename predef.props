@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <EXT_LIB_DIR>D:\HELPER\3rdParty</EXT_LIB_DIR>
+    <BX_INCLUDE_DIR>$(EXT_LIB_DIR)\bx\include</BX_INCLUDE_DIR>
+    <BIMG_INCLUDE_DIR>$(EXT_LIB_DIR)\bimg\include</BIMG_INCLUDE_DIR>
+    <BGFX_INCLUDE_DIR>$(EXT_LIB_DIR)\bgfx\include</BGFX_INCLUDE_DIR>
+    <BGFX_LIB_DIR>$(EXT_LIB_DIR)\bgfx\.build\win64_vs2017\bin</BGFX_LIB_DIR>
+    <BOOST_INCLUDE_DIR>$(EXT_LIB_DIR)\boost_1_66_0</BOOST_INCLUDE_DIR>
+    <BOOST_LIB_DIR>$(EXT_LIB_DIR)\boost_1_66_0\stage\lib\vc141</BOOST_LIB_DIR>
+    <TINYXML_SRC>$(EXT_LIB_DIR)\tinyxml2</TINYXML_SRC>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OutDir>$(SolutionDir)build\Bin\</OutDir>
+    <IntDir>build\OBj\</IntDir>
+    <TargetName>$(ProjectName)_$(Configuration)</TargetName>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(BOOST_INCLUDE_DIR);$(BX_INCLUDE_DIR);$(BIMG_INCLUDE_DIR);$(BGFX_INCLUDE_DIR);$(BX_INCLUDE_DIR)\compat\msvc;$(BGFX_INCLUDE_DIR)\..\3rdparty;</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(BOOST_LIB_DIR);$(BGFX_LIB_DIR);</AdditionalLibraryDirectories>
+      <AdditionalDependencies>bx$(Configuration).lib;bimg$(Configuration).lib;bimg_decode$(Configuration).lib;bgfx$(Configuration).lib;example-common$(Configuration).lib;example-glue$(Configuration).lib;</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+</Project>
