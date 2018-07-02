@@ -1,5 +1,5 @@
 #include "light.h"
-#include <bx/math.h>
+#include "mathHelper.h"
 #include "shader.h"
 
 
@@ -42,7 +42,7 @@ namespace My3D
 		uhPointColor = Shader::addUniform("u_lightColor", bgfx::UniformType::Vec4);
 		uhPointPos = Shader::addUniform("u_lightPos", bgfx::UniformType::Vec4);
 		uhPointAttnOuter = Shader::addUniform("u_lightAttnOuter", bgfx::UniformType::Vec4);
-		uhSpotDirInner = Shader::addUniform("u_lightDirInner", bgfx::UniformType::Vec4);
+		uhSpotDirInner = Shader::addUniform("u_lightSpotDirInner", bgfx::UniformType::Vec4);
 	}
 
 
@@ -60,13 +60,6 @@ namespace My3D
 
 		s_pointLights.clear();
 		s_spotLights.clear();
-	}
-
-
-	inline static void vec4MulMtxFirst3(Vector4 & out, Vector4 const & in, Matrix4x4 const & mtx)
-	{
-		bx::vec3MulMtx(out.v, in.v, mtx.v);
-		out.w = in.w;
 	}
 
 
@@ -93,7 +86,7 @@ namespace My3D
 		{
 			auto & pl = s_pointLights[i];
 			s_lightColorBuf[i] = pl.color;
-			vec4MulMtxFirst3(s_lightPosBuf[i], pl.pos, mtxView);
+			math::vec4MulMtxComp3(s_lightPosBuf[i], pl.pos, mtxView);
 			s_lightAttnOuterBuf[i] = pl.attn;
 		}
 		s_lightsCnt.z = plCnt;
@@ -103,9 +96,9 @@ namespace My3D
 			auto & sl = s_spotLights[i];
 			uint8_t const bufIdx = MAX_POINT_LIGHT + i;
 			s_lightColorBuf[bufIdx] = sl.color;
-			vec4MulMtxFirst3(s_lightPosBuf[bufIdx], sl.pos, mtxView);
+			math::vec4MulMtxComp3(s_lightPosBuf[bufIdx], sl.pos, mtxView);
 			s_lightAttnOuterBuf[bufIdx] = sl.attnOuter;
-			vec4MulMtxFirst3(s_spotDirInnerBuf[i], sl.dirInner, mtxView);
+			math::vec4MulMtxComp3(s_spotDirInnerBuf[i], sl.dirInner, mtxView);
 		}
 		s_lightsCnt.w = spCnt;
 	}
@@ -150,7 +143,7 @@ namespace My3D
 
 	void DirLight::calcViewParam(Matrix4x4 const & mtxView)
 	{
-		vec4MulMtxFirst3(dirVS, dir, mtxView);
+		math::vec4MulMtxComp3(dirVS, dir, mtxView);
 	}
 
 }
