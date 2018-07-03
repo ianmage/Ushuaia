@@ -1,4 +1,11 @@
 /.vs/
+/.DS_Store
+/.vscode/
+/CMakeCache.txt
+/CMakeFiles/
+/Makefile
+/cmake_install.cmake
+/proj.make
 /bin/
 /build/
 /res/
