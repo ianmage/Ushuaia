@@ -5,6 +5,7 @@
 #include "mathHelper.h"
 #include "vtxDecl.h"
 #include "../examples/common/bgfx_utils.h"
+#include "../../cpp_common/commUtil.h"
 
 
 #define TEST	0
@@ -43,10 +44,18 @@ static float timeAccuScene = 0.f;
 
 void initResData()
 {
+	Light::ambLight.color.Set(0.1f, 0.1f, 0.3f, 0.f);
+	Light::dirLight.color.Set(0.5f, 0.5f, 0.5f, 0.f);
+	Light::dirLight.dir.Set(0.1f, -0.95f, 0.f, 0.f);
+
 	g_pShaderDefault = Shader::load("vs_exam", "fs_exam");
+	g_pShaderDefault->addParamVec4("u_mtlAlbedoMetal", 1);
+	g_pShaderDefault->addParamVec4("u_mtlNormalGloss", 1);
 
 	g_pMtlDefault = new Material(g_pShaderDefault);
 	g_pMtlDefault->renderStates = BGFX_STATE_CULL_CCW;
+	g_pMtlDefault->getParamVec4(CT_HASH("u_mtlAlbedoMetal"))->Set(1, 1, 1, 0);
+	g_pMtlDefault->getParamVec4(CT_HASH("u_mtlNormalGloss"))->Set(0, 0, 0, 0);
 
 	Vector3 vS, vR, vT;
 

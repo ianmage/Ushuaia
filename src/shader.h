@@ -19,8 +19,10 @@ namespace My3D
 
 		~Shader();
 
-		void addParam(std::string const & _name,
-			bgfx::UniformType::Enum _uType, uint16_t _num = 1);
+		void addParamInt1(std::string const & _name, uint16_t _num = 1);
+		void addParamVec4(std::string const & _name, uint16_t _num = 1);
+		void addParamMtx3(std::string const & _name, uint16_t _num = 1);
+		void addParamMtx4(std::string const & _name, uint16_t _num = 1);
 
 		static bgfx::UniformHandle addUniform(std::string const & _name,
 			bgfx::UniformType::Enum _uType, uint16_t _num = 1);

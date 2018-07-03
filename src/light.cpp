@@ -11,8 +11,8 @@ namespace My3D
 	static bgfx::UniformHandle uhDirectionalColor;
 	static bgfx::UniformHandle uhDirectionalDir;
 	static bgfx::UniformHandle uhPointColor;
-	static bgfx::UniformHandle uhPointPos;
-	static bgfx::UniformHandle uhPointAttnOuter;
+	static bgfx::UniformHandle uhPointPos;	// w for spot Outer
+	static bgfx::UniformHandle uhPointAttnRange;
 	static bgfx::UniformHandle uhSpotDirInner;
 
 
@@ -28,7 +28,7 @@ namespace My3D
 
 	static std::vector<Color4F> s_lightColorBuf;
 	static std::vector<Vector4> s_lightPosBuf;
-	static std::vector<Vector4> s_lightAttnOuterBuf;
+	static std::vector<Vector4> s_lightAttnRangeBuf;
 	static std::vector<Vector4> s_spotDirInnerBuf;
 	static Vector4 s_lightsCnt;
 
@@ -39,10 +39,10 @@ namespace My3D
 		uhAmbientColor = Shader::addUniform("u_lightAmbColor", bgfx::UniformType::Vec4);
 		uhDirectionalColor = Shader::addUniform("u_lightDirColor", bgfx::UniformType::Vec4);
 		uhDirectionalDir = Shader::addUniform("u_lightDirDir", bgfx::UniformType::Vec4);
-		uhPointColor = Shader::addUniform("u_lightColor", bgfx::UniformType::Vec4);
-		uhPointPos = Shader::addUniform("u_lightPos", bgfx::UniformType::Vec4);
-		uhPointAttnOuter = Shader::addUniform("u_lightAttnOuter", bgfx::UniformType::Vec4);
-		uhSpotDirInner = Shader::addUniform("u_lightSpotDirInner", bgfx::UniformType::Vec4);
+		uhPointColor = Shader::addUniform("u_lightColor", bgfx::UniformType::Vec4, MAX_POINT_LIGHT + MAX_SPOT_LIGHT);
+		uhPointPos = Shader::addUniform("u_lightPos", bgfx::UniformType::Vec4, MAX_POINT_LIGHT + MAX_SPOT_LIGHT);
+		uhPointAttnRange = Shader::addUniform("u_lightAttnRange", bgfx::UniformType::Vec4, MAX_POINT_LIGHT + MAX_SPOT_LIGHT);
+		uhSpotDirInner = Shader::addUniform("u_lightSpotDirInner", bgfx::UniformType::Vec4, MAX_SPOT_LIGHT);
 	}
 
 
@@ -51,7 +51,7 @@ namespace My3D
 		s_lightsCnt.Set(0, 0, 0, 0);
 		s_lightColorBuf.clear();
 		s_lightPosBuf.clear();
-		s_lightAttnOuterBuf.clear();
+		s_lightAttnRangeBuf.clear();
 		s_spotDirInnerBuf.clear();
 
 		ambLight.color.Set(0, 0, 0, 0);
@@ -68,7 +68,7 @@ namespace My3D
 		s_lightsCnt.Set(0, 0, 0, 0);
 		s_lightColorBuf.clear();
 		s_lightPosBuf.clear();
-		s_lightAttnOuterBuf.clear();
+		s_lightAttnRangeBuf.clear();
 		s_spotDirInnerBuf.clear();
 
 		dirLight.calcViewParam(mtxView);
@@ -79,7 +79,7 @@ namespace My3D
 		uint8_t const lightBufSize = (spCnt > 0) ? MAX_POINT_LIGHT + spCnt : plCnt;
 		s_lightColorBuf.resize(lightBufSize);
 		s_lightPosBuf.resize(lightBufSize);
-		s_lightAttnOuterBuf.resize(lightBufSize);
+		s_lightAttnRangeBuf.resize(lightBufSize);
 		s_spotDirInnerBuf.resize(spCnt);
 
 		for (uint8_t i = 0; i < plCnt; ++i)
@@ -87,7 +87,7 @@ namespace My3D
 			auto & pl = s_pointLights[i];
 			s_lightColorBuf[i] = pl.color;
 			math::vec4MulMtxComp3(s_lightPosBuf[i], pl.pos, mtxView);
-			s_lightAttnOuterBuf[i] = pl.attn;
+			s_lightAttnRangeBuf[i] = pl.attn;
 		}
 		s_lightsCnt.z = plCnt;
 
@@ -97,7 +97,7 @@ namespace My3D
 			uint8_t const bufIdx = MAX_POINT_LIGHT + i;
 			s_lightColorBuf[bufIdx] = sl.color;
 			math::vec4MulMtxComp3(s_lightPosBuf[bufIdx], sl.pos, mtxView);
-			s_lightAttnOuterBuf[bufIdx] = sl.attnOuter;
+			s_lightAttnRangeBuf[bufIdx] = sl.attnOuter;
 			math::vec4MulMtxComp3(s_spotDirInnerBuf[i], sl.dirInner, mtxView);
 		}
 		s_lightsCnt.w = spCnt;
@@ -136,7 +136,7 @@ namespace My3D
 
 		bgfx::setUniform(uhPointColor, s_lightColorBuf.data(), lightBufSize);
 		bgfx::setUniform(uhPointPos, s_lightPosBuf.data(), lightBufSize);
-		bgfx::setUniform(uhPointAttnOuter, s_lightAttnOuterBuf.data(), lightBufSize);
+		bgfx::setUniform(uhPointAttnRange, s_lightAttnRangeBuf.data(), lightBufSize);
 		bgfx::setUniform(uhSpotDirInner, s_spotDirInnerBuf.data(), spCnt);
 	}
 

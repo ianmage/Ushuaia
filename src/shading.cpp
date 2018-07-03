@@ -56,6 +56,8 @@ namespace My3D
 
 		bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH
 			, 0x30303000, 1.f, 0);
+
+		Light::submit();
 #if TEST
 		uint64_t state = 0
 			| BGFX_STATE_WRITE_R

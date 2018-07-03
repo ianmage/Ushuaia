@@ -69,23 +69,44 @@ namespace My3D
 	}
 
 
-	static constexpr size_t getTypeSize(bgfx::UniformType::Enum const _ut)
-	{
-		return
-			(bgfx::UniformType::Int1 == _ut) ? sizeof(int32_t) :
-			(bgfx::UniformType::Vec4 == _ut) ? sizeof(Vector4) :
-			(bgfx::UniformType::Mat3 == _ut) ? sizeof(float) * 9 :
-			(bgfx::UniformType::Mat4 == _ut) ? sizeof(Matrix4x4) : 0;
-	}
-
-
-	void Shader::addParam(std::string const & _name,
-		bgfx::UniformType::Enum _uType, uint16_t _num)
+	void Shader::addParamInt1(std::string const & _name, uint16_t _num)
 	{
 		size_t k = RT_HASH(_name.c_str());
 		assert(paramOffsets_.find(k) == paramOffsets_.end());
 		paramOffsets_[k] = static_cast<uint16_t>(paramSize_);
-		paramSize_ += getTypeSize(_uType) * _num;
+		paramSize_ += sizeof(int32_t) * _num;
+		if (s_uniforms.find(k) == s_uniforms.end())
+			addUniform(_name, bgfx::UniformType::Int1, _num);
+	}
+
+	void Shader::addParamVec4(std::string const & _name, uint16_t _num)
+	{
+		size_t k = RT_HASH(_name.c_str());
+		assert(paramOffsets_.find(k) == paramOffsets_.end());
+		paramOffsets_[k] = static_cast<uint16_t>(paramSize_);
+		paramSize_ += sizeof(Vector4) * _num;
+		if (s_uniforms.find(k) == s_uniforms.end())
+			addUniform(_name, bgfx::UniformType::Vec4, _num);
+	}
+
+	void Shader::addParamMtx3(std::string const & _name, uint16_t _num)
+	{
+		size_t k = RT_HASH(_name.c_str());
+		assert(paramOffsets_.find(k) == paramOffsets_.end());
+		paramOffsets_[k] = static_cast<uint16_t>(paramSize_);
+		paramSize_ += sizeof(float) * 9 * _num;
+		if (s_uniforms.find(k) == s_uniforms.end())
+			addUniform(_name, bgfx::UniformType::Mat3, _num);
+	}
+
+	void Shader::addParamMtx4(std::string const & _name, uint16_t _num)
+	{
+		size_t k = RT_HASH(_name.c_str());
+		assert(paramOffsets_.find(k) == paramOffsets_.end());
+		paramOffsets_[k] = static_cast<uint16_t>(paramSize_);
+		paramSize_ += sizeof(Matrix4x4) * _num;
+		if (s_uniforms.find(k) == s_uniforms.end())
+			addUniform(_name, bgfx::UniformType::Mat4, _num);
 	}
 
 
