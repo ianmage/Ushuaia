@@ -26,7 +26,9 @@ float SpotLighting(vec3 light_pos, vec3 light_dir, vec2 cos_cone, vec3 pos)
 vec3 FresnelTerm(vec3 light_vec, vec3 halfway_vec, vec3 c_spec)
 {
 	float e_n = saturate(dot(light_vec, halfway_vec));
-	return c_spec > 0 ? c_spec + (1 - c_spec) * exp2(-(5.55473f * e_n + 6.98316f) * e_n) : 0;
+	//return c_spec > 0 ? c_spec + (1 - c_spec) * exp2(-(5.55473f * e_n + 6.98316f) * e_n) : 0;
+	vec3 ret = c_spec + (1 - c_spec) * exp2(-(5.55473f * e_n + 6.98316f) * e_n);
+	return ret * sign(c_spec);
 }
 
 float SpecularNormalizeFactor(float shininess)
@@ -36,7 +38,7 @@ float SpecularNormalizeFactor(float shininess)
 
 vec3 DistributionTerm(vec3 halfway_vec, vec3 normal, float shininess)
 {
-	return exp((shininess + 0.775f) * (max(dot(halfway_vec, normal), 0.0f) - 1));
+	return vec3_splat(exp((shininess + 0.775f) * (max(dot(halfway_vec, normal), 0.0f) - 1)));
 }
 
 vec3 SpecularTerm(vec3 c_spec, vec3 light_vec, vec3 halfway_vec, vec3 normal, float shininess)
@@ -130,7 +132,7 @@ vec3 DiffuseColor(vec3 albedo, float metalness)
 
 vec3 SpecularColor(vec3 albedo, float metalness)
 {
-	return lerp(0.04, albedo, metalness);
+	return mix(vec3_splat(0.04), albedo, vec3_splat(metalness));
 }
 
 // Glossiness

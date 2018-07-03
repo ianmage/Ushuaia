@@ -18,9 +18,9 @@ uniform vec4 u_lightSpotDirInner[MAX_SPOT_LIGHT];
 
 vec4 CalcColor(float n_dot_l, float spec, float atten, vec3 shadow, vec4 light_color)
 {
-	vec2 ds = n_dot_l * atten * float2(1, spec);
+	vec2 ds = n_dot_l * atten * vec2(1, spec);
 	ds = max(ds, 0);
-	return ds.xxxy * light_color * float4(shadow, dot(shadow, 1) / 3);
+	return ds.xxxy * light_color * vec4(shadow, dot(shadow, vec3_splat(1)) / 3);
 }
 
 
@@ -28,18 +28,18 @@ vec4 CalcAmbient(vec3 normal, vec4 light_color)
 {
 	vec3 dir = u_lightDirDir.xyz;
 	float n_dot_l = dot(normal, dir);
-	return CalcColor(0.5f + 0.5f * n_dot_l, 0, 1, 1, light_color);
+	return CalcColor(0.5f + 0.5f * n_dot_l, 0, 1, vec3_splat(1), light_color);
 }
 
 vec4 CalcDirectional(vec3 normal, vec4 light_color, vec3 view_dir, float shininess)
 {
-	vec4 lighting = 0;
+	vec4 lighting = vec4_splat(0);
 	vec3 dir = -u_lightDirDir.xyz;
 	float n_dot_l = dot(normal, dir);
 	if (n_dot_l > 0)
 	{
 		float spec = DistributionTerm(normalize(dir - view_dir), normal, shininess).x;
-		lighting = CalcColor(n_dot_l, spec, 1, 1, light_color);
+		lighting = CalcColor(n_dot_l, spec, 1, vec3_splat(1), light_color);
 	}
 	return lighting;
 }
@@ -47,7 +47,7 @@ vec4 CalcDirectional(vec3 normal, vec4 light_color, vec3 view_dir, float shinine
 
 vec4 CalcPoint(vec3 normal, vec4 light_color, vec3 view_dir, float shininess, vec3 pos_es, vec4 light_pos, vec4 falloff_range)
 {
-	vec4 lighting = 0;
+	vec4 lighting = vec4_splat(0);
 	vec3 dir = light_pos.xyz - pos_es;
 	float dist = length(dir);
 	if (dist < falloff_range.w)
@@ -56,7 +56,7 @@ vec4 CalcPoint(vec3 normal, vec4 light_color, vec3 view_dir, float shininess, ve
 		float n_dot_l = dot(normal, dir);
 		float spec = DistributionTerm(normalize(dir - view_dir), normal, shininess).x;
 		float attn = AttenuationTerm(light_pos.xyz, pos_es, falloff_range.xyz);
-		lighting = CalcColor(n_dot_l, spec, attn, 1, light_color);
+		lighting = CalcColor(n_dot_l, spec, attn, vec3_splat(1), light_color);
 	}
 	return lighting;
 }
@@ -64,7 +64,7 @@ vec4 CalcPoint(vec3 normal, vec4 light_color, vec3 view_dir, float shininess, ve
 
 vec4 CalcSpot(vec3 normal, vec4 light_color, vec3 view_dir, float shininess, vec3 pos_es, vec4 light_pos, vec4 falloff_range, vec4 light_dir)
 {
-	vec4 lighting = 0;
+	vec4 lighting = vec4_splat(0);
 	vec3 dir = light_pos.xyz - pos_es;
 	float dist = length(dir);
 	if (dist < falloff_range.w)
@@ -80,7 +80,7 @@ vec4 CalcSpot(vec3 normal, vec4 light_color, vec3 view_dir, float shininess, vec
 		float spot = smoothstep(cos_cone_inner, cos_cone_outer, cos_dir);
 
 		float attn = spot * AttenuationTerm(light_pos.xyz, pos_es, falloff_range.xyz);
-		lighting = CalcColor(n_dot_l, spec, attn, 1, light_color);
+		lighting = CalcColor(n_dot_l, spec, attn, vec3_splat(1), light_color);
 	}
 	return lighting;
 }
@@ -88,7 +88,7 @@ vec4 CalcSpot(vec3 normal, vec4 light_color, vec3 view_dir, float shininess, vec
 
 vec4 CalcLighting(vec3 normal, vec3 view_dir, float shininess, vec3 pos_es)
 {
-	vec4 lighting = 0;
+	vec4 lighting = vec4_splat(0);
 
 	lighting += CalcAmbient(normal, u_lightAmbColor) * u_lightsCnt.x;
 
