@@ -17,11 +17,6 @@ namespace My3D
 	{
 		Color4F color;
 		Vector4 dir;
-
-		void calcViewParam(Matrix4x4 const & mtxView);
-
-	private:
-		Vector4 dirVS;
 	};
 
 

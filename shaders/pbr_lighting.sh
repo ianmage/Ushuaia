@@ -36,9 +36,9 @@ float SpecularNormalizeFactor(float shininess)
 	return (shininess + 2) / 8;
 }
 
-vec3 DistributionTerm(vec3 halfway_vec, vec3 normal, float shininess)
+float DistributionTerm(vec3 halfway_vec, vec3 normal, float shininess)
 {
-	return vec3_splat(exp((shininess + 0.775f) * (max(dot(halfway_vec, normal), 0.0f) - 1)));
+	return exp((shininess + 0.775f) * (max(dot(halfway_vec, normal), 0.0f) - 1));
 }
 
 vec3 SpecularTerm(vec3 c_spec, vec3 light_vec, vec3 halfway_vec, vec3 normal, float shininess)

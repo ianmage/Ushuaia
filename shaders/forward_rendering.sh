@@ -24,21 +24,25 @@ vec4 CalcColor(float n_dot_l, float spec, float atten, vec3 shadow, vec4 light_c
 }
 
 
-vec4 CalcAmbient(vec3 normal, vec4 light_color)
+vec4 CalcAmbient(vec3 normal, vec4 light_color, vec3 light_dir)
 {
-	vec3 dir = u_lightDirDir.xyz;
+	vec3 dir = light_dir;
 	float n_dot_l = dot(normal, dir);
+#if 0
 	return CalcColor(0.5f + 0.5f * n_dot_l, 0, 1, vec3_splat(1), light_color);
+#else
+	return CalcColor(1, 0, 1, vec3_splat(1), light_color);
+#endif
 }
 
-vec4 CalcDirectional(vec3 normal, vec4 light_color, vec3 view_dir, float shininess)
+vec4 CalcDirectional(vec3 normal, vec4 light_color, vec3 light_dir, vec3 view_dir, float shininess)
 {
 	vec4 lighting = vec4_splat(0);
-	vec3 dir = -u_lightDirDir.xyz;
+	vec3 dir = -light_dir;
 	float n_dot_l = dot(normal, dir);
 	if (n_dot_l > 0)
 	{
-		float spec = DistributionTerm(normalize(dir - view_dir), normal, shininess).x;
+		float spec = DistributionTerm(normalize(dir - view_dir), normal, shininess);
 		lighting = CalcColor(n_dot_l, spec, 1, vec3_splat(1), light_color);
 	}
 	return lighting;
@@ -90,9 +94,9 @@ vec4 CalcLighting(vec3 normal, vec3 view_dir, float shininess, vec3 pos_es)
 {
 	vec4 lighting = vec4_splat(0);
 
-	lighting += CalcAmbient(normal, u_lightAmbColor) * u_lightsCnt.x;
+	lighting += CalcAmbient(normal, u_lightAmbColor, u_lightDirDir.xyz) * u_lightsCnt.x;
 
-	lighting += CalcDirectional(normal, u_lightDirColor, view_dir, shininess);
+	lighting += CalcDirectional(normal, u_lightDirColor, u_lightDirDir.xyz, view_dir, shininess);
 	lighting *= u_lightsCnt.y;
 
 	for (int i = 0; i < u_lightsCnt.z; ++i)

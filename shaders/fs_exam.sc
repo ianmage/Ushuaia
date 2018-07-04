@@ -7,7 +7,7 @@ $input v_normal, v_pos
 void main()
 {
 	vec3 v = v_pos;
-	vec3 n = v_normal;
+	vec3 n = normalize(v_normal);
 
 	//Fog.
 	vec3 fogColor = vec3_splat(0.0);

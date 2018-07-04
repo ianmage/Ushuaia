@@ -110,6 +110,26 @@ namespace My3D
 	}
 
 
+	uint16_t Shader::paramIndex(size_t _nameKey) const
+	{
+		auto it = paramOffsets_.find(_nameKey);
+		if (it != paramOffsets_.end())
+		{
+			return it->second;
+		}
+		return UINT16_MAX;
+	}
+
+
+	void Shader::setParams(uint8_t const * _pData) const
+	{
+		for (auto & it : paramOffsets_)
+		{
+			setUniform(it.first, &_pData[it.second]);
+		}
+	}
+
+
 	bool Shader::setUniform(size_t _nameKey, void const * _pVal, uint16_t _num)
 	{
 		auto it = s_uniforms.find(_nameKey);

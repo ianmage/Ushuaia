@@ -26,6 +26,7 @@ namespace My3D
 	uint8_t const MAX_SPOT_LIGHT = 2;
 
 
+	static Vector4 s_dirLightDir;
 	static std::vector<Color4F> s_lightColorBuf;
 	static std::vector<Vector4> s_lightPosBuf;
 	static std::vector<Vector4> s_lightAttnRangeBuf;
@@ -71,10 +72,12 @@ namespace My3D
 		s_lightAttnRangeBuf.clear();
 		s_spotDirInnerBuf.clear();
 
-		dirLight.calcViewParam(mtxView);
+		math::vec4MulMtxComp3(s_dirLightDir, dirLight.dir, mtxView);
+		s_dirLightDir.normalize();
+		
 		s_lightsCnt.x = s_lightsCnt.y = 1.f;
 
-		uint8_t const plCnt = std::min(MAX_POINT_LIGHT , (uint8_t)s_pointLights.size());
+		uint8_t const plCnt = std::min(MAX_POINT_LIGHT, (uint8_t)s_pointLights.size());
 		uint8_t const spCnt = std::min(MAX_SPOT_LIGHT, (uint8_t)s_spotLights.size());
 		uint8_t const lightBufSize = (spCnt > 0) ? MAX_POINT_LIGHT + spCnt : plCnt;
 		s_lightColorBuf.resize(lightBufSize);
@@ -99,6 +102,7 @@ namespace My3D
 			math::vec4MulMtxComp3(s_lightPosBuf[bufIdx], sl.pos, mtxView);
 			s_lightAttnRangeBuf[bufIdx] = sl.attnOuter;
 			math::vec4MulMtxComp3(s_spotDirInnerBuf[i], sl.dirInner, mtxView);
+			s_spotDirInnerBuf[i].normalize();
 		}
 		s_lightsCnt.w = spCnt;
 	}
@@ -128,7 +132,7 @@ namespace My3D
 		bgfx::setUniform(uhAmbientColor, &ambLight.color);
 
 		bgfx::setUniform(uhDirectionalColor, &dirLight.color);
-		bgfx::setUniform(uhDirectionalDir, &dirLight.dir);
+		bgfx::setUniform(uhDirectionalDir, &s_dirLightDir);
 
 		uint8_t const plCnt = std::min(MAX_POINT_LIGHT, (uint8_t)s_pointLights.size());
 		uint8_t const spCnt = std::min(MAX_SPOT_LIGHT, (uint8_t)s_spotLights.size());
@@ -138,12 +142,6 @@ namespace My3D
 		bgfx::setUniform(uhPointPos, s_lightPosBuf.data(), lightBufSize);
 		bgfx::setUniform(uhPointAttnRange, s_lightAttnRangeBuf.data(), lightBufSize);
 		bgfx::setUniform(uhSpotDirInner, s_spotDirInnerBuf.data(), spCnt);
-	}
-
-
-	void DirLight::calcViewParam(Matrix4x4 const & mtxView)
-	{
-		math::vec4MulMtxComp3(dirVS, dir, mtxView);
 	}
 
 }

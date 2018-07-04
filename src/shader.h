@@ -24,6 +24,9 @@ namespace My3D
 		void addParamMtx3(std::string const & _name, uint16_t _num = 1);
 		void addParamMtx4(std::string const & _name, uint16_t _num = 1);
 
+		uint16_t paramIndex(size_t _nameKey) const;
+		void setParams(uint8_t const * _pData) const;
+
 		static bgfx::UniformHandle addUniform(std::string const & _name,
 			bgfx::UniformType::Enum _uType, uint16_t _num = 1);
 		static bool setUniform(size_t _nameKey, void const * _pVal, uint16_t _num = UINT16_MAX);
@@ -44,10 +47,6 @@ namespace My3D
 		static std::unordered_map<size_t, bgfx::UniformHandle> s_uniforms;
 
 	public:
-		decltype(paramOffsets_) const & paramOffsets() const {
-			return paramOffsets_;
-		}
-
 		std::string const & vsName() const {
 			return vsName_;
 		}

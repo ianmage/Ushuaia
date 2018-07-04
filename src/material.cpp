@@ -34,20 +34,17 @@ namespace My3D
 		assert(pShader_);
 		bgfx::setState(RenderState::overrideMe(renderStates, override0, override1));
 
-		for (auto & it : pShader_->paramOffsets())
-		{
-			Shader::setUniform(it.first, &paramData_[it.second]);
-		}
+		pShader_->setParams(paramData_.data());
 	}
 
 
 	Vector4* Material::getParamVec4(size_t _nameKey) const
 	{
 		assert(pShader_);
-		auto it = pShader_->paramOffsets().find(_nameKey);
-		if (it == pShader_->paramOffsets().end())
+		uint16_t const idx = pShader_->paramIndex(_nameKey);
+		if (UINT16_MAX == idx)
 			return nullptr;
-		auto pData = const_cast<uint8_t*>(&paramData_[it->second]);
+		auto pData = const_cast<uint8_t*>(&paramData_[idx]);
 		return reinterpret_cast<Vector4*>(pData);
 	}
 

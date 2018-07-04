@@ -36,7 +36,7 @@ varyName=${inName:3:$lenInName-6}
 if [[ ${varyName:0-9} == "_instance" ]];then
 varyName=${varyName:0:$lenInName-15}
 fi
-varyName=" --varyingdef "$inDir"/"$varyName".def.sc"
+varyName=" --varyingdef "$inDir"/"$varyName".def"
 
 outDir=$inDir"/../res/shaders/metal/"
 if [ ! -d $outDir ];then

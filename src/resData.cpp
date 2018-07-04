@@ -44,8 +44,8 @@ static float timeAccuScene = 0.f;
 
 void initResData()
 {
-	Light::ambLight.color.Set(0.1f, 0.1f, 0.3f, 0.f);
-	Light::dirLight.color.Set(0.5f, 0.5f, 0.5f, 0.f);
+	Light::ambLight.color.Set(0.1f, 0.1f, 0.2f, 0.f);
+	Light::dirLight.color.Set(0.8f, 0.8f, 0.8f, 0.f);
 	Light::dirLight.dir.Set(0.1f, -0.95f, 0.f, 0.f);
 
 	g_pShaderDefault = Shader::load("vs_exam", "fs_exam");
