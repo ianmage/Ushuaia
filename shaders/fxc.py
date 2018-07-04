@@ -49,7 +49,7 @@ def proc(inPath, preDefs) :
 		if preDefs :
 			cmd += ' --define %s' % preDefs
 		#cmd += ' --verbose'
-		print cmd
+		#print cmd
 		os.system(cmd)
 	else :
 		printErr('unknown file ext type.')

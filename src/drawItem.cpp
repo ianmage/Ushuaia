@@ -14,7 +14,6 @@ namespace My3D
 	{
 		s_supportInstancing = (0 !=
 			(BGFX_CAPS_INSTANCING & bgfx::getCaps()->supported));
-		s_supportInstancing = false;
 	}
 
 

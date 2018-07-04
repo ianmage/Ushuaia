@@ -58,7 +58,7 @@ vec4 CalcPoint(vec3 normal, vec4 light_color, vec3 view_dir, float shininess, ve
 	{
 		dir /= dist;
 		float n_dot_l = dot(normal, dir);
-		float spec = DistributionTerm(normalize(dir - view_dir), normal, shininess).x;
+		float spec = DistributionTerm(normalize(dir - view_dir), normal, shininess);
 		float attn = AttenuationTerm(light_pos.xyz, pos_es, falloff_range.xyz);
 		lighting = CalcColor(n_dot_l, spec, attn, vec3_splat(1), light_color);
 	}
@@ -76,7 +76,7 @@ vec4 CalcSpot(vec3 normal, vec4 light_color, vec3 view_dir, float shininess, vec
 		dir /= dist;
 		float n_dot_l = dot(normal, dir);
 
-		float spec = DistributionTerm(normalize(dir - view_dir), normal, shininess).x;
+		float spec = DistributionTerm(normalize(dir - view_dir), normal, shininess);
 
 		float cos_dir = dot(-dir, light_dir.xyz);
 		float cos_cone_inner = light_dir.w;

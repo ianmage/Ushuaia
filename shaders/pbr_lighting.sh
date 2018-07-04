@@ -25,7 +25,7 @@ float SpotLighting(vec3 light_pos, vec3 light_dir, vec2 cos_cone, vec3 pos)
 
 vec3 FresnelTerm(vec3 light_vec, vec3 halfway_vec, vec3 c_spec)
 {
-	float e_n = saturate(dot(light_vec, halfway_vec));
+	float e_n = clamp(dot(light_vec, halfway_vec), 0.f, 1.f);
 	//return c_spec > 0 ? c_spec + (1 - c_spec) * exp2(-(5.55473f * e_n + 6.98316f) * e_n) : 0;
 	vec3 ret = c_spec + (1 - c_spec) * exp2(-(5.55473f * e_n + 6.98316f) * e_n);
 	return ret * sign(c_spec);
@@ -106,7 +106,7 @@ vec3 CalcEnvDiffuse(vec3 prefiltered_env, vec3 c_diff)
 
 vec3 CalcEnvSpecular(vec3 prefiltered_env, vec3 c_spec, float glossiness, vec3 normal, vec3 view)
 {
-	float n_dot_v = saturate(dot(normal, view));
+	float n_dot_v = clamp(dot(normal, view), 0.f, 1.f);
 	glossiness = max(0.5f / 16, glossiness);
 	vec2 env_brdf;
 	vec4 tmp = ((vec4(-4.996914762f, 7.253111161f, -1.963867075f, -0.170416225f) * glossiness
@@ -119,7 +119,7 @@ vec3 CalcEnvSpecular(vec3 prefiltered_env, vec3 c_spec, float glossiness, vec3 n
 		+ vec4(-0.101034049f, 0.18680998f, -0.117919199f, 0.030727381f)) * glossiness
 		+ vec4(0.001922126f, 0.006697305f, -0.015741592f, 0.007229544f);
 	env_brdf.y = (((tmp.x * n_dot_v + tmp.y) * n_dot_v + tmp.z) * n_dot_v) + tmp.w;
-	env_brdf = saturate(env_brdf);
+	env_brdf = clamp(env_brdf, 0.f, 1.f);
 	return prefiltered_env * (c_spec * env_brdf.x + env_brdf.y);
 }
 

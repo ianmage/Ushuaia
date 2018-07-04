@@ -1,4 +1,4 @@
-$input a_position, a_normal, i_data0, i_data1, i_data2, i_data3
+$input a_position, a_normal, i_data0, i_data1, i_data2
 $output v_normal, v_pos
 
 #include "../common/common.sh"

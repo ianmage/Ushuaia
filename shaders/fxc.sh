@@ -58,5 +58,5 @@ if [ ${#defs} -ge 1 ];then
 cmd=$cmd" --define "$defs
 fi
 
-echo $cmd
+#echo $cmd
 ~/Programs/bgfx_tools/shaderc $cmd
