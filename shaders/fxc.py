@@ -11,7 +11,7 @@ def printErr(msg) :
 	exit()
 
 
-def proc(inPath, preDefs) :
+def proc(inPath, preDefs, srcModTime=None) :
 	curDir = 'D:/HELPER/3rdParty/bgfx'
 	cmd = '%s/.build/win64_vs2017/bin/shadercDebug.exe' % curDir
 	cmd += ' -i %s/src -i %s/examples/common' % (curDir, curDir)
@@ -25,6 +25,11 @@ def proc(inPath, preDefs) :
 		cmd += ' -f %s' % inFile
 		outPath = '../res/shaders/dx11/%sbin' % inFile[:-2]
 		cmd += ' -o %s' % outPath
+
+		if srcModTime is not None :
+			dstModTime = os.stat(outPath).st_mtime
+			if srcModTime < dstModTime :
+				return
 
 		cmd += ' --type'
 		if inFile.startswith('vs_') :
@@ -63,5 +68,5 @@ if __name__ == '__main__' :
 		preDefs = None
 		if numArg > 2 :
 			preDefs = sys.argv[2]
-		proc(sys.argv[1], preDefs)
+		proc(sys.argv[1], preDefs, None)
 	os.system('pause')

@@ -1,8 +1,12 @@
 #include "drawItem.h"
 #include "entity.h"
 
+#pragma optimize("", off)
+
+
 namespace Ushuaia
 {
+#define PACK_INST_DATA	1
 
 	bool DrawChannel::s_supportInstancing = false;
 
@@ -86,19 +90,29 @@ namespace Ushuaia
 
 		for (auto const & it : s_instance)
 		{
+#if PACK_INST_DATA
+			uint16_t const instStride = static_cast<uint16_t>(sizeof(float) * 12);
+#else
 			uint16_t const instStride = static_cast<uint16_t>(sizeof(Matrix4x4));
+#endif
 			uint32_t const numInst = static_cast<uint32_t>(it.mtxTransform.size());
 			assert(numInst == bgfx::getAvailInstanceDataBuffer(numInst, instStride));
 			bgfx::InstanceDataBuffer idb;
 			bgfx::allocInstanceDataBuffer(&idb, numInst, instStride);
-
-			uint8_t *pData = idb.data;
+#if PACK_INST_DATA
+			float *pData = reinterpret_cast<float*>(idb.data);
+#else
+			Matrix4x4 *pData = reinterpret_cast<Matrix4x4*>(idb.data);
+#endif
 
 			for (auto const & mtx : it.mtxTransform)
 			{
-				Matrix4x4 *pMtx = reinterpret_cast<Matrix4x4*>(pData);
-				*pMtx = mtx;
-				pData += instStride;
+#if PACK_INST_DATA
+				mtx.mtx4x3(pData);
+				pData += 12;
+#else
+				*(pData++) = mtx;
+#endif
 			}
 
 			auto pMtlShader = it.pModel->pMtl->pShader();

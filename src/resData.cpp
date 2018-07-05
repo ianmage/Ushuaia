@@ -6,7 +6,7 @@
 #include "../examples/common/bgfx_utils.h"
 #include "../../cpp_common/commUtil.h"
 
-
+#pragma optimize("", off)
 #define TEST	0
 
 

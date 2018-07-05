@@ -293,6 +293,17 @@ struct Matrix4x4
 	void transform(Vector3 & out, Vector3 const & in) const {
 		bx::vec3MulMtx(out.v, in.v, v);
 	}
+
+	void mtx4x3(float * out) const {
+		int i = 0;
+		for (int j = 0; j < 4; ++j)
+		{
+			for (int k = 0; k < 3; ++k)
+			{
+				out[i++] = v[j * 4 + k];
+			}
+		}
+	}
 };
 
 
