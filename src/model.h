@@ -6,7 +6,7 @@
 #include <memory>
 
 
-namespace My3D
+namespace Ushuaia
 {
 
 	struct Model

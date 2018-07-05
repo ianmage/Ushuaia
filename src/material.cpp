@@ -2,7 +2,7 @@
 #include "../../cpp_common/commUtil.h"
 
 
-namespace My3D
+namespace Ushuaia
 {
 
 	Material::Material(Shader *_pShader)

@@ -2,7 +2,6 @@
 #include "entity.h"
 #include <string>
 #include "appConf.h"
-#include "mathHelper.h"
 #include "vtxDecl.h"
 #include "../examples/common/bgfx_utils.h"
 #include "../../cpp_common/commUtil.h"
@@ -11,7 +10,7 @@
 #define TEST	0
 
 
-namespace My3D
+namespace Ushuaia
 {
 
 bgfx::TextureHandle g_texFigure;
@@ -148,7 +147,7 @@ void initResData()
 	vS.Set(100.f, 100.f, 100.f);
 	vR.Set(0.f, 0.f, 0.f);
 	vT.Set(0.f, 0.f, 0.f);
-	math::mtxSRT(g_pEntFloor->mtx, vS, vR, vT);
+	g_pEntFloor->mtx.setSRT(vS, vR, vT);
 	g_pEntFloor->pModel = Model::create("Model_Floor");
 	g_pEntFloor->pModel->pMesh = &g_meshHPlane;
 	g_pEntFloor->pModel->pMtl = g_pMtlDefault;
@@ -167,7 +166,7 @@ void initResData()
 		vR.Set(0.f, fI, 0.f);
 		float iAngle = fI * 2.f * bx::kPi / float(numTrees);
 		vT.Set(bx::sin(iAngle) * 60.f, 0.f, bx::cos(iAngle) * 60.f);
-		math::mtxSRT(g_pEntTrees[i]->mtx, vS, vR, vT);
+		g_pEntTrees[i]->mtx.setSRT(vS, vR, vT);
 	}
 	
 	g_pEntBunny = Entity::create("Ent_Bunny");
@@ -220,15 +219,15 @@ void updateResData()
 	vS.Set(8.f, 8.f, 8.f);
 	vR.Set(0.f, 1.56f - timeAccuScene, 0.f);
 	vT.Set(30.f, 5.f, 0.f);
-	math::mtxSRT(g_pEntBunny->mtx, vS, vR, vT);
+	g_pEntBunny->mtx.setSRT(vS, vR, vT);
 	vS.Set(2.5f, 2.5f, 2.5f);
 	vR.Set(0.f, 1.56f - timeAccuScene, 0.f);
 	vT.Set(0.f, 10.f, 0.f);
-	math::mtxSRT(g_pEntHollowcube->mtx, vS, vR, vT);
+	g_pEntHollowcube->mtx.setSRT(vS, vR, vT);
 	vS.Set(2.5f, 2.5f, 2.5f);
 	vR.Set(0.f, 1.56f - timeAccuScene, 0.f);
 	vT.Set(-30.f, 5.f, 0.f);
-	math::mtxSRT(g_pEntCube->mtx, vS, vR, vT);
+	g_pEntCube->mtx.setSRT(vS, vR, vT);
 }
 
 }

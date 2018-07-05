@@ -1,10 +1,10 @@
 #include "shader.h"
 #include "../examples/common/bgfx_utils.h"
 #include "../../cpp_common/commUtil.h"
-#include "../../cpp_common/mathUtil.h"
+#include "math.h"
 
 
-namespace My3D
+namespace Ushuaia
 {
 
 	decltype(Shader::s_shaders) Shader::s_shaders;

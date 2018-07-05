@@ -4,7 +4,7 @@
 #include "vtxDecl.h"
 
 
-namespace My3D
+namespace Ushuaia
 {
 
 	void screenSpaceQuad(float _texW, float _texH, bool _origBottomLeft, float _w, float _h)

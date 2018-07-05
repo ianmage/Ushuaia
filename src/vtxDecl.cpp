@@ -1,7 +1,7 @@
 #include "vtxDecl.h"
 
 
-namespace My3D
+namespace Ushuaia
 {
 	bgfx::VertexDecl PosNormTC0Vertex::s_decl;
 	bgfx::VertexDecl PosVertex::s_decl;

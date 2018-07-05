@@ -2,7 +2,7 @@
 #include "../../cpp_common/commUtil.h"
 
 
-namespace My3D
+namespace Ushuaia
 {
 
 	Entity* Entity::create(char const * name, bool sceneObj)

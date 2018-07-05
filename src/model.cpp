@@ -2,7 +2,7 @@
 #include "../../cpp_common/commUtil.h"
 
 
-namespace My3D
+namespace Ushuaia
 {
 
 	std::shared_ptr<Model> Model::create(char const * _name)

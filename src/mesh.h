@@ -5,7 +5,7 @@
 #include "shader.h"
 
 
-namespace My3D
+namespace Ushuaia
 {
 
 	struct Sphere

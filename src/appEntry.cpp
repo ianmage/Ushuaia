@@ -24,8 +24,8 @@ public:
 	{
 		Args args(_argc, _argv);
 
-		My3D::g_viewState.width  = static_cast<uint16_t>(_width);
-		My3D::g_viewState.height = static_cast<uint16_t>(_height);
+		Ushuaia::g_viewState.width  = static_cast<uint16_t>(_width);
+		Ushuaia::g_viewState.height = static_cast<uint16_t>(_height);
 		m_debug = BGFX_DEBUG_TEXT;
 		m_reset = BGFX_RESET_VSYNC;
 
@@ -48,13 +48,13 @@ public:
 
 		imguiCreate();
 
-		My3D::init();
+		Ushuaia::init();
 	}
 
 
 	virtual int shutdown() override
 	{
-		My3D::fini();
+		Ushuaia::fini();
 
 		imguiDestroy();
 
@@ -67,20 +67,20 @@ public:
 
 	bool update() override
 	{
-		auto & mouseSt = My3D::AppConf::mouseState;
-		uint32_t width = My3D::g_viewState.width;
-		uint32_t height = My3D::g_viewState.height;
+		auto & mouseSt = Ushuaia::AppConf::mouseState;
+		uint32_t width = Ushuaia::g_viewState.width;
+		uint32_t height = Ushuaia::g_viewState.height;
 		if (!entry::processEvents(width, height, m_debug, m_reset, &mouseSt) )
 		{
-			My3D::g_viewState.width = static_cast<uint16_t>(width);
-			My3D::g_viewState.height = static_cast<uint16_t>(height);
+			Ushuaia::g_viewState.width = static_cast<uint16_t>(width);
+			Ushuaia::g_viewState.height = static_cast<uint16_t>(height);
 
 			imguiBeginFrame(mouseSt.m_mx,  mouseSt.m_my
 				, (mouseSt.m_buttons[entry::MouseButton::Left  ] ? IMGUI_MBUT_LEFT   : 0)
 				| (mouseSt.m_buttons[entry::MouseButton::Right ] ? IMGUI_MBUT_RIGHT  : 0)
 				| (mouseSt.m_buttons[entry::MouseButton::Middle] ? IMGUI_MBUT_MIDDLE : 0)
 				,  mouseSt.m_mz
-				, My3D::g_viewState.width, My3D::g_viewState.height
+				, Ushuaia::g_viewState.width, Ushuaia::g_viewState.height
 			);
 
 			showExampleDialog(this);
@@ -93,9 +93,9 @@ public:
 			int64_t frameTime = now - last;
 			last = now;
 			double const freq = double(bx::getHPFrequency());
-			My3D::AppConf::deltaTime = static_cast<float>(frameTime / freq);
+			Ushuaia::AppConf::deltaTime = static_cast<float>(frameTime / freq);
 
-			My3D::update();
+			Ushuaia::update();
 
 			// Advance to next frame. Rendering thread will be kicked to
 			// process submitted rendering primitives.

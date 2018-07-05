@@ -1,8 +1,8 @@
 #pragma once
-#include "../../cpp_common/mathUtil.h"
+#include "math.h"
 
 
-namespace My3D
+namespace Ushuaia
 {
 
 	struct Camera

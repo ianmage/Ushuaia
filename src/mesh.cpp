@@ -12,7 +12,7 @@ namespace bgfx
 }
 
 
-namespace My3D
+namespace Ushuaia
 {
 
 	Mesh::~Mesh()

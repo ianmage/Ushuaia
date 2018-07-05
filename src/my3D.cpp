@@ -17,7 +17,7 @@
 namespace fs = boost::filesystem;
 
 
-namespace My3D
+namespace Ushuaia
 {
 #if TEST
 static Mesh mesh;

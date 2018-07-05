@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../../cpp_common/mathUtil.h"
+#include "math.h"
 #include <array>
 #include <vector>
 
 
-namespace My3D
+namespace Ushuaia
 {
 
 	void screenSpaceQuad(float _texW, float _texH,

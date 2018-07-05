@@ -1,7 +1,7 @@
 #include "renderState.h"
 
 
-namespace My3D
+namespace Ushuaia
 {
 
 	uint64_t const RenderState::s_val[2] =

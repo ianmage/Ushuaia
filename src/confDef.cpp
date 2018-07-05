@@ -4,7 +4,7 @@
 #include "resData.h"
 
 
-namespace My3D
+namespace Ushuaia
 {
 
 #define DEF_PROP(p)	decltype(p) p

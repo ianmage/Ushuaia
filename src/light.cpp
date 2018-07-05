@@ -1,9 +1,8 @@
 #include "light.h"
-#include "mathHelper.h"
 #include "shader.h"
 
 
-namespace My3D
+namespace Ushuaia
 {
 
 	static bgfx::UniformHandle uhLightsCnt;
@@ -72,8 +71,8 @@ namespace My3D
 		s_lightAttnRangeBuf.clear();
 		s_spotDirInnerBuf.clear();
 
-		math::vec4MulMtxComp3(s_dirLightDir, dirLight.dir, mtxView);
-		s_dirLightDir.normalize();
+		mtxView.transformVec3(s_dirLightDir, dirLight.dir);
+		s_dirLightDir.vec3().normalize();
 		
 		s_lightsCnt.x = s_lightsCnt.y = 1.f;
 
@@ -89,7 +88,7 @@ namespace My3D
 		{
 			auto & pl = s_pointLights[i];
 			s_lightColorBuf[i] = pl.color;
-			math::vec4MulMtxComp3(s_lightPosBuf[i], pl.pos, mtxView);
+			mtxView.transformVec3(s_lightPosBuf[i], pl.pos);
 			s_lightAttnRangeBuf[i] = pl.attn;
 		}
 		s_lightsCnt.z = plCnt;
@@ -99,10 +98,10 @@ namespace My3D
 			auto & sl = s_spotLights[i];
 			uint8_t const bufIdx = MAX_POINT_LIGHT + i;
 			s_lightColorBuf[bufIdx] = sl.color;
-			math::vec4MulMtxComp3(s_lightPosBuf[bufIdx], sl.pos, mtxView);
+			mtxView.transformVec3(s_lightPosBuf[bufIdx], sl.pos);
 			s_lightAttnRangeBuf[bufIdx] = sl.attnOuter;
-			math::vec4MulMtxComp3(s_spotDirInnerBuf[i], sl.dirInner, mtxView);
-			s_spotDirInnerBuf[i].normalize();
+			mtxView.transformVec3(s_spotDirInnerBuf[i], sl.dirInner);
+			s_spotDirInnerBuf[i].vec3().normalize();
 		}
 		s_lightsCnt.w = spCnt;
 	}

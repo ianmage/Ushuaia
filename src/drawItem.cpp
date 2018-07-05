@@ -1,7 +1,7 @@
 #include "drawItem.h"
 #include "entity.h"
 
-namespace My3D
+namespace Ushuaia
 {
 
 	bool DrawChannel::s_supportInstancing = false;

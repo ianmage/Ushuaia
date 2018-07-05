@@ -3,7 +3,7 @@
 #include "model.h"
 
 
-namespace My3D
+namespace Ushuaia
 {
 
 	struct DrawItem

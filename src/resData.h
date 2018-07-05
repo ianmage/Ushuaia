@@ -6,7 +6,7 @@
 #include "renderState.h"
 
 
-namespace My3D
+namespace Ushuaia
 {
 
 	void initResData();

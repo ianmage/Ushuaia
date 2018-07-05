@@ -5,7 +5,7 @@
 #include <vector>
 
 
-namespace My3D
+namespace Ushuaia
 {
 	struct AmbientLight
 	{

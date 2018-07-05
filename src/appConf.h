@@ -3,7 +3,7 @@
 #include "../examples/common/common.h"
 
 
-namespace My3D
+namespace Ushuaia
 {
 
 	struct AppConf

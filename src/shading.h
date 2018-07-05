@@ -1,7 +1,7 @@
 #pragma once
 
 
-namespace My3D
+namespace Ushuaia
 {
 
 	struct Shading

@@ -6,7 +6,7 @@
 #include "appConf.h"
 
 
-namespace My3D
+namespace Ushuaia
 {
 
 	Camera* Camera::pCurrent = nullptr;

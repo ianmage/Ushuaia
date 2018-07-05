@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../../cpp_common/mathUtil.h"
+#include "math.h"
 #include <bgfx/bgfx.h>
 
 
-namespace My3D
+namespace Ushuaia
 {
 
 	struct PosNormTC0Vertex

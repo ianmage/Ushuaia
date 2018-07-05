@@ -3,10 +3,10 @@
 #include <bgfx/bgfx.h>
 #include <string>
 #include <unordered_map>
-#include "../../cpp_common/mathUtil.h"
+#include "math.h"
 
 
-namespace My3D
+namespace Ushuaia
 {
 
 	struct Shader
