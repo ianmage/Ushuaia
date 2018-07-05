@@ -2,14 +2,15 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <EXT_LIB_DIR>D:\HELPER\3rdParty</EXT_LIB_DIR>
-    <BX_INCLUDE_DIR>$(EXT_LIB_DIR)\bx\include</BX_INCLUDE_DIR>
-    <BIMG_INCLUDE_DIR>$(EXT_LIB_DIR)\bimg\include</BIMG_INCLUDE_DIR>
-    <BGFX_INCLUDE_DIR>$(EXT_LIB_DIR)\bgfx\include</BGFX_INCLUDE_DIR>
-    <BGFX_LIB_DIR>$(EXT_LIB_DIR)\bgfx\.build\win64_vs2017\bin</BGFX_LIB_DIR>
-    <BOOST_INCLUDE_DIR>$(EXT_LIB_DIR)\boost_1_66_0</BOOST_INCLUDE_DIR>
-    <BOOST_LIB_DIR>$(EXT_LIB_DIR)\boost_1_66_0\stage\lib\vc141</BOOST_LIB_DIR>
-    <TINYXML_SRC>$(EXT_LIB_DIR)\tinyxml2</TINYXML_SRC>
+    <EXT_DIR>D:\HELPER\3rdParty</EXT_DIR>
+    <BX_INCLUDE_DIR>$(EXT_DIR)\bx\include</BX_INCLUDE_DIR>
+    <BIMG_INCLUDE_DIR>$(EXT_DIR)\bimg\include</BIMG_INCLUDE_DIR>
+    <BGFX_INCLUDE_DIR>$(EXT_DIR)\bgfx\include</BGFX_INCLUDE_DIR>
+    <BOOST_INCLUDE_DIR>$(EXT_DIR)\boost_1_66_0</BOOST_INCLUDE_DIR>
+    <XML_INCLUDE_DIR>$(EXT_DIR)\tinyxml2</XML_INCLUDE_DIR>
+	<JSON_INCLUDE_DIR>$(EXT_DIR)\rapidjson\include</JSON_INCLUDE_DIR>
+	<BGFX_LIB_DIR>$(EXT_DIR)\bgfx\.build\win64_vs2017\bin</BGFX_LIB_DIR>
+    <BOOST_LIB_DIR>$(EXT_DIR)\boost_1_66_0\stage\lib\vc141</BOOST_LIB_DIR>
   </PropertyGroup>
   <PropertyGroup>
     <OutDir>$(SolutionDir)build\Bin\</OutDir>

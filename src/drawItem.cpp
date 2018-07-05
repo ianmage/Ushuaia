@@ -1,12 +1,13 @@
 #include "drawItem.h"
 #include "entity.h"
 
-#pragma optimize("", off)
+//#pragma optimize("", off)
+
+#define PACK_INST_DATA	1
 
 
 namespace Ushuaia
 {
-#define PACK_INST_DATA	1
 
 	bool DrawChannel::s_supportInstancing = false;
 

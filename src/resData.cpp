@@ -36,6 +36,8 @@ static Mesh g_meshHollowcube;
 
 static Shader* g_pShaderDefault;
 static Material* g_pMtlDefault;
+static Shader* g_pShaderTex;
+static Material* g_pMtlFloor;
 
 static float timeAccuLight = 0.f;
 static float timeAccuScene = 0.f;

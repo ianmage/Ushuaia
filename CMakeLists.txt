@@ -8,22 +8,41 @@ set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
-set(bgfxDir ~/Programs/bgfx)
-set(bgfxLibDir ${bgfxDir}/.build/osx64_clang/bin)
-set(boostDir ~/Programs/3rdParty/boost_1_66_0)
+if (WIN32)
+	set(EXT_DIR D:/HELPER/3rdParty)
+elseif (APPLE)
+	set(EXT_DIR ~/Programs/3rdParty)
+endif ()
+set(BX_INCLUDE_DIR ${EXT_DIR}/bx/include)
+set(BIMG_INCLUDE_DIR ${EXT_DIR}/bimg/include)
+set(BGFX_INCLUDE_DIR ${EXT_DIR}/bgfx/include)
+set(BOOST_INCLUDE_DIR ${EXT_DIR}/boost_1_66_0)
+set(XML_INCLUDE_DIR ${EXT_DIR}/tinyxml2)
+set(JSON_INCLUDE_DIR ${EXT_DIR}/rapidjson/include)
+if (WIN32)
+	set(BX_COMPAT_DIR ${BX_INCLUDE_DIR}/compat/msvc)
+	set(BGFX_LIB_DIR ${BGFX_INCLUDE_DIR}/../.build/win64_vs2017/bin)
+	set(BOOST_LIB_DIR ${BOOST_INCLUDE_DIR}/stage/lib/vc141)
+elseif (APPLE)
+	set(BX_COMPAT_DIR ${BX_INCLUDE_DIR}/compat/osx)
+	set(BGFX_LIB_DIR ${BGFX_INCLUDE_DIR}/../.build/osx64_clang/bin)
+	set(BOOST_LIB_DIR ${BOOST_INCLUDE_DIR}/stage/lib)
+endif ()
 
 include_directories(
-	${bgfxDir}/../bx/include/compat/osx
-	${bgfxDir}/../bx/include
-	${bgfxDir}/../bimg/include
-	${bgfxDir}/include
-	${bgfxDir}/3rdparty
-	${boostDir}
+	${BX_INCLUDE_DIR}
+	${BX_COMPAT_DIR}
+	${BIMG_INCLUDE_DIR}
+	${BGFX_INCLUDE_DIR}
+	${BGFX_INCLUDE_DIR}/../3rdparty
+	${BOOST_INCLUDE_DIR}
+	${XML_INCLUDE_DIR}
+	${JSON_INCLUDE_DIR}
 )
 
 link_directories(
-	${bgfxLibDir}
-	${boostDir}/stage/lib
+	${BGFX_LIB_DIR}
+	${BOOST_LIB_DIR}
 )
 
 add_definitions(
@@ -33,26 +52,28 @@ add_definitions(
 	-DENTRY_CONFIG_IMPLEMENT_MAIN=1
 )
 
-IF (CMAKE_BUILD_TYPE MATCHES "")
+if (CMAKE_BUILD_TYPE MATCHES "")
 	set(CMAKE_BUILD_TYPE "Debug")
-ENDIF ()
-IF (CMAKE_BUILD_TYPE MATCHES "Debug")
+endif ()
+if (CMAKE_BUILD_TYPE MATCHES "Debug")
 	MESSAGE(STATUS "CMAKE_BUILD_TYPE is Debug")
 	add_definitions(-D_DEBUG)
-ELSEIF (CMAKE_BUILD_TYPE MATCHES "Release")
+elseif (CMAKE_BUILD_TYPE MATCHES "Release")
 	MESSAGE(STATUS "CMAKE_BUILD_TYPE is Release")
-ELSE ()
+else ()
 	MESSAGE(STATUS "unknown CMAKE_BUILD_TYPE = " ${CMAKE_BUILD_TYPE})
-ENDIF ()
+endif ()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
-link_libraries(-m64
-	"-framework Cocoa"
-	"-framework QuartzCore"
-	"-framework OpenGL"
-	"-weak_framework Metal"
-)
+if (APPLE)
+	link_libraries(-m64
+		"-framework Cocoa"
+		"-framework QuartzCore"
+		"-framework OpenGL"
+		"-weak_framework Metal"
+	)
+endif ()
 
 add_executable(my3D
 	src/appEntry.cpp
@@ -74,15 +95,30 @@ add_executable(my3D
 	src/vtxDecl.cpp
 )
 
-set(CFG "Release")
+if (WIN32)
 
-target_link_libraries(my3D
-	libexample-common${CFG}.a
-	libexample-glue${CFG}.a
-	libbgfx${CFG}.a
-	libbimg_decode${CFG}.a
-	libbimg${CFG}.a
-	libbx${CFG}.a
-	libboost_system.a
-	libboost_filesystem.a
-)
+	target_link_libraries(my3D
+		bx${CMAKE_BUILD_TYPE}.lib
+		bimg${CMAKE_BUILD_TYPE}.lib
+		bimg_decode${CMAKE_BUILD_TYPE}.lib
+		bgfx${CMAKE_BUILD_TYPE}.lib
+		example-glue${CMAKE_BUILD_TYPE}.lib
+		example-common${CMAKE_BUILD_TYPE}.lib
+	)
+
+elseif (APPLE)
+
+	set(CFG "Release")
+
+	target_link_libraries(my3D
+		libbx${CFG}.a
+		libbimg${CFG}.a
+		libbimg_decode${CFG}.a
+		libbgfx${CFG}.a
+		libexample-glue${CFG}.a
+		libexample-common${CFG}.a
+		libboost_system.a
+		libboost_filesystem.a
+	)
+
+endif ()
