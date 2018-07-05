@@ -45,9 +45,9 @@ static float timeAccuScene = 0.f;
 
 void initResData()
 {
-	Light::ambLight.color.Set(0.1f, 0.1f, 0.2f, 0.f);
-	Light::dirLight.color.Set(0.8f, 0.8f, 0.8f, 0.f);
-	Light::dirLight.dir.Set(0.1f, -0.95f, 0.f, 0.f);
+	Light::ambLight.color.set(0.1f, 0.1f, 0.2f, 0.f);
+	Light::dirLight.color.set(0.8f, 0.8f, 0.8f, 0.f);
+	Light::dirLight.dir.set(0.1f, -0.95f, 0.f, 0.f);
 
 	g_pShaderDefault = Shader::load("vs_exam", "fs_exam");
 	g_pShaderDefault->addParamVec4("u_mtlAlbedoMetal", 1);
@@ -55,8 +55,8 @@ void initResData()
 
 	g_pMtlDefault = new Material(g_pShaderDefault);
 	g_pMtlDefault->renderStates = BGFX_STATE_CULL_CCW;
-	g_pMtlDefault->getParamVec4(CT_HASH("u_mtlAlbedoMetal"))->Set(1, 1, 1, 0);
-	g_pMtlDefault->getParamVec4(CT_HASH("u_mtlNormalGloss"))->Set(0, 0, 0, 0);
+	g_pMtlDefault->getParamVec4(CT_HASH("u_mtlAlbedoMetal"))->set(1, 1, 1, 0);
+	g_pMtlDefault->getParamVec4(CT_HASH("u_mtlNormalGloss"))->set(0, 0, 0, 0);
 
 	Vector3 vS, vR, vT;
 
@@ -146,9 +146,9 @@ void initResData()
 	//	PosNormTC0Vertex::s_decl, planeIndices, BX_COUNTOF(planeIndices));
 
 	g_pEntFloor = Entity::create("Ent_Floor", true);
-	vS.Set(100.f, 100.f, 100.f);
-	vR.Set(0.f, 0.f, 0.f);
-	vT.Set(0.f, 0.f, 0.f);
+	vS.set(100.f, 100.f, 100.f);
+	vR.set(0.f, 0.f, 0.f);
+	vT.set(0.f, 0.f, 0.f);
 	g_pEntFloor->mtx.setSRT(vS, vR, vT);
 	g_pEntFloor->pModel = Model::create("Model_Floor");
 	g_pEntFloor->pModel->pMesh = &g_meshHPlane;
@@ -164,10 +164,10 @@ void initResData()
 		g_pEntTrees[i]->pModel = pModelTree;
 	
 		float fI = static_cast<float>(i);
-		vS.Set(2.f, 2.f, 2.f);
-		vR.Set(0.f, fI, 0.f);
+		vS.set(2.f, 2.f, 2.f);
+		vR.set(0.f, fI, 0.f);
 		float iAngle = fI * 2.f * bx::kPi / float(numTrees);
-		vT.Set(bx::sin(iAngle) * 60.f, 0.f, bx::cos(iAngle) * 60.f);
+		vT.set(bx::sin(iAngle) * 60.f, 0.f, bx::cos(iAngle) * 60.f);
 		g_pEntTrees[i]->mtx.setSRT(vS, vR, vT);
 	}
 	
@@ -218,17 +218,17 @@ void updateResData()
 
 	Vector3 vS, vR, vT;
 
-	vS.Set(8.f, 8.f, 8.f);
-	vR.Set(0.f, 1.56f - timeAccuScene, 0.f);
-	vT.Set(30.f, 5.f, 0.f);
+	vS.set(8.f, 8.f, 8.f);
+	vR.set(0.f, 1.56f - timeAccuScene, 0.f);
+	vT.set(30.f, 5.f, 0.f);
 	g_pEntBunny->mtx.setSRT(vS, vR, vT);
-	vS.Set(2.5f, 2.5f, 2.5f);
-	vR.Set(0.f, 1.56f - timeAccuScene, 0.f);
-	vT.Set(0.f, 10.f, 0.f);
+	vS.set(2.5f, 2.5f, 2.5f);
+	vR.set(0.f, 1.56f - timeAccuScene, 0.f);
+	vT.set(0.f, 10.f, 0.f);
 	g_pEntHollowcube->mtx.setSRT(vS, vR, vT);
-	vS.Set(2.5f, 2.5f, 2.5f);
-	vR.Set(0.f, 1.56f - timeAccuScene, 0.f);
-	vT.Set(-30.f, 5.f, 0.f);
+	vS.set(2.5f, 2.5f, 2.5f);
+	vR.set(0.f, 1.56f - timeAccuScene, 0.f);
+	vT.set(-30.f, 5.f, 0.f);
 	g_pEntCube->mtx.setSRT(vS, vR, vT);
 }
 

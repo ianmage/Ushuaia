@@ -48,15 +48,15 @@ namespace Ushuaia
 
 	void Light::clearAll()
 	{
-		s_lightsCnt.Set(0, 0, 0, 0);
+		s_lightsCnt.set(0, 0, 0, 0);
 		s_lightColorBuf.clear();
 		s_lightPosBuf.clear();
 		s_lightAttnRangeBuf.clear();
 		s_spotDirInnerBuf.clear();
 
-		ambLight.color.Set(0, 0, 0, 0);
-		dirLight.color.Set(0, 0, 0, 0);
-		dirLight.color.Set(0, 0, 0, 0);
+		ambLight.color.set(0, 0, 0, 0);
+		dirLight.color.set(0, 0, 0, 0);
+		dirLight.color.set(0, 0, 0, 0);
 
 		s_pointLights.clear();
 		s_spotLights.clear();
@@ -65,7 +65,7 @@ namespace Ushuaia
 
 	void Light::updateAll(Matrix4x4 const & mtxView)
 	{
-		s_lightsCnt.Set(0, 0, 0, 0);
+		s_lightsCnt.set(0, 0, 0, 0);
 		s_lightColorBuf.clear();
 		s_lightPosBuf.clear();
 		s_lightAttnRangeBuf.clear();

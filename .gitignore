@@ -1,5 +1,5 @@
 /.vs/
-/.DS_Store
+*.DS_Store
 /.vscode/
 /CMakeCache.txt
 /CMakeFiles/

@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 import sys, os
 sys.dont_write_bytecode = True
-import platform
+import fxc
 
 
 def listFile(nameList) :
@@ -24,19 +24,15 @@ if __name__ == '__main__' :
 	fileList = []
 	listFile(fileList)
 	lmt = headerLastMod()
-	curSys = platform.system()
 	#force = raw_input("force all ? (y/n) : ")
 	force = 0
-	if curSys == 'Windows' :
-		import fxc
-		force = force in ('y', 'Y', '1')
-		for f in fileList :
-			inPath = curDir + f
-			modTime = None
-			if not force :
-				modTime = os.stat(inPath).st_mtime
-				modTime = max(lmt, modTime)
-			fxc.proc(inPath, None, modTime)
-	elif curSys == 'Darwin' :
-		pass
-	os.system('pause')
+
+	force = force in ('y', 'Y', '1')
+	for f in fileList :
+		inPath = curDir + f
+		modTime = None
+		if not force :
+			modTime = os.stat(inPath).st_mtime
+			modTime = max(lmt, modTime)
+		fxc.proc(inPath, None, modTime)
+	fxc.press_any_key_exit()

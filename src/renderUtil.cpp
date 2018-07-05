@@ -31,17 +31,17 @@ namespace Ushuaia
 				uvRect.rMax.y -= 1.f;
 			}
 
-			pVert[0].pos.Set(xyRect.rMin.x, xyRect.rMin.y, zz);
+			pVert[0].pos.set(xyRect.rMin.x, xyRect.rMin.y, zz);
 			pVert[0].rgba = 0xffffffff;
-			pVert[0].uv.Set(uvRect.rMin.x, uvRect.rMin.y);
+			pVert[0].uv.set(uvRect.rMin.x, uvRect.rMin.y);
 
-			pVert[1].pos.Set(xyRect.rMax.x, xyRect.rMin.y, zz);
+			pVert[1].pos.set(xyRect.rMax.x, xyRect.rMin.y, zz);
 			pVert[1].rgba = 0xffffffff;
-			pVert[1].uv.Set(uvRect.rMax.x, uvRect.rMin.y);
+			pVert[1].uv.set(uvRect.rMax.x, uvRect.rMin.y);
 
-			pVert[2].pos.Set(xyRect.rMax.x, xyRect.rMax.y, zz);
+			pVert[2].pos.set(xyRect.rMax.x, xyRect.rMax.y, zz);
 			pVert[2].rgba = 0xffffffff;
-			pVert[2].uv.Set(uvRect.rMax.x, uvRect.rMax.y);
+			pVert[2].uv.set(uvRect.rMax.x, uvRect.rMax.y);
 
 			bgfx::setVertexBuffer(0, &vb);
 		}
