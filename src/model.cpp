@@ -5,9 +5,21 @@
 namespace Ushuaia
 {
 
-	std::shared_ptr<Model> Model::create(char const * _name)
+	Model::Model(std::string const & _name)
+		: name(_name), pMesh(nullptr), pMtl(nullptr)
 	{
-		size_t id = RT_HASH(_name);
+	}
+
+
+	void Model::serialize(Writer& writer) const
+	{
+		writer.String(name);
+	}
+
+
+	std::shared_ptr<Model> Model::create(std::string const & _name)
+	{
+		size_t id = RT_HASH(_name.c_str());
 
 		auto const & it = s_models.find(id);
 		if (it != s_models.end())
@@ -16,7 +28,7 @@ namespace Ushuaia
 				return it->second.lock();
 		}
 
-		std::shared_ptr<Model> pModel = std::make_shared<Model>();
+		std::shared_ptr<Model> pModel(new Model(_name));
 		s_models.emplace(id, pModel);
 
 		return std::move(pModel);

@@ -12,7 +12,7 @@ struct Matrix3x3;
 
 
 template <typename T>
-inline T clamp(T v, T _min, T _max)
+constexpr T clamp(T v, T _min, T _max)
 {
 	return std::min(std::max(_min, v), _max);
 }
@@ -29,24 +29,24 @@ struct TVec2
 		};
 	};
 
-	inline T& operator[](int i);
-	inline T operator[](int i) const;
+	constexpr T& operator[](int i);
+	constexpr T operator[](int i) const;
 
-	inline void set(T _v0, T _v1);
+	constexpr void set(T _v0, T _v1);
 
-	inline bool operator==(TVec2 const & rhs) const;
+	constexpr bool operator==(TVec2 const & rhs) const;
 
-	inline TVec2 operator+(TVec2 const & rhs) const;
-	inline TVec2 operator-(TVec2 const & rhs) const;
-	inline TVec2 operator*(T s) const;
-	inline TVec2 operator/(T s) const;
+	constexpr TVec2 operator+(TVec2 const & rhs) const;
+	constexpr TVec2 operator-(TVec2 const & rhs) const;
+	constexpr TVec2 operator*(T s) const;
+	constexpr TVec2 operator/(T s) const;
 
-	inline void operator+=(TVec2 const & rhs);
-	inline void operator-=(TVec2 const & rhs);
-	inline void operator*=(T s);
-	inline void operator/=(T s);
+	constexpr void operator+=(TVec2 const & rhs);
+	constexpr void operator-=(TVec2 const & rhs);
+	constexpr void operator*=(T s);
+	constexpr void operator/=(T s);
 
-	inline T dot(TVec2 const & rhs) const;
+	constexpr T dot(TVec2 const & rhs) const;
 	inline T length() const;
 	inline T normalize();
 };
@@ -65,12 +65,12 @@ struct TVec3
 		};
 	};
 
-	inline T& operator[](int i);
-	inline T operator[](int i) const;
+	constexpr T& operator[](int i);
+	constexpr T operator[](int i) const;
 
-	inline void set(T _v0, T _v1, T _v2);
+	constexpr void set(T _v0, T _v1, T _v2);
 
-	inline bool operator==(TVec3 const & rhs) const;
+	constexpr bool operator==(TVec3 const & rhs) const;
 
 	inline TVec3 operator+(TVec3 const & rhs) const;
 	inline TVec3 operator-(TVec3 const & rhs) const;
@@ -85,9 +85,9 @@ struct TVec3
 	inline void transformBy(Matrix3x3 const & m);
 	inline void transformBy(Matrix4x4 const & m);
 
-	inline T dot(TVec3 const & rhs) const;
-	inline T length() const;
-	inline T normalize();
+	constexpr T dot(TVec3 const & rhs) const;
+	constexpr T length() const;
+	constexpr T normalize();
 };
 
 typedef TVec3<float>	Vector3;
@@ -104,14 +104,14 @@ struct TVec4
 		};
 	};
 
-	inline T& operator[](int i);
-	inline T operator[](int i) const;
+	constexpr T& operator[](int i);
+	constexpr T operator[](int i) const;
 
-	inline TVec3<T> & vec3();
+	constexpr TVec3<T> & vec3();
 
-	inline void set(T _v0, T _v1, T _v2, T _v3);
+	constexpr void set(T _v0, T _v1, T _v2, T _v3);
 
-	inline bool operator==(TVec4 const & rhs) const;
+	constexpr bool operator==(TVec4 const & rhs) const;
 
 	inline TVec4 operator*(T r) const;
 	inline TVec4 operator/(T r) const;
@@ -119,7 +119,7 @@ struct TVec4
 	inline void operator*=(T r);
 	inline void operator/=(T r);
 
-	inline void transformBy(Matrix4x4 const & m);
+	constexpr void transformBy(Matrix4x4 const & m);
 };
 
 typedef TVec4<float>	Vector4;
@@ -129,8 +129,8 @@ struct Matrix4x4
 {
 	float v[16];
 
-	inline float& operator[](int i);
-	inline float operator[](int i) const;
+	constexpr float& operator[](int i);
+	constexpr float operator[](int i) const;
 
 	inline void setIdentity();
 	inline void setSRT(Vector3 const & s, Vector3 const & r, Vector3 const & t);
@@ -139,7 +139,7 @@ struct Matrix4x4
 	inline void transformVec3(Vector4 & out, Vector4 const & in) const;
 	inline void transform(Vector3 & out, Vector3 const & in) const;
 
-	inline void mtx4x3(float * out) const;
+	constexpr void mtx4x3(float * out) const;
 };
 
 
@@ -147,21 +147,21 @@ struct Matrix3x3
 {
 	float v[9];
 
-	inline float& operator[](int i);
-	inline float operator[](int i) const;
+	constexpr float& operator[](int i);
+	constexpr float operator[](int i) const;
 
 	inline void setIdentity();
 
-	inline void transform(Vector3 & out, Vector3 const & in) const;
+	constexpr void transform(Vector3 & out, Vector3 const & in) const;
 };
 
 
 template <typename T>
-inline bool overlap1D(T min1, T max1, T min2, T max2) {
+constexpr bool overlap1D(T min1, T max1, T min2, T max2) {
 	return max1 > min2 && max2 > min1;
 }
 template <typename T>
-inline bool contain1D(T min1, T max1, T min2, T max2) {
+constexpr bool contain1D(T min1, T max1, T min2, T max2) {
 	return min1 <= min2 && max1 >= max2;
 }
 
@@ -174,25 +174,25 @@ struct TRect
 	DataType rMin;
 	DataType rMax;
 
-	inline void set(DataType const & _min, DataType const & _size);
+	constexpr void set(DataType const & _min, DataType const & _size);
 
-	inline T width() const;
-	inline T height() const;
+	constexpr T width() const;
+	constexpr T height() const;
 
-	inline DataType size() const;
-	inline DataType center() const;
+	constexpr DataType size() const;
+	constexpr DataType center() const;
 
-	inline bool isEmpty() const;
+	constexpr bool isEmpty() const;
 
-	inline void unionWith(TRect<T> const & b);
+	constexpr void unionWith(TRect<T> const & b);
 
-	inline void scale(float s);
+	constexpr void scale(float s);
 
-	inline bool operator==(TRect<T> const & rhs) const;
+	constexpr bool operator==(TRect<T> const & rhs) const;
 
-	inline bool overlap(TRect<T> const & rhs) const;
+	constexpr bool overlap(TRect<T> const & rhs) const;
 
-	inline bool conatain(TRect<T> const & rhs) const;
+	constexpr bool conatain(TRect<T> const & rhs) const;
 };
 
 
@@ -201,26 +201,26 @@ struct Box
 	Vector3 bMin;
 	Vector3 bMax;
 
-	inline void set(Vector3 const & _min, Vector3 const & _size);
+	constexpr void set(Vector3 const & _min, Vector3 const & _size);
 
-	inline float width() const;
-	inline float height() const;
-	inline float depth() const;
+	constexpr float width() const;
+	constexpr float height() const;
+	constexpr float depth() const;
 
-	inline Vector3 size() const;
+	constexpr Vector3 size() const;
 	inline Vector3 center() const;
 
-	inline bool isEmpty() const;
+	constexpr bool isEmpty() const;
 
-	inline void unionWith(Box const & b);
+	constexpr void unionWith(Box const & b);
 
 	inline void scale(float s);
 
-	inline bool operator==(Box const & rhs) const;
+	constexpr bool operator==(Box const & rhs) const;
 
-	inline bool overlap(Box const & rhs) const;
+	constexpr bool overlap(Box const & rhs) const;
 
-	inline bool conatain(Box const & rhs) const;
+	constexpr bool conatain(Box const & rhs) const;
 };
 
 }

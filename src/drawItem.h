@@ -9,13 +9,13 @@ namespace Ushuaia
 	struct DrawItem
 	{
 		Model* pModel;
-		Matrix4x4 mtx;
+		Matrix4x4 transform;
 	};
 
 	struct InstanceItem
 	{
 		Model* pModel;
-		std::vector<Matrix4x4> mtxTransform;
+		std::vector<Matrix4x4> transforms;
 	};
 
 	struct DrawChannel

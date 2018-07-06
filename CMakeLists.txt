@@ -90,6 +90,7 @@ add_executable(my3D
 	src/renderState.cpp
 	src/renderUtil.cpp
 	src/resData.cpp
+	src/serialize.cpp
 	src/shader.cpp
 	src/shading.cpp
 	src/vtxDecl.cpp

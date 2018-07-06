@@ -3,6 +3,7 @@
 #include "shader.h"
 #include <vector>
 #include "renderState.h"
+#include "serialize.h"
 
 
 namespace Ushuaia
@@ -19,6 +20,10 @@ public:
 		uint8_t stage;
 	};
 
+	std::vector<TexState> texStates;
+
+	uint64_t renderStates;
+
 	Material(Shader *_pShader);
 	
 	void submit(uint64_t override0 = RenderState::s_val[0], uint64_t override1 = RenderState::s_val[1]);
@@ -26,9 +31,7 @@ public:
 
 	Shader* pShader() const { return pShader_; }
 
-	std::vector<TexState> texStates;
-
-	uint64_t renderStates;
+	void serialize(Writer& writer) const;
 
 private:
 	void pShader(Shader *_pShader);

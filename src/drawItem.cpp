@@ -56,14 +56,14 @@ namespace Ushuaia
 					auto & instItem = DrawChannel::s_instance.back();
 					instItem.pModel = entArray[i]->pModel.get();
 					for (size_t k = i; k < j; ++k)
-						instItem.mtxTransform.push_back(entArray[k]->mtx);
+						instItem.transforms.push_back(entArray[k]->transform);
 				}
 				else
 				{
 					DrawChannel::s_opaque.emplace_back();
 					auto & opaItem = DrawChannel::s_opaque.back();
 					opaItem.pModel = entArray[i]->pModel.get();
-					opaItem.mtx = entArray[i]->mtx;
+					opaItem.transform = entArray[i]->transform;
 				}
 				i = j;
 			}
@@ -75,7 +75,7 @@ namespace Ushuaia
 				DrawChannel::s_opaque.emplace_back();
 				auto & opaItem = DrawChannel::s_opaque.back();
 				opaItem.pModel = entArray[i]->pModel.get();
-				opaItem.mtx = entArray[i]->mtx;
+				opaItem.transform = entArray[i]->transform;
 			}
 		}
 	}
@@ -85,7 +85,7 @@ namespace Ushuaia
 	{
 		for (auto const & it : s_opaque)
 		{
-			bgfx::setTransform(it.mtx.v);
+			bgfx::setTransform(it.transform.v);
 			it.pModel->draw(viewId, override0, override1);
 		}
 
@@ -96,7 +96,7 @@ namespace Ushuaia
 #else
 			uint16_t const instStride = static_cast<uint16_t>(sizeof(Matrix4x4));
 #endif
-			uint32_t const numInst = static_cast<uint32_t>(it.mtxTransform.size());
+			uint32_t const numInst = static_cast<uint32_t>(it.transforms.size());
 			assert(numInst == bgfx::getAvailInstanceDataBuffer(numInst, instStride));
 			bgfx::InstanceDataBuffer idb;
 			bgfx::allocInstanceDataBuffer(&idb, numInst, instStride);
@@ -106,7 +106,7 @@ namespace Ushuaia
 			Matrix4x4 *pData = reinterpret_cast<Matrix4x4*>(idb.data);
 #endif
 
-			for (auto const & mtx : it.mtxTransform)
+			for (auto const & mtx : it.transforms)
 			{
 #if PACK_INST_DATA
 				mtx.mtx4x3(pData);
