@@ -4,6 +4,7 @@
   <PropertyGroup Label="UserMacros">
     <EXT_DIR>D:\HELPER\3rdParty</EXT_DIR>
     <BX_INCLUDE_DIR>$(EXT_DIR)\bx\include</BX_INCLUDE_DIR>
+	<BX_COMPAT_DIR>$(BX_INCLUDE_DIR)/compat/msvc</BX_COMPAT_DIR>
     <BIMG_INCLUDE_DIR>$(EXT_DIR)\bimg\include</BIMG_INCLUDE_DIR>
     <BGFX_INCLUDE_DIR>$(EXT_DIR)\bgfx\include</BGFX_INCLUDE_DIR>
     <BOOST_INCLUDE_DIR>$(EXT_DIR)\boost_1_66_0</BOOST_INCLUDE_DIR>
@@ -20,7 +21,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(BOOST_INCLUDE_DIR);$(BX_INCLUDE_DIR);$(BIMG_INCLUDE_DIR);$(BGFX_INCLUDE_DIR);$(BX_INCLUDE_DIR)\compat\msvc;$(BGFX_INCLUDE_DIR)\..\3rdparty;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(BOOST_INCLUDE_DIR);$(BX_INCLUDE_DIR);$(BIMG_INCLUDE_DIR);$(BGFX_INCLUDE_DIR);$(BX_COMPAT_DIR);$(BGFX_INCLUDE_DIR)\..\3rdparty;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(BOOST_LIB_DIR);$(BGFX_LIB_DIR);</AdditionalLibraryDirectories>

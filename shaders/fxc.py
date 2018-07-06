@@ -2,34 +2,51 @@
 import sys, os
 sys.dont_write_bytecode = True
 import platform
-import termios
 
 
-def press_any_key_exit(msg="Press Any Key Exit...\n"):
-	# 获取标准输入的描述符
-	fd = sys.stdin.fileno()
+isWin = False
+isOSX = False
 
-	# 获取标准输入(终端)的设置
-	old_ttyinfo = termios.tcgetattr(fd)
+def init() :
+	global isWin, isOSX
+	curSys = platform.system()
+	isWin = curSys == 'Windows'
+	isOSX = curSys == 'Darwin'
 
-	# 配置终端
-	new_ttyinfo = old_ttyinfo[:]
+init()
 
-	# 使用非规范模式(索引3是c_lflag 也就是本地模式)
-	new_ttyinfo[3] &= ~termios.ICANON
-	# 关闭回显(输入不会被显示)
-	new_ttyinfo[3] &= ~termios.ECHO
+if isOSX :
+	import termios
 
-	# 输出信息
-	sys.stdout.write(msg)
-	sys.stdout.flush()
-	# 使设置生效
-	termios.tcsetattr(fd, termios.TCSANOW, new_ttyinfo)
-	# 从终端读取
-	os.read(fd, 7)
 
-	# 还原终端设置
-	termios.tcsetattr(fd, termios.TCSANOW, old_ttyinfo)
+def press_any_key_exit(msg="Press Any Key Exit...\n") :
+	if isOSX :
+		# 获取标准输入的描述符
+		fd = sys.stdin.fileno()
+
+		# 获取标准输入(终端)的设置
+		old_ttyinfo = termios.tcgetattr(fd)
+
+		# 配置终端
+		new_ttyinfo = old_ttyinfo[:]
+
+		# 使用非规范模式(索引3是c_lflag 也就是本地模式)
+		new_ttyinfo[3] &= ~termios.ICANON
+		# 关闭回显(输入不会被显示)
+		new_ttyinfo[3] &= ~termios.ECHO
+
+		# 输出信息
+		sys.stdout.write(msg)
+		sys.stdout.flush()
+		# 使设置生效
+		termios.tcsetattr(fd, termios.TCSANOW, new_ttyinfo)
+		# 从终端读取
+		os.read(fd, 7)
+
+		# 还原终端设置
+		termios.tcsetattr(fd, termios.TCSANOW, old_ttyinfo)
+	elif isWin :
+		os.system('pause')
 
 
 def printErr(msg) :
@@ -39,10 +56,6 @@ def printErr(msg) :
 
 
 def proc(inPath, preDefs, srcModTime=None) :
-	curSys = platform.system()
-	isWin = curSys == 'Windows'
-	isOSX = curSys == 'Darwin'
-
 	if isWin :
 		curDir = 'D:/HELPER/3rdParty/bgfx'
 		cmd = '%s/.build/win64_vs2017/bin/shadercDebug.exe' % curDir
