@@ -1,16 +1,20 @@
 #include "resData.h"
-#include "entity.h"
+#include "scene.h"
 #include <string>
 #include "appConf.h"
 #include "vtxDecl.h"
 #include "../examples/common/bgfx_utils.h"
 #include "../../cpp_common/commUtil.h"
+#ifdef _APPLE
+//#include <mach/mach.h>
+#endif
 
 #pragma optimize("", off)
 #define TEST	0
-#define TEST_SERIALIZATION	1
+#define TEST_SERIALIZATION	0
 
 #if TEST_SERIALIZATION
+#include "serialize.h"
 #include <fstream>
 #include "rapidjson/document.h"
 
@@ -126,10 +130,10 @@ void initResData()
 	//g_texFlare = loadTexture("textures/flare.dds");
 	//g_texFieldstone = loadTexture("textures/fieldstone-rgba.dds");
 
-	g_meshTree.load("meshes/tree.bin");
-	g_meshBunny.load("meshes/bunny.bin");
-	g_meshCube.load("meshes/cube.bin");
-	g_meshHollowcube.load("meshes/hollowcube.bin");
+	g_meshTree.load("mesh/tree.bin");
+	g_meshBunny.load("mesh/bunny.bin");
+	g_meshCube.load("mesh/cube.bin");
+	g_meshHollowcube.load("mesh/hollowcube.bin");
 
 	PosNormTC0Vertex const hPlaneVert[] =
 	{
@@ -158,30 +162,25 @@ void initResData()
 	//g_meshVPlane.load(vPlaneVert, BX_COUNTOF(vPlaneVert),
 	//	PosNormTC0Vertex::s_decl, planeIndices, BX_COUNTOF(planeIndices));
 
-	g_pEntFloor = Entity::create("Ent_Floor", true);
+	Scene *pScene = new Scene("test");
+	Scene::pActive = pScene;
+
+	g_pEntFloor = pScene->createEntity("Floor");
 	vS.set(100.f, 100.f, 100.f);
 	vR.set(0.f, 0.f, 0.f);
 	vT.set(0.f, 0.f, 0.f);
 	g_pEntFloor->transform.setSRT(vS, vR, vT);
-	g_pEntFloor->pModel = Model::create("Model_Floor");
+	g_pEntFloor->pModel = Model::create("Floor");
 	g_pEntFloor->pModel->pMesh = &g_meshHPlane;
 	g_pEntFloor->pModel->pMtl = g_pMtlDefault;
-#if TEST_SERIALIZATION
-	rapidjson::Document doc;
-	doc.Parse("{}");
-	rapidjson::StringBuffer buf;
-	Writer writer(buf);
-	doc.Accept(writer);
-	//g_pEntFloor->serialize(writer);
-	writeToFile("R:/test.json", buf.GetString());
-#endif
-	auto pModelTree = Model::create("Model_Tree");
+
+	auto pModelTree = Model::create("Tree");
 	pModelTree->pMesh = &g_meshTree;
 	pModelTree->pMtl = g_pMtlDefault;
 	for (uint8_t i = 0; i < numTrees; ++i)
 	{
-		std::string namePrefix = "Ent_Tree_";
-		g_pEntTrees[i] = Entity::create((namePrefix + std::to_string(i)).c_str(), true);
+		std::string namePrefix = "Tree_";
+		g_pEntTrees[i] = pScene->createEntity(namePrefix + std::to_string(i));
 		g_pEntTrees[i]->pModel = pModelTree;
 	
 		float fI = static_cast<float>(i);
@@ -192,16 +191,16 @@ void initResData()
 		g_pEntTrees[i]->transform.setSRT(vS, vR, vT);
 	}
 	
-	g_pEntBunny = Entity::create("Ent_Bunny");
-	g_pEntBunny->pModel = Model::create("Model_Bunny");
+	g_pEntBunny = Entity::create("Bunny");
+	g_pEntBunny->pModel = Model::create("Bunny");
 	g_pEntBunny->pModel->pMesh = &g_meshBunny;
 	g_pEntBunny->pModel->pMtl = g_pMtlDefault;
-	g_pEntHollowcube = Entity::create("Ent_Hollowcube");
-	g_pEntHollowcube->pModel = Model::create("Model_Hollowcube");
+	g_pEntHollowcube = Entity::create("Hollowcube");
+	g_pEntHollowcube->pModel = Model::create("Hollowcube");
 	g_pEntHollowcube->pModel->pMesh = &g_meshHollowcube;
 	g_pEntHollowcube->pModel->pMtl = g_pMtlDefault;
-	g_pEntCube = Entity::create("Ent_Cube");
-	g_pEntCube->pModel = Model::create("Model_Cube");
+	g_pEntCube = Entity::create("Cube");
+	g_pEntCube->pModel = Model::create("Cube");
 	g_pEntCube->pModel->pMesh = &g_meshCube;
 	g_pEntCube->pModel->pMtl = g_pMtlDefault;
 }
@@ -209,6 +208,24 @@ void initResData()
 
 void finiResData()
 {
+#if TEST_SERIALIZATION
+	JsonWriter writer;
+
+	writer.Key("Entities");
+	writer.StartObject();
+	for (auto const & it : Scene::pActive->entities) {
+		it.second->serialize(writer);
+	}
+	writer.EndObject();
+	writer.Key("dynEnt");
+	writer.StartObject();
+	for (auto const & it : Entity::s_entities) {
+		it.second->serialize(writer);
+	}
+	writer.EndObject();
+
+	writer.save("scene/test.json");
+#endif
 	//bgfx::destroy(g_texFigure);
 	//bgfx::destroy(g_texFlare);
 	//bgfx::destroy(g_texFieldstone);
@@ -221,6 +238,8 @@ void finiResData()
 	g_meshCube.unload();
 	g_meshHollowcube.unload();
 
+	delete Scene::pActive;
+
 #if TEST
 	bgfx::destroy(g_pEntTest->pModel->pMtl->hShader);
 	delete g_pEntTest->pModel->pMtl;
@@ -232,6 +251,9 @@ void finiResData()
 void updateResData()
 {
 #if TEST
+	return;
+#endif
+#if TEST_SERIALIZATION
 	return;
 #endif
 	timeAccuLight += AppConf::deltaTime;

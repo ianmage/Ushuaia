@@ -3,6 +3,7 @@
 #include <vector>
 #include "bx/readerwriter.h"
 #include "shader.h"
+#include <memory>
 
 
 namespace Ushuaia
@@ -53,18 +54,24 @@ namespace Ushuaia
 
 	struct Mesh
 	{
+		bgfx::VertexDecl vtxDecl;
+		std::vector<Group> groups;
+		std::string name;
+
 		virtual ~Mesh();
 
-		void load(void const * _vertices, uint32_t _numVertices, bgfx::VertexDecl const & _decl, uint16_t const * _indices, uint32_t _numIndices);
-
-		bool load(char const * filePath);
-
-		void unload();
+		bool deserialize();
+		void release();
 
 		void submit(bgfx::ViewId _id, Shader const *_pProgram) const;
 
-		bgfx::VertexDecl vtxDecl;
-		std::vector<Group> groups;
+		static std::shared_ptr<Mesh> create(void const * _vertices, uint32_t _numVertices, bgfx::VertexDecl const & _decl, uint16_t const * _indices, uint32_t _numIndices);
+		static std::shared_ptr<Mesh> load(std::string const & _name);
+
+	private:
+		static std::unordered_map<size_t, std::weak_ptr<Mesh>> s_meshes;
+
+		Mesh(std::string const & _name);
 	};
 
 }

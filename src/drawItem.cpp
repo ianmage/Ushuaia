@@ -1,5 +1,5 @@
 #include "drawItem.h"
-#include "entity.h"
+#include "scene.h"
 
 //#pragma optimize("", off)
 
@@ -25,12 +25,12 @@ namespace Ushuaia
 	void DrawChannel::gather()
 	{
 		std::vector<Entity*> entArray;
-		for (auto const & eIt : Entity::s_scnEnts)
-		{
-			entArray.push_back(eIt.second);
+		if (Scene::pActive) {
+			for (auto const & eIt : Scene::pActive->entities) {
+				entArray.push_back(eIt.second);
+			}
 		}
-		for (auto const & eIt : Entity::s_dynEnts)
-		{
+		for (auto const & eIt : Entity::s_entities) {
 			entArray.push_back(eIt.second);
 		}
 

@@ -5,81 +5,90 @@
 namespace Ushuaia
 {
 
-	Entity::Entity(std::string const & _name)
-		: name(_name)
-	{
+decltype(Entity::s_entNames) Entity::s_entNames;
+
+
+void Entity::serialize(JsonWriter & _writer) const
+{
+	_writer.Key("Model");
+	_writer.String(pModel->name);
+	_writer.Key("Transform");
+	size_t const maxFltWidth = 12;
+	char buf[maxFltWidth * ArrayCount(transform)];
+	int len = ftoa(transform.v, ArrayCount(transform), buf, 0, 4);
+	_writer.StartArray();
+	_writer.RawValue(buf, len, rapidjson::kArrayType);
+	_writer.EndArray();
+}
+
+
+bool Entity::deserialize(JsonValue const & _jsObj)
+{
+	JsonValue::ConstMemberIterator itr;
+
+	itr = _jsObj.FindMember("Model");
+	if (itr != _jsObj.MemberEnd()) {
+		pModel = Model::load(itr->value.GetString());
 	}
 
-
-	void Entity::serialize(Writer & writer) const
-	{
-		writer.String(name);
-		writer.StartObject();
-
-		writer.String("Model");
-		pModel->serialize(writer);
-		writer.String("Transform");
-		size_t const maxFltWidth = 12;
-		char buf[maxFltWidth * ArrayCount(transform)];
-		int len = ftoa((float*)transform.v, ArrayCount(transform), buf, 0, 4);
-		for (size_t i = 0; i < ArrayCount(transform); ++i)
-		{
-			writer.RawNumber(buf, len);
+	itr = _jsObj.FindMember("Transform");
+	if (itr != _jsObj.MemberEnd()) {
+		int i = 0;
+		for (auto & v : itr->value.GetArray()) {
+			transform[i++] = v.GetFloat();
 		}
-
-		writer.EndObject();
 	}
 
-
-	Entity* Entity::get(size_t _nameKey, bool _sceneObj)
-	{
-		if (_sceneObj)
-		{
-			auto const & it = s_scnEnts.find(_nameKey);
-			if (it != s_scnEnts.end())
-				return it->second;
-		}
-		else
-		{
-			auto const & it = s_dynEnts.find(_nameKey);
-			if (it != s_dynEnts.end())
-				return it->second;
-		}
-
-		return nullptr;
-	}
+	return true;
+}
 
 
-	Entity* Entity::create(std::string const & _name, bool _sceneObj)
-	{
-		size_t id = RT_HASH(_name.c_str());
-		Entity* pEnt = get(id, _sceneObj);
-		if (pEnt)
-			return pEnt;
-
-		pEnt = new Entity(_name);
-
-		if (_sceneObj)
-			s_scnEnts.emplace(id, pEnt);
-		else
-			s_dynEnts.emplace(id, pEnt);
-
+Entity* Entity::create(std::string const & _name)
+{
+	size_t k = RT_HASH(_name.c_str());
+	Entity* pEnt = get(k);
+	if (pEnt)
 		return pEnt;
+
+	pEnt = new Entity();
+	s_entities.emplace(k, pEnt);
+	s_entNames.emplace(k, _name);
+
+	return pEnt;
+}
+
+
+void Entity::load(JsonValue const & _jsObj)
+{
+	for (auto & m : _jsObj.GetObject()) {
+		Entity *pEnt = create(m.name.GetString());
+		pEnt->deserialize(m.value);
 	}
+}
 
 
-	void Entity::fini()
+void Entity::save(JsonWriter & _writer)
+{
+	_writer.StartObject();
+	for (auto const & it : s_entNames)
 	{
-		for (auto & it : s_dynEnts)
-		{
-			delete it.second;
-		}
-		s_dynEnts.clear();
-		for (auto & it : s_scnEnts)
-		{
-			delete it.second;
-		}
-		s_scnEnts.clear();
+		_writer.String(it.second);
+		_writer.StartObject();
+
+		s_entities[it.first]->serialize(_writer);
+
+		_writer.EndObject();
 	}
+	_writer.EndObject();
+}
+
+
+void Entity::fini()
+{
+	for (auto & it : s_entities) {
+		delete it.second;
+	}
+	s_entities.clear();
+}
 
 }

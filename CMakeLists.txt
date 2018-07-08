@@ -51,6 +51,11 @@ add_definitions(
 	-D__STDC_CONSTANT_MACROS
 	-DENTRY_CONFIG_IMPLEMENT_MAIN=1
 )
+if (WIN32)
+add_definitions(-D_WIN32)
+elseif (APPLE)
+add_definitions(-D_APPLE)
+endif ()
 
 if (CMAKE_BUILD_TYPE MATCHES "")
 	set(CMAKE_BUILD_TYPE "Debug")
@@ -90,6 +95,7 @@ add_executable(my3D
 	src/renderState.cpp
 	src/renderUtil.cpp
 	src/resData.cpp
+	src/scene.cpp
 	src/serialize.cpp
 	src/shader.cpp
 	src/shading.cpp

@@ -17,8 +17,7 @@ namespace Ushuaia
 	DEF_PROP(AppConf::mouseState);
 	DEF_PROP(AppConf::deltaTime);
 
-	DEF_PROP(Entity::s_scnEnts);
-	DEF_PROP(Entity::s_dynEnts);
+	DEF_PROP(Entity::s_entities);
 
 	DEF_PROP(Model::s_models);
 

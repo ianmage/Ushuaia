@@ -9,13 +9,14 @@ namespace Ushuaia
 
 	decltype(Shader::s_shaders) Shader::s_shaders;
 	decltype(Shader::s_uniforms) Shader::s_uniforms;
+	decltype(Shader::s_annos) Shader::s_annos;
 
 
 	Shader* Shader::load(std::string const & _vsName, std::string const & _fsName)
 	{
 		size_t vsID = RT_HASH(_vsName.c_str());
 		size_t fsID = RT_HASH(_fsName.c_str());
-		Key k = (vsID << 32) | fsID;
+		size_t k = vsID ^ fsID;
 		auto const & it = s_shaders.find(k);
 		if (it != s_shaders.end())
 			return it->second;
@@ -25,6 +26,9 @@ namespace Ushuaia
 		Shader* ret = new Shader(_vsName, _fsName);
 		ret->hProgram = hProgram;
 		s_shaders[k] = ret;
+
+		ret->deserailize();
+
 		return ret;
 	}
 
@@ -39,6 +43,12 @@ namespace Ushuaia
 		auto ret = bgfx::createUniform(_name.c_str(), _uType, _num);
 		s_uniforms[k] = ret;
 		return ret;
+	}
+
+
+	bool Shader::init()
+	{
+		s_annos.load("shaders/annotations");
 	}
 
 
@@ -66,6 +76,20 @@ namespace Ushuaia
 	Shader::~Shader()
 	{
 		bgfx::destroy(hProgram);
+	}
+
+
+	void Shader::deserailize()
+	{
+		std::string strKey = vsName_ + "^" + fsName_;
+		JsonValue::ConstMemberIterator itr;
+		itr = s_annos.FindMember(strKey);
+		if (itr != s_annos.MemberEnd()) {
+			for (auto & m : itr->value.GetObject()) {
+				auto ut = static_cast<bgfx::UniformType::Enum>(itr->value[0].GetUint());
+				addUniform(itr->name.GetString(), ut, itr->value[1].GetUint());
+			}
+		}
 	}
 
 

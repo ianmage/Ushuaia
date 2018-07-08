@@ -71,8 +71,6 @@ bool init()
 
 bool fini()
 {
-	Entity::fini();
-	Model::fini();
 #if TEST
 	mesh.unload();
 
@@ -80,6 +78,9 @@ bool fini()
 #else
 	finiResData();
 #endif
+
+	Entity::fini();
+	Model::fini();
 
 	Shading::fini();
 	Light::clearAll();
