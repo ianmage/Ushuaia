@@ -16,17 +16,14 @@ namespace Ushuaia
 
 		~Shader();
 
-		void addParamInt1(std::string const & _name, uint16_t _num = 1);
-		void addParamVec4(std::string const & _name, uint16_t _num = 1);
-		void addParamMtx3(std::string const & _name, uint16_t _num = 1);
-		void addParamMtx4(std::string const & _name, uint16_t _num = 1);
 		void Deserailize();
 
 		uint16_t ParamIndex(size_t _nameKey) const;
 		void SetParams(uint8_t const * _pData) const;
 
-		static bgfx::UniformHandle AddUniform(std::string const & _name,
-			bgfx::UniformType::Enum _uType, uint16_t _num = 1);
+		static std::unordered_map<size_t, std::string> s_vec4NameMap;
+
+		static bgfx::UniformHandle AddUniformVec4(std::string const & _name, uint16_t _num = 1);
 		static bool SetUniform(size_t _nameKey, void const * _pVal, uint16_t _num = UINT16_MAX);
 
 		static Shader* Load(std::string const & _vsName, std::string const & _fsName);

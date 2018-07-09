@@ -121,8 +121,11 @@ static size_t CalcAryLength(uint64_t num, uint8_t const ary)
 	return ret;
 }
 
-std::string NumToAryStr(uint64_t num, uint8_t const ary, uint8_t const aryBegin)	// base on ascii visable char
+std::string NumToAry79Str(uint64_t num)	// base on ascii visable char
 {
+	uint8_t const aryBegin = 48;
+	uint8_t const ary = 79;
+
 	std::string s;
 	s.resize(CalcAryLength(num, ary) + 1);
 
@@ -138,8 +141,11 @@ std::string NumToAryStr(uint64_t num, uint8_t const ary, uint8_t const aryBegin)
 }
 
 
-uint64_t AryStrToNum(std::string const & s, uint8_t const ary, uint8_t const aryBegin)
+uint64_t Ary79StrToNum(std::string const & s)
 {
+	uint8_t const aryBegin = 48;
+	uint8_t const ary = 79;
+	
 	uint64_t n = 0;
 
 	uint64_t powBase = 1;

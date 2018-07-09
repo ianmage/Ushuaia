@@ -82,6 +82,7 @@ bool Fini()
 
 	Entity::Fini();
 	Model::Fini();
+	Material::ClearAll();
 
 	Shading::Fini();
 	Light::ClearAll();

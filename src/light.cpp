@@ -35,14 +35,14 @@ namespace Ushuaia
 
 	void Light::Init()
 	{
-		uhLightsCnt = Shader::AddUniform("u_lightsCnt", bgfx::UniformType::Vec4);
-		uhAmbientColor = Shader::AddUniform("u_lightAmbColor", bgfx::UniformType::Vec4);
-		uhDirectionalColor = Shader::AddUniform("u_lightDirColor", bgfx::UniformType::Vec4);
-		uhDirectionalDir = Shader::AddUniform("u_lightDirDir", bgfx::UniformType::Vec4);
-		uhPointColor = Shader::AddUniform("u_lightColor", bgfx::UniformType::Vec4, MAX_POINT_LIGHT + MAX_SPOT_LIGHT);
-		uhPointPos = Shader::AddUniform("u_lightPos", bgfx::UniformType::Vec4, MAX_POINT_LIGHT + MAX_SPOT_LIGHT);
-		uhPointAttnRange = Shader::AddUniform("u_lightAttnRange", bgfx::UniformType::Vec4, MAX_POINT_LIGHT + MAX_SPOT_LIGHT);
-		uhSpotDirInner = Shader::AddUniform("u_lightSpotDirInner", bgfx::UniformType::Vec4, MAX_SPOT_LIGHT);
+		uhLightsCnt = Shader::AddUniformVec4("u_lightsCnt");
+		uhAmbientColor = Shader::AddUniformVec4("u_lightAmbColor");
+		uhDirectionalColor = Shader::AddUniformVec4("u_lightDirColor");
+		uhDirectionalDir = Shader::AddUniformVec4("u_lightDirDir");
+		uhPointColor = Shader::AddUniformVec4("u_lightColor", MAX_POINT_LIGHT + MAX_SPOT_LIGHT);
+		uhPointPos = Shader::AddUniformVec4("u_lightPos", MAX_POINT_LIGHT + MAX_SPOT_LIGHT);
+		uhPointAttnRange = Shader::AddUniformVec4("u_lightAttnRange", MAX_POINT_LIGHT + MAX_SPOT_LIGHT);
+		uhSpotDirInner = Shader::AddUniformVec4("u_lightSpotDirInner", MAX_SPOT_LIGHT);
 	}
 
 

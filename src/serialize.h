@@ -5,6 +5,7 @@
 #include "rapidjson/prettywriter.h"
 #include "rapidjson/document.h"
 #include <vector>
+#include "math.h"
 
 
 namespace Ushuaia
@@ -37,7 +38,7 @@ int ftoa(float v, char *s, int m = 0, int n = 0);
 
 int ftoa(float const *v, size_t len, char *s, int m = 0, int n = 0);
 
-std::string NumToAryStr(uint64_t num, uint8_t const ary, uint8_t const aryBegin);
-uint64_t AryStrToNum(std::string const & s, uint8_t const ary, uint8_t const aryBegin);
+std::string NumToAry79Str(uint64_t num);
+uint64_t Ary79StrToNum(std::string const & s);
 
 }

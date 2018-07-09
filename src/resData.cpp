@@ -30,11 +30,8 @@ void InitResData()
 	Scene::pActive = pScene;
 
 	uint64_t num = 0x0000002000000000;
-	uint8_t const aryBegin = 48;
-	uint8_t const aryLast = 126;
-	uint8_t const ary = aryLast - aryBegin + 1;
-	std::string str = NumToAryStr(num, ary, aryBegin);
-	uint64_t i = AryStrToNum(str, ary, aryBegin);
+	std::string str = NumToAry79Str(num);
+	uint64_t i = Ary79StrToNum(str);
 }
 
 

@@ -33,6 +33,7 @@ public:
 	bool Deserialize();
 
 	static Material* Load(std::string const & _name);
+	static void ClearAll();
 
 private:
 	Material(std::string const & _name);

@@ -3,6 +3,8 @@
 #include "../../cpp_common/commUtil.h"
 #include "math.h"
 
+#pragma optimize("", off)
+
 
 namespace Ushuaia
 {
@@ -10,6 +12,7 @@ namespace Ushuaia
 	decltype(Shader::s_shaders) Shader::s_shaders;
 	decltype(Shader::s_uniforms) Shader::s_uniforms;
 	decltype(Shader::s_annos) Shader::s_annos;
+	decltype(Shader::s_vec4NameMap) Shader::s_vec4NameMap;
 
 
 	Shader* Shader::Load(std::string const & _vsName, std::string const & _fsName)
@@ -33,15 +36,18 @@ namespace Ushuaia
 	}
 
 
-	bgfx::UniformHandle Shader::AddUniform(std::string const & _name,
-		bgfx::UniformType::Enum _uType, uint16_t _num)
+	bgfx::UniformHandle Shader::AddUniformVec4(std::string const & _name, uint16_t _num)
 	{
 		size_t k = RT_HASH(_name.c_str());
 		decltype(s_uniforms)::const_iterator itr = s_uniforms.find(k);
 		if (itr != s_uniforms.end())
 			return itr->second;
-		auto ret = bgfx::createUniform(_name.c_str(), _uType, _num);
+		auto ret = bgfx::createUniform(_name.c_str(),
+			bgfx::UniformType::Enum::Vec4, _num);
 		s_uniforms[k] = ret;
+
+		s_vec4NameMap[k] = _name;
+
 		return ret;
 	}
 
@@ -88,50 +94,10 @@ namespace Ushuaia
 			for (auto & m : itr->value.GetObject()) {
 				auto uType = static_cast<bgfx::UniformType::Enum>(m.value[0].GetUint());
 				auto uCnt = static_cast<uint16_t>(m.value[1].GetUint());
-				AddUniform(m.name.GetString(), uType, uCnt);
+				if (bgfx::UniformType::Enum::Vec4 == uType)
+					AddUniformVec4(m.name.GetString(), uCnt);
 			}
 		}
-	}
-
-
-	void Shader::addParamInt1(std::string const & _name, uint16_t _num)
-	{
-		size_t k = RT_HASH(_name.c_str());
-		assert(paramOffsets_.find(k) == paramOffsets_.end());
-		paramOffsets_[k] = static_cast<uint16_t>(paramSize_);
-		paramSize_ += sizeof(int32_t) * _num;
-		if (s_uniforms.find(k) == s_uniforms.end())
-			AddUniform(_name, bgfx::UniformType::Int1, _num);
-	}
-
-	void Shader::addParamVec4(std::string const & _name, uint16_t _num)
-	{
-		size_t k = RT_HASH(_name.c_str());
-		assert(paramOffsets_.find(k) == paramOffsets_.end());
-		paramOffsets_[k] = static_cast<uint16_t>(paramSize_);
-		paramSize_ += sizeof(Vector4) * _num;
-		if (s_uniforms.find(k) == s_uniforms.end())
-			AddUniform(_name, bgfx::UniformType::Vec4, _num);
-	}
-
-	void Shader::addParamMtx3(std::string const & _name, uint16_t _num)
-	{
-		size_t k = RT_HASH(_name.c_str());
-		assert(paramOffsets_.find(k) == paramOffsets_.end());
-		paramOffsets_[k] = static_cast<uint16_t>(paramSize_);
-		paramSize_ += sizeof(float) * 9 * _num;
-		if (s_uniforms.find(k) == s_uniforms.end())
-			AddUniform(_name, bgfx::UniformType::Mat3, _num);
-	}
-
-	void Shader::addParamMtx4(std::string const & _name, uint16_t _num)
-	{
-		size_t k = RT_HASH(_name.c_str());
-		assert(paramOffsets_.find(k) == paramOffsets_.end());
-		paramOffsets_[k] = static_cast<uint16_t>(paramSize_);
-		paramSize_ += sizeof(Matrix4x4) * _num;
-		if (s_uniforms.find(k) == s_uniforms.end())
-			AddUniform(_name, bgfx::UniformType::Mat4, _num);
 	}
 
 
