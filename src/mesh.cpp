@@ -15,13 +15,23 @@ int32_t read(bx::ReaderI* _reader, bgfx::VertexDecl& _decl, bx::Error* _err = NU
 namespace Ushuaia
 {
 
-Mesh::~Mesh()
+decltype(Mesh::s_meshes) Mesh::s_meshes;
+
+
+Mesh::Mesh(std::string const & _name)
+	: name_(_name)
 {
-	release();
+
 }
 
 
-std::shared_ptr<Mesh> Mesh::create(void const * _vertices, uint32_t _numVertices, bgfx::VertexDecl const & _decl, uint16_t const * _indices, uint32_t _numIndices)
+Mesh::~Mesh()
+{
+	Release();
+}
+
+
+std::shared_ptr<Mesh> Mesh::Create(void const * _vertices, uint32_t _numVertices, bgfx::VertexDecl const & _decl, uint16_t const * _indices, uint32_t _numIndices)
 {
 	std::shared_ptr<Mesh> pMesh(new Mesh(""));
 
@@ -47,28 +57,28 @@ std::shared_ptr<Mesh> Mesh::create(void const * _vertices, uint32_t _numVertices
 }
 
 
-std::shared_ptr<Mesh> Mesh::load(std::string const & _name)
+std::shared_ptr<Mesh> Mesh::Load(std::string const & _name)
 {
 	size_t k = RT_HASH(_name.c_str());
 
-	auto const & it = s_meshes.find(k);
-	if (it != s_meshes.end()) {
-		if (!it->second.expired())
-			return it->second.lock();
+	auto itr = s_meshes.find(k);
+	if (itr != s_meshes.end()) {
+		if (!itr->second.expired())
+			return itr->second.lock();
 	}
 
 	std::shared_ptr<Mesh> pMesh(new Mesh(_name));
 	s_meshes.emplace(k, pMesh);
 
-	pMesh->deserialize();
+	pMesh->Deserialize();
 
 	return std::move(pMesh);
 }
 
 
-bool Mesh::deserialize()
+bool Mesh::Deserialize()
 {
-	std::string filePath = "mesh/" + name + ".bin";
+	std::string filePath = "mesh/" + name_ + ".bin";
 
 	bx::FileReaderI* pReader = entry::getFileReader();
 	if (!bx::open(pReader, filePath.c_str()))
@@ -189,7 +199,7 @@ bool Mesh::deserialize()
 }
 
 
-void Mesh::release()
+void Mesh::Release()
 {
 	for (auto const & group : groups)
 	{
@@ -204,7 +214,7 @@ void Mesh::release()
 }
 
 
-void Mesh::submit(bgfx::ViewId _id, Shader const *_pProgram) const
+void Mesh::Submit(bgfx::ViewId _id, Shader const *_pProgram) const
 {
 	for (decltype(groups)::const_iterator it = groups.begin(), itEnd = groups.end(); it != itEnd; ++it)
 	{

@@ -1,9 +1,8 @@
 #include "serialize.h"
 #include <stdio.h>
-#include <fstream>
 #include <boost/filesystem.hpp>
 
-#pragma optimize("", off)
+//#pragma optimize("", off)
 
 
 namespace Ushuaia
@@ -17,29 +16,48 @@ JsonWriter::JsonWriter()
 }
 
 
-void JsonWriter::save(std::string const & _fPath)
+void JsonWriter::Save(std::string _fPath)
 {
+	_fPath += ".json";
+
 	EndObject();
 
-	std::ofstream outFile(_fPath+".json", std::ios::out | std::ios::trunc);
-	outFile << strBuf.GetString() << std::endl;
-	outFile.close();
+	::FILE *pFile = ::fopen(_fPath.c_str(), "wb");
+	::fwrite(strBuf.GetString(), sizeof(decltype(strBuf)::Ch), strBuf.GetLength(), pFile);
+	::fclose(pFile);
 }
 
 
-bool JsonReader::load(std::string const & _fPath)
+bool JsonReader::Load(std::string _fPath)
 {
+	_fPath += ".json";
+
 	namespace fs = boost::filesystem;
 	if (!fs::is_regular_file(_fPath))
 		return false;
 
-	std::ifstream ifs(_fPath+".json", std::ios::in | std::ios::binary);
-	std::vector<char> content;
-	content.resize(ifs.seekg(0, std::ios::end).tellg());
-	ifs.seekg(0, std::ios::beg).read(content.data(), content.size());
-	ifs.close();
+	::FILE *pFile = ::fopen(_fPath.c_str(), "rb");
+	::fseek(pFile, 0, SEEK_END);
+	long fSize = ::ftell(pFile);
+	::rewind(pFile);
 
-	Parse(content.data());
+	std::vector<char> content;
+	content.resize(sizeof(char) * fSize + 1);
+	size_t result = ::fread(content.data(), sizeof(char), fSize, pFile);
+	assert(result == fSize);
+	::fclose(pFile);
+	content.back() = '\0';
+
+
+	if (Parse(content.data()).HasParseError()) {
+#ifdef _DEBUG
+		pFile = ::fopen("r:/test.json", "wb");
+		::fwrite(content.data(), sizeof(char), content.size(), pFile);
+		::fclose(pFile);
+		assert(false);
+#endif
+		return false;
+	}
 
 	return true;
 }
@@ -90,6 +108,48 @@ int ftoa(float const *v, size_t cnt, char *s, int m, int n)
 	}
 
 	return ret - 1;
+}
+
+
+static size_t CalcAryLength(uint64_t num, uint8_t const ary)
+{
+	size_t ret = 1;
+	while (num >= ary) {
+		num /= ary;
+		++ret;
+	};
+	return ret;
+}
+
+std::string NumToAryStr(uint64_t num, uint8_t const ary, uint8_t const aryBegin)	// base on ascii visable char
+{
+	std::string s;
+	s.resize(CalcAryLength(num, ary) + 1);
+
+	size_t idx = s.size() - 2;
+	while (num >= ary) {
+		s[idx--] = (num % ary) + aryBegin;
+		num /= ary;
+	};
+	assert(idx == 0);
+	s[0] = (uint8_t)num + aryBegin;
+
+	return s;
+}
+
+
+uint64_t AryStrToNum(std::string const & s, uint8_t const ary, uint8_t const aryBegin)
+{
+	uint64_t n = 0;
+
+	uint64_t powBase = 1;
+	for (size_t i = s.size()-2; i > 0; --i) {
+		n += (s[i] - aryBegin) * powBase;
+		powBase *= ary;
+	}
+	n += (s[0] - aryBegin) * powBase;
+
+	return n;
 }
 
 }

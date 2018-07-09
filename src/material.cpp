@@ -6,13 +6,16 @@
 namespace Ushuaia
 {
 
+decltype(Material::s_mtls) Material::s_mtls;
+
+
 Material::Material(std::string const & _name)
-	: name(_name), pShader_(nullptr)
+	: name_(_name), pShader_(nullptr)
 {
 }
 
 
-Material* Material::load(std::string const & _name)
+Material* Material::Load(std::string const & _name)
 {
 	size_t k = RT_HASH(_name.c_str());
 
@@ -23,32 +26,32 @@ Material* Material::load(std::string const & _name)
 	Material *pMtl = new Material(_name);
 	s_mtls.emplace(k, pMtl);
 
-	pMtl->deserialize();
+	pMtl->Deserialize();
 
 	return pMtl;
 }
 
 
-void Material::serialize() const
+void Material::Serialize() const
 {
 	JsonWriter writer;
 
 	if (pShader_) {
 		writer.Key("Shader");
 		writer.StartArray();
-		writer.String(pShader_->vsName());
-		writer.String(pShader_->fsName());
+		writer.String(pShader_->VsName());
+		writer.String(pShader_->FsName());
 		writer.EndArray();
 	}
 
-	writer.save("material/" + name);
+	writer.Save("material/" + name_);
 }
 
 
-bool Material::deserialize()
+bool Material::Deserialize()
 {
 	JsonReader reader;
-	if (!reader.load("material/" + name))
+	if (!reader.Load("material/" + name_))
 		return false;
 
 	JsonValue::ConstMemberIterator itr;
@@ -56,14 +59,22 @@ bool Material::deserialize()
 	if (itr != reader.MemberEnd()) {
 		std::string vsName = itr->value[0].GetString();
 		std::string fsName = itr->value[1].GetString();
-		pShader_ = Shader::load(vsName, fsName);
+		pShader_ = Shader::Load(vsName, fsName);
+	}
+
+	itr = reader.FindMember("RenderState");
+	if (itr != reader.MemberEnd()) {
+		uint8_t const aryBegin = 48;
+		uint8_t const aryLast = 126;
+		uint8_t const ary = aryLast - aryBegin + 1;
+		renderStates = AryStrToNum(itr->value.GetString(), ary, aryBegin);
 	}
 
 	return true;
 }
 
 
-void Material::pShader(Shader *_pShader)
+void Material::SetShader(Shader *_pShader)
 {
 	if (pShader_ == _pShader)
 		return;
@@ -80,19 +91,19 @@ void Material::pShader(Shader *_pShader)
 }
 
 
-void Material::submit(uint64_t override0, uint64_t override1)
+void Material::Submit(uint64_t override0, uint64_t override1)
 {
 	assert(pShader_);
 	bgfx::setState(RenderState::overrideMe(renderStates, override0, override1));
 
-	pShader_->setParams(paramData_.data());
+	pShader_->SetParams(paramData_.data());
 }
 
 
-Vector4* Material::getParamVec4(size_t _nameKey) const
+Vector4* Material::GetParamVec4(size_t _nameKey) const
 {
 	assert(pShader_);
-	uint16_t const idx = pShader_->paramIndex(_nameKey);
+	uint16_t const idx = pShader_->ParamIndex(_nameKey);
 	if (UINT16_MAX == idx)
 		return nullptr;
 	auto pData = const_cast<uint8_t*>(&paramData_[idx]);

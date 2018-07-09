@@ -23,10 +23,10 @@ namespace Ushuaia
 	public:
 		static bool s_supportInstancing;
 
-		static void init();
-		static void gather();
-		static void drawOpaque(bgfx::ViewId viewId, uint64_t override0, uint64_t override1);
-		static void clearAll();
+		static void Init();
+		static void Gather();
+		static void DrawOpaque(bgfx::ViewId viewId, uint64_t override0, uint64_t override1);
+		static void ClearAll();
 
 	private:
 		static std::vector<DrawItem> s_opaque;

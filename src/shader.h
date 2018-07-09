@@ -20,19 +20,19 @@ namespace Ushuaia
 		void addParamVec4(std::string const & _name, uint16_t _num = 1);
 		void addParamMtx3(std::string const & _name, uint16_t _num = 1);
 		void addParamMtx4(std::string const & _name, uint16_t _num = 1);
-		void deserailize();
+		void Deserailize();
 
-		uint16_t paramIndex(size_t _nameKey) const;
-		void setParams(uint8_t const * _pData) const;
+		uint16_t ParamIndex(size_t _nameKey) const;
+		void SetParams(uint8_t const * _pData) const;
 
-		static bgfx::UniformHandle addUniform(std::string const & _name,
+		static bgfx::UniformHandle AddUniform(std::string const & _name,
 			bgfx::UniformType::Enum _uType, uint16_t _num = 1);
-		static bool setUniform(size_t _nameKey, void const * _pVal, uint16_t _num = UINT16_MAX);
+		static bool SetUniform(size_t _nameKey, void const * _pVal, uint16_t _num = UINT16_MAX);
 
-		static Shader* load(std::string const & _vsName, std::string const & _fsName);
+		static Shader* Load(std::string const & _vsName, std::string const & _fsName);
 
-		static bool init();
-		static void clearAll();
+		static bool Init();
+		static void ClearAll();
 
 	private:
 		Shader(std::string const & _vsName, std::string const & _fsName);
@@ -48,10 +48,10 @@ namespace Ushuaia
 		static JsonReader s_annos;
 
 	public:
-		std::string const & vsName() const {
+		std::string const & VsName() const {
 			return vsName_;
 		}
-		std::string const & fsName() const {
+		std::string const & FsName() const {
 			return fsName_;
 		}
 	};

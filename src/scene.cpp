@@ -9,39 +9,40 @@ Scene* Scene::pActive = nullptr;
 
 
 Scene::Scene(std::string const & _name)
-	: name(_name)
+	: name_(_name)
 {
 }
 
 
 Scene::~Scene()
 {
-	for (auto & it : entities) {
-		delete it.second;
+	for (auto & m : entities) {
+		delete m.second;
 	}
 	entities.clear();
 }
 
 
-void Scene::serialize()
+void Scene::Serialize()
 {
 	JsonWriter writer;
 
 	writer.Key("Entities");
 	writer.StartObject();
-	for (auto const & it : entities) {
-		it.second->serialize(writer);
+	for (auto const & m : entities) {
+		m.second->Serialize(writer);
 	}
 	writer.EndObject();
 
-	writer.save("scene/" + name);
+	writer.Save("scene/" + name_);
 }
 
 
-bool Scene::deserialize()
+bool Scene::Deserialize()
 {
 	JsonReader reader;
-	reader.load("scene/" + name);
+	if (!reader.Load("scene/" + name_))
+		return false;
 
 	JsonValue::ConstMemberIterator itr = reader.FindMember("Entities");
 	if (itr != reader.MemberEnd()) {
@@ -51,7 +52,7 @@ bool Scene::deserialize()
 			entNames_[k] = entName;
 			Entity *pEnt = new Entity();
 			entities[k] = pEnt;
-			pEnt->deserialize(m.value);
+			pEnt->Deserialize(m.value);
 		}
 	}
 
@@ -59,10 +60,10 @@ bool Scene::deserialize()
 }
 
 
-Entity* Scene::createEntity(std::string const & _name)
+Entity* Scene::CreateEntity(std::string const & _name)
 {
 	size_t k = RT_HASH(_name.c_str());
-	Entity *pEnt = getEntity(k);
+	Entity *pEnt = GetEntity(k);
 	if (pEnt)
 		return pEnt;
 

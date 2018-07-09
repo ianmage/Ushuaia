@@ -9,8 +9,8 @@
 namespace Ushuaia
 {
 
-	void initResData();
-	void finiResData();
-	void updateResData();
+	void InitResData();
+	void FiniResData();
+	void UpdateResData();
 
 }

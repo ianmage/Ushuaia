@@ -13,23 +13,25 @@ struct Model
 	std::shared_ptr<Mesh> pMesh;
 	Material *pMtl;
 
-	std::string name;
+	std::string const & Name() const { return name_; }
 
-	void serialize() const;
-	bool deserialize();
+	void Serialize() const;
+	bool Deserialize();
 
-	void draw(bgfx::ViewId viewId
+	void Draw(bgfx::ViewId viewId
 		, uint64_t override0 = RenderState::s_val[0], uint64_t override1 = RenderState::s_val[1]
 		, Shader const *pShader = nullptr);
 
-	static std::shared_ptr<Model> load(std::string const & _name);
+	static std::shared_ptr<Model> Load(std::string const & _name);
 
-	static void fini();
+	static void Fini();
 
 private:
-	Model(std::string const & _name);
+	std::string name_;
 
 	static std::unordered_map<size_t, std::weak_ptr<Model>> s_models;
+
+	Model(std::string const & _name);
 };
 
 }

@@ -23,22 +23,23 @@ public:
 
 	uint64_t renderStates;
 
-	std::string name;
+	void Submit(uint64_t override0 = RenderState::s_val[0], uint64_t override1 = RenderState::s_val[1]);
+	Vector4* GetParamVec4(size_t _nameKey) const;
 
-	void submit(uint64_t override0 = RenderState::s_val[0], uint64_t override1 = RenderState::s_val[1]);
-	Vector4* getParamVec4(size_t _nameKey) const;
+	Shader* GetShader() const { return pShader_; }
+	std::string const & Name() const { return name_; }
 
-	Shader* pShader() const { return pShader_; }
+	void Serialize() const;
+	bool Deserialize();
 
-	void serialize() const;
-	bool deserialize();
-
-	static Material* load(std::string const & _name);
+	static Material* Load(std::string const & _name);
 
 private:
 	Material(std::string const & _name);
 
-	void pShader(Shader *_pShader);
+	void SetShader(Shader *_pShader);
+
+	std::string name_;
 
 	Shader* pShader_;
 

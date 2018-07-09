@@ -18,18 +18,18 @@ namespace Ushuaia
 		Camera();
 		virtual ~Camera();
 
-		void init(float _fovY, float _aspect, float _near, float _far);
-		void recalcProj();
-		void setPos(Vector3 const & pos);
-		void setHorizontalAngle(float ha);
-		void setVerticalAngle(float va);
+		void Init(float _fovY, float _aspect, float _near, float _far);
+		void RecalcProj();
+		void SetPos(Vector3 const & pos);
+		void SetHorizontalAngle(float ha);
+		void SetVerticalAngle(float va);
 
-		void update();
+		void Update();
 
 		static Camera* pCurrent;
 
-		static bool initDefault();
-		static bool finiDefault();
+		static bool InitDefault();
+		static bool FiniDefault();
 	};
 
 }

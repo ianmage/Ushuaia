@@ -48,13 +48,13 @@ public:
 
 		imguiCreate();
 
-		Ushuaia::init();
+		Ushuaia::Init();
 	}
 
 
 	virtual int shutdown() override
 	{
-		Ushuaia::fini();
+		Ushuaia::Fini();
 
 		imguiDestroy();
 
@@ -95,7 +95,7 @@ public:
 			double const freq = double(bx::getHPFrequency());
 			Ushuaia::AppConf::deltaTime = static_cast<float>(frameTime / freq);
 
-			Ushuaia::update();
+			Ushuaia::Update();
 
 			// Advance to next frame. Rendering thread will be kicked to
 			// process submitted rendering primitives.

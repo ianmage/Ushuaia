@@ -7,82 +7,82 @@ namespace Ushuaia
 {
 
 Model::Model(std::string const & _name)
-	: name(_name), pMesh(nullptr), pMtl(nullptr)
+	: name_(_name), pMesh(nullptr), pMtl(nullptr)
 {
 }
 
 
-void Model::serialize() const
+void Model::Serialize() const
 {
 	JsonWriter writer;
 
 	if (pMesh) {
 		writer.Key("Mesh");
-		writer.String(pMesh->name);
+		writer.String(pMesh->Name());
 	}
 	if (pMtl) {
 		writer.Key("Material");
-		writer.String(pMtl->name);
+		writer.String(pMtl->Name());
 	}
 
-	writer.save("model/" + name);
+	writer.Save("model/" + name_);
 }
 
 
-bool Model::deserialize()
+bool Model::Deserialize()
 {
 	JsonReader reader;
-	if (!reader.load("model/" + name))
+	if (!reader.Load("model/" + name_))
 		return false;
 
 	JsonValue::ConstMemberIterator itr;
 	itr = reader.FindMember("Mesh");
 	if (itr != reader.MemberEnd()) {
-		pMesh = Mesh::load(itr->value.GetString());
+		pMesh = Mesh::Load(itr->value.GetString());
 	}
 	itr = reader.FindMember("Material");
 	if (itr != reader.MemberEnd()) {
-		pMtl = Material::load(itr->value.GetString());
+		pMtl = Material::Load(itr->value.GetString());
 	}
 
 	return true;
 }
 
 
-std::shared_ptr<Model> Model::load(std::string const & _name)
+std::shared_ptr<Model> Model::Load(std::string const & _name)
 {
 	size_t k = RT_HASH(_name.c_str());
 
-	auto const & it = s_models.find(k);
-	if (it != s_models.end()) {
-		if (!it->second.expired())
-			return it->second.lock();
+	decltype(s_models)::const_iterator itr = s_models.find(k);
+	if (itr != s_models.end()) {
+		if (!itr->second.expired())
+			return itr->second.lock();
 	}
 
 	std::shared_ptr<Model> pModel(new Model(_name));
 	s_models.emplace(k, pModel);
 
-	pModel->deserialize();
+	pModel->Deserialize();
 
 	return std::move(pModel);
 }
 
 
-void Model::fini()
+void Model::Fini()
 {
 	s_models.clear();
 }
 
 
-void Model::draw(bgfx::ViewId viewId
+void Model::Draw(bgfx::ViewId viewId
 	, uint64_t override0, uint64_t override1
 	, Shader const *pShader)
 {
 	if (!pMesh || !pMtl)
 		return;
 
-	pMtl->submit(override0, override1);
-	pMesh->submit(viewId, pShader ? pShader : pMtl->pShader());
+	pMtl->Submit(override0, override1);
+	pMesh->Submit(viewId, pShader ? pShader : pMtl->GetShader());
 }
 
 }

@@ -14,19 +14,19 @@ namespace Ushuaia
 	bgfx::ViewId const RENDERVIEW_DRAWSCENE_0 = 0;
 
 
-	void Shading::init()
+	void Shading::Init()
 	{
 		
 	}
 
 
-	void Shading::fini()
+	void Shading::Fini()
 	{
 		
 	}
 
 
-	void Shading::update()
+	void Shading::Update()
 	{
 		
 	}
@@ -57,7 +57,7 @@ namespace Ushuaia
 		bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH
 			, 0x30303000, 1.f, 0);
 
-		Light::submit();
+		Light::Submit();
 #if TEST
 		uint64_t state = 0
 			| BGFX_STATE_WRITE_R
@@ -81,23 +81,23 @@ namespace Ushuaia
 			| BGFX_STATE_MSAA
 		;
 
-		//for (auto const & it : Entity::s_scnEnts)
+		//for (auto const & m : Entity::s_scnEnts)
 		//{
-		//	auto const & e = it.second;
+		//	auto const & e = m.second;
 		//	bgfx::setTransform(e->mtx.v);
 		//	e->pModel->draw(0, overrideSt0, overrideSt1);
 		//}
-		//for (auto const & it : Entity::s_dynEnts)
+		//for (auto const & m : Entity::s_dynEnts)
 		//{
-		//	auto const & e = it.second;
+		//	auto const & e = m.second;
 		//	bgfx::setTransform(e->mtx.v);
 		//	e->pModel->draw(0, overrideSt0, overrideSt1);
 		//}
-		DrawChannel::gather();
+		DrawChannel::Gather();
 
-		DrawChannel::drawOpaque(0, overrideSt0, overrideSt1);
+		DrawChannel::DrawOpaque(0, overrideSt0, overrideSt1);
 
-		DrawChannel::clearAll();
+		DrawChannel::ClearAll();
 	}
 
 }

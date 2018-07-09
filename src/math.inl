@@ -20,7 +20,7 @@ constexpr T TVec2<T>::operator[](int i) const
 }
 
 template <typename T>
-constexpr void TVec2<T>::set(T _v0, T _v1)
+constexpr void TVec2<T>::Set(T _v0, T _v1)
 {
 	v[0] = _v0; v[1] = _v1;
 }
@@ -35,7 +35,7 @@ template <typename T>
 constexpr TVec2<T> TVec2<T>::operator+(TVec2 const & rhs) const
 {
 	TVec2<T> ret;
-	ret.set(v[0] + rhs.v[0], v[1] + rhs.v[1]);
+	ret.Set(v[0] + rhs.v[0], v[1] + rhs.v[1]);
 	return std::move(ret);
 }
 
@@ -43,7 +43,7 @@ template <typename T>
 constexpr TVec2<T> TVec2<T>::operator-(TVec2 const & rhs) const
 {
 	TVec2 ret;
-	ret.set(v[0] - rhs.v[0], v[1] - rhs.v[1]);
+	ret.Set(v[0] - rhs.v[0], v[1] - rhs.v[1]);
 	return std::move(ret);
 }
 
@@ -51,7 +51,7 @@ template <typename T>
 constexpr TVec2<T> TVec2<T>::operator*(T s) const
 {
 	TVec2 ret;
-	ret.set(v[0] * s, v[1] * s);
+	ret.Set(v[0] * s, v[1] * s);
 	return std::move(ret);
 }
 
@@ -86,22 +86,22 @@ constexpr void TVec2<T>::operator/=(T s)
 }
 
 template <typename T>
-constexpr T TVec2<T>::dot(TVec2 const & rhs) const
+constexpr T TVec2<T>::Dot(TVec2 const & rhs) const
 {
 	T ret = x * rhs.x + y * rhs.y;
 	return ret;
 }
 
 template <typename T>
-inline T TVec2<T>::length() const
+inline T TVec2<T>::Length() const
 {
-	return bx::sqrt(dot(*this));
+	return bx::sqrt(Dot(*this));
 }
 
 template <typename T>
-inline T TVec2<T>::normalize()
+inline T TVec2<T>::Normalize()
 {
-	float const len = length();
+	float const len = Length();
 	float const invLen = 1.0f / len;
 	x = x * invLen;
 	y = y * invLen;
@@ -121,7 +121,7 @@ constexpr T TVec3<T>::operator[](int i) const
 }
 
 template <typename T>
-constexpr void TVec3<T>::set(T _v0, T _v1, T _v2)
+constexpr void TVec3<T>::Set(T _v0, T _v1, T _v2)
 {
 	v[0] = _v0; v[1] = _v1; v[2] = _v2;
 }
@@ -189,7 +189,7 @@ inline void TVec3<T>::operator/=(T d)
 }
 
 template <typename T>
-inline void TVec3<T>::transformBy(Matrix3x3 const & m)
+inline void TVec3<T>::TransformBy(Matrix3x3 const & m)
 {
 	T nX = x * m[0] + y * m[3] + z * m[6];
 	T nY = x * m[1] + y * m[4] + z * m[7];
@@ -198,7 +198,7 @@ inline void TVec3<T>::transformBy(Matrix3x3 const & m)
 }
 
 template <typename T>
-inline void TVec3<T>::transformBy(Matrix4x4 const & m)
+inline void TVec3<T>::TransformBy(Matrix4x4 const & m)
 {
 	TVec3<T> result;
 	bx::vec3MulMtx(result.v, v, m.v);
@@ -206,19 +206,19 @@ inline void TVec3<T>::transformBy(Matrix4x4 const & m)
 }
 
 template <typename T>
-constexpr T TVec3<T>::dot(TVec3 const & rhs) const
+constexpr T TVec3<T>::Dot(TVec3 const & rhs) const
 {
 	return bx::vec3Dot(v, rhs.v);
 }
 
 template <typename T>
-constexpr T TVec3<T>::length() const
+constexpr T TVec3<T>::Length() const
 {
 	return bx::vec3Length(v);
 }
 
 template <typename T>
-constexpr T TVec3<T>::normalize()
+constexpr T TVec3<T>::Normalize()
 {
 	return bx::vec3Norm(v, v);
 }
@@ -236,13 +236,13 @@ constexpr T TVec4<T>::operator[](int i) const
 }
 
 template <typename T>
-constexpr TVec3<T> & TVec4<T>::vec3()
+constexpr TVec3<T> & TVec4<T>::Vec3()
 {
 	return *reinterpret_cast<TVec3<T>*>(v);
 }
 
 template <typename T>
-constexpr void TVec4<T>::set(T _v0, T _v1, T _v2, T _v3)
+constexpr void TVec4<T>::Set(T _v0, T _v1, T _v2, T _v3)
 {
 	v[0] = _v0; v[1] = _v1; v[2] = _v2; v[3] = _v3;
 }
@@ -282,7 +282,7 @@ inline void TVec4<T>::operator/=(T s)
 }
 
 template <typename T>
-constexpr void TVec4<T>::transformBy(Matrix4x4 const & m)
+constexpr void TVec4<T>::TransformBy(Matrix4x4 const & m)
 {
 	TVec4<T> result;
 	bx::vec4MulMtx(result.v, v, m.v);
@@ -299,34 +299,34 @@ constexpr float Matrix4x4::operator[](int i) const
 	return v[i];
 }
 
-inline void Matrix4x4::setIdentity()
+inline void Matrix4x4::SetIdentity()
 {
 	memset(v, 0, sizeof(v));
 	v[0] = v[5] = v[10] = v[15] = 1.0f;
 }
 
-inline void Matrix4x4::setSRT(Vector3 const & s, Vector3 const & r, Vector3 const & t)
+inline void Matrix4x4::SetSRT(Vector3 const & s, Vector3 const & r, Vector3 const & t)
 {
 	bx::mtxSRT(v, s.x, s.y, s.z, r.x, r.y, r.z, t.x, t.y, t.z);
 }
 
-inline void Matrix4x4::transform(Vector4 & out, Vector4 const & in) const
+inline void Matrix4x4::Transform(Vector4 & out, Vector4 const & in) const
 {
 	bx::vec4MulMtx(out.v, in.v, v);
 }
 
-inline void Matrix4x4::transformVec3(Vector4 & out, Vector4 const & in) const
+inline void Matrix4x4::TransformVec3(Vector4 & out, Vector4 const & in) const
 {
 	bx::vec3MulMtx(out.v, in.v, v);
 	out[4] = in[4];
 }
 
-inline void Matrix4x4::transform(Vector3 & out, Vector3 const & in) const
+inline void Matrix4x4::Transform(Vector3 & out, Vector3 const & in) const
 {
 	bx::vec3MulMtx(out.v, in.v, v);
 }
 
-constexpr void Matrix4x4::mtx4x3(float * out) const
+constexpr void Matrix4x4::Mtx4x3(float * out) const
 {
 	int i = 0;
 	for (int j = 0; j < 4; ++j)
@@ -348,13 +348,13 @@ constexpr float Matrix3x3::operator[](int i) const
 	return v[i];
 }
 
-inline void Matrix3x3::setIdentity()
+inline void Matrix3x3::SetIdentity()
 {
 	memset(v, 0, sizeof(v));
 	v[0] = v[4] = v[8] = 1.0f;
 }
 
-constexpr void Matrix3x3::transform(Vector3 & out, Vector3 const & in) const
+constexpr void Matrix3x3::Transform(Vector3 & out, Vector3 const & in) const
 {
 	out.x = in.x * v[0] + in.y * v[3] + in.z * v[6];
 	out.y = in.x * v[1] + in.y * v[4] + in.z * v[7];
@@ -363,52 +363,52 @@ constexpr void Matrix3x3::transform(Vector3 & out, Vector3 const & in) const
 
 
 template <typename T>
-constexpr void TRect<T>::set(TRect<T>::DataType const & _min, TRect<T>::DataType const & _size)
+constexpr void TRect<T>::Set(TRect<T>::DataType const & _min, TRect<T>::DataType const & _size)
 {
 	rMin = _min;
-	rMax.set(_min.x + _size.x, _min.y + _size.y);
+	rMax.Set(_min.x + _size.x, _min.y + _size.y);
 }
 
 template <typename T>
-constexpr T TRect<T>::width() const
+constexpr T TRect<T>::Width() const
 {
 	return rMax.x - rMin.x;
 }
 template <typename T>
-constexpr T TRect<T>::height() const
+constexpr T TRect<T>::Height() const
 {
 	return rMax.y - rMin.y;
 }
 
 template <typename T>
-constexpr typename TRect<T>::DataType TRect<T>::size() const
+constexpr typename TRect<T>::DataType TRect<T>::Size() const
 {
-	return DataType{ width(), height() };
+	return DataType{ Width(), Height() };
 }
 template <typename T>
-constexpr typename TRect<T>::DataType TRect<T>::center() const
+constexpr typename TRect<T>::DataType TRect<T>::Center() const
 {
-	assert(!isEmpty());
+	assert(!IsEmpty());
 	return (rMin + rMax) / 2;
 }
 
 template <typename T>
-constexpr bool TRect<T>::isEmpty() const
+constexpr bool TRect<T>::IsEmpty() const
 {
 	return (rMin.x > rMax.x) || (rMin.y > rMax.y);
 }
 
 template <typename T>
-constexpr void TRect<T>::unionWith(TRect<T> const & b)
+constexpr void TRect<T>::Union(TRect<T> const & b)
 {
 	rMin.Set(std::min(rMin.x, b.rMin.x), std::min(rMin.y, b.rMin.y));
 	rMax.Set(std::max(rMax.x, b.rMax.x), std::max(rMax.y, b.rMax.y));
 }
 
 template <typename T>
-constexpr void TRect<T>::scale(float s)
+constexpr void TRect<T>::Scale(float s)
 {
-	DataType const & sw = size() * (s * 0.5f);
+	DataType const & sw = Size() * (s * 0.5f);
 	rMin -= sw;
 	rMax += sw;
 }
@@ -420,65 +420,65 @@ constexpr bool TRect<T>::operator==(TRect<T> const & rhs) const
 }
 
 template <typename T>
-constexpr bool TRect<T>::overlap(TRect<T> const & rhs) const
+constexpr bool TRect<T>::Overlap(TRect<T> const & rhs) const
 {
-	return !isEmpty()
-		&& overlap1D(rMin.x, rMax.x, rhs.rMin.x, rhs.rMax.x)
-		&& overlap1D(rMin.y, rMax.y, rhs.rMin.y, rhs.rMax.y);
+	return !IsEmpty()
+		&& Overlap1D(rMin.x, rMax.x, rhs.rMin.x, rhs.rMax.x)
+		&& Overlap1D(rMin.y, rMax.y, rhs.rMin.y, rhs.rMax.y);
 }
 
 template <typename T>
-constexpr bool TRect<T>::conatain(TRect<T> const & rhs) const
+constexpr bool TRect<T>::Conatain(TRect<T> const & rhs) const
 {
-	return !isEmpty() && !rhs.isEmpty()
-		&& contain1D(rMin.x, rMax.x, rhs.rMin.x, rhs.rMax.x)
-		&& contain1D(rMin.y, rMax.y, rhs.rMin.y, rhs.rMax.y);
+	return !IsEmpty() && !rhs.IsEmpty()
+		&& Contain1D(rMin.x, rMax.x, rhs.rMin.x, rhs.rMax.x)
+		&& Contain1D(rMin.y, rMax.y, rhs.rMin.y, rhs.rMax.y);
 }
 
 
-constexpr void Box::set(Vector3 const & _min, Vector3 const & _size)
+constexpr void Box::Set(Vector3 const & _min, Vector3 const & _size)
 {
 	bMin = _min;
-	bMax.set(_min.x + _size.x, _min.y + _size.y, _min.z + _size.z);
+	bMax.Set(_min.x + _size.x, _min.y + _size.y, _min.z + _size.z);
 }
 
-constexpr float Box::width() const
+constexpr float Box::Width() const
 {
 	return bMax.x - bMin.x;
 }
-constexpr float Box::height() const
+constexpr float Box::Height() const
 {
 	return bMax.y - bMin.y;
 }
-constexpr float Box::depth() const
+constexpr float Box::Depth() const
 {
 	return bMax.z - bMin.z;
 }
 
-constexpr Vector3 Box::size() const
+constexpr Vector3 Box::Size() const
 {
-	return Vector3{ width(), height(), depth() };
+	return Vector3{ Width(), Height(), Depth() };
 }
-inline Vector3 Box::center() const
+inline Vector3 Box::Center() const
 {
-	assert(!isEmpty());
+	assert(!IsEmpty());
 	return (bMin + bMax) / 2;
 }
 
-constexpr bool Box::isEmpty() const
+constexpr bool Box::IsEmpty() const
 {
 	return (bMin.x > bMax.x) || (bMin.y > bMax.y) || (bMin.z > bMax.z);
 }
 
-constexpr void Box::unionWith(Box const & b)
+constexpr void Box::Union(Box const & b)
 {
-	bMin.set(std::min(bMin.x, b.bMin.x), std::min(bMin.y, b.bMin.y), std::min(bMin.z, b.bMin.z));
-	bMax.set(std::max(bMax.x, b.bMax.x), std::max(bMax.y, b.bMax.y), std::max(bMax.z, b.bMax.z));
+	bMin.Set(std::min(bMin.x, b.bMin.x), std::min(bMin.y, b.bMin.y), std::min(bMin.z, b.bMin.z));
+	bMax.Set(std::max(bMax.x, b.bMax.x), std::max(bMax.y, b.bMax.y), std::max(bMax.z, b.bMax.z));
 }
 
-inline void Box::scale(float s)
+inline void Box::Scale(float s)
 {
-	auto const & sw = size() * (s * 0.5f);
+	auto const & sw = Size() * (s * 0.5f);
 	bMin -= sw;
 	bMax += sw;
 }
@@ -488,21 +488,21 @@ constexpr bool Box::operator==(Box const & rhs) const
 	return bMin == rhs.bMin && bMax == rhs.bMax;
 }
 
-constexpr bool Box::overlap(Box const & rhs) const
+constexpr bool Box::Overlap(Box const & rhs) const
 {
-	return !isEmpty()
-		&& overlap1D(bMin.x, bMax.x, rhs.bMin.x, rhs.bMax.x)
-		&& overlap1D(bMin.y, bMax.y, rhs.bMin.y, rhs.bMax.y)
-		&& overlap1D(bMin.z, bMax.z, rhs.bMin.z, rhs.bMax.z);
+	return !IsEmpty()
+		&& Overlap1D(bMin.x, bMax.x, rhs.bMin.x, rhs.bMax.x)
+		&& Overlap1D(bMin.y, bMax.y, rhs.bMin.y, rhs.bMax.y)
+		&& Overlap1D(bMin.z, bMax.z, rhs.bMin.z, rhs.bMax.z);
 }
 
 
-constexpr bool Box::conatain(Box const & rhs) const
+constexpr bool Box::Conatain(Box const & rhs) const
 {
-	return !isEmpty() && !rhs.isEmpty()
-		&& contain1D(bMin.x, bMax.x, rhs.bMin.x, rhs.bMax.x)
-		&& contain1D(bMin.y, bMax.y, rhs.bMin.y, rhs.bMax.y)
-		&& contain1D(bMin.z, bMax.z, rhs.bMin.z, rhs.bMax.z);
+	return !IsEmpty() && !rhs.IsEmpty()
+		&& Contain1D(bMin.x, bMax.x, rhs.bMin.x, rhs.bMax.x)
+		&& Contain1D(bMin.y, bMax.y, rhs.bMin.y, rhs.bMax.y)
+		&& Contain1D(bMin.z, bMax.z, rhs.bMin.z, rhs.bMax.z);
 }
 
 }

@@ -6,11 +6,11 @@ namespace Ushuaia
 
 	struct Shading
 	{
-		static void init();
+		static void Init();
 
-		static void fini();
+		static void Fini();
 
-		static void update();
+		static void Update();
 
 		static void render();
 	};

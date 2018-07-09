@@ -12,14 +12,14 @@ namespace Ushuaia
 	decltype(Shader::s_annos) Shader::s_annos;
 
 
-	Shader* Shader::load(std::string const & _vsName, std::string const & _fsName)
+	Shader* Shader::Load(std::string const & _vsName, std::string const & _fsName)
 	{
 		size_t vsID = RT_HASH(_vsName.c_str());
 		size_t fsID = RT_HASH(_fsName.c_str());
 		size_t k = vsID ^ fsID;
-		auto const & it = s_shaders.find(k);
-		if (it != s_shaders.end())
-			return it->second;
+		decltype(s_shaders)::const_iterator itr = s_shaders.find(k);
+		if (itr != s_shaders.end())
+			return itr->second;
 		auto hProgram = loadProgram(_vsName.c_str(), _fsName.c_str());
 		if (!isValid(hProgram))
 			return nullptr;
@@ -27,41 +27,41 @@ namespace Ushuaia
 		ret->hProgram = hProgram;
 		s_shaders[k] = ret;
 
-		ret->deserailize();
+		ret->Deserailize();
 
 		return ret;
 	}
 
 
-	bgfx::UniformHandle Shader::addUniform(std::string const & _name,
+	bgfx::UniformHandle Shader::AddUniform(std::string const & _name,
 		bgfx::UniformType::Enum _uType, uint16_t _num)
 	{
 		size_t k = RT_HASH(_name.c_str());
-		auto it = s_uniforms.find(k);
-		if (it != s_uniforms.end())
-			return it->second;
+		decltype(s_uniforms)::const_iterator itr = s_uniforms.find(k);
+		if (itr != s_uniforms.end())
+			return itr->second;
 		auto ret = bgfx::createUniform(_name.c_str(), _uType, _num);
 		s_uniforms[k] = ret;
 		return ret;
 	}
 
 
-	bool Shader::init()
+	bool Shader::Init()
 	{
-		s_annos.load("shaders/annotations");
+		return s_annos.Load("shaders/annotations");
 	}
 
 
-	void Shader::clearAll()
+	void Shader::ClearAll()
 	{
-		for (auto & it : s_shaders)
+		for (auto & m : s_shaders)
 		{
-			delete it.second;
+			delete m.second;
 		}
 		s_shaders.clear();
-		for (auto & it : s_uniforms)
+		for (auto & m : s_uniforms)
 		{
-			bgfx::destroy(it.second);
+			bgfx::destroy(m.second);
 		}
 		s_uniforms.clear();
 	}
@@ -79,15 +79,16 @@ namespace Ushuaia
 	}
 
 
-	void Shader::deserailize()
+	void Shader::Deserailize()
 	{
 		std::string strKey = vsName_ + "^" + fsName_;
 		JsonValue::ConstMemberIterator itr;
 		itr = s_annos.FindMember(strKey);
 		if (itr != s_annos.MemberEnd()) {
 			for (auto & m : itr->value.GetObject()) {
-				auto ut = static_cast<bgfx::UniformType::Enum>(itr->value[0].GetUint());
-				addUniform(itr->name.GetString(), ut, itr->value[1].GetUint());
+				auto uType = static_cast<bgfx::UniformType::Enum>(m.value[0].GetUint());
+				auto uCnt = static_cast<uint16_t>(m.value[1].GetUint());
+				AddUniform(m.name.GetString(), uType, uCnt);
 			}
 		}
 	}
@@ -100,7 +101,7 @@ namespace Ushuaia
 		paramOffsets_[k] = static_cast<uint16_t>(paramSize_);
 		paramSize_ += sizeof(int32_t) * _num;
 		if (s_uniforms.find(k) == s_uniforms.end())
-			addUniform(_name, bgfx::UniformType::Int1, _num);
+			AddUniform(_name, bgfx::UniformType::Int1, _num);
 	}
 
 	void Shader::addParamVec4(std::string const & _name, uint16_t _num)
@@ -110,7 +111,7 @@ namespace Ushuaia
 		paramOffsets_[k] = static_cast<uint16_t>(paramSize_);
 		paramSize_ += sizeof(Vector4) * _num;
 		if (s_uniforms.find(k) == s_uniforms.end())
-			addUniform(_name, bgfx::UniformType::Vec4, _num);
+			AddUniform(_name, bgfx::UniformType::Vec4, _num);
 	}
 
 	void Shader::addParamMtx3(std::string const & _name, uint16_t _num)
@@ -120,7 +121,7 @@ namespace Ushuaia
 		paramOffsets_[k] = static_cast<uint16_t>(paramSize_);
 		paramSize_ += sizeof(float) * 9 * _num;
 		if (s_uniforms.find(k) == s_uniforms.end())
-			addUniform(_name, bgfx::UniformType::Mat3, _num);
+			AddUniform(_name, bgfx::UniformType::Mat3, _num);
 	}
 
 	void Shader::addParamMtx4(std::string const & _name, uint16_t _num)
@@ -130,36 +131,36 @@ namespace Ushuaia
 		paramOffsets_[k] = static_cast<uint16_t>(paramSize_);
 		paramSize_ += sizeof(Matrix4x4) * _num;
 		if (s_uniforms.find(k) == s_uniforms.end())
-			addUniform(_name, bgfx::UniformType::Mat4, _num);
+			AddUniform(_name, bgfx::UniformType::Mat4, _num);
 	}
 
 
-	uint16_t Shader::paramIndex(size_t _nameKey) const
+	uint16_t Shader::ParamIndex(size_t _nameKey) const
 	{
-		auto it = paramOffsets_.find(_nameKey);
-		if (it != paramOffsets_.end())
+		decltype(paramOffsets_)::const_iterator itr = paramOffsets_.find(_nameKey);
+		if (itr != paramOffsets_.end())
 		{
-			return it->second;
+			return itr->second;
 		}
 		return UINT16_MAX;
 	}
 
 
-	void Shader::setParams(uint8_t const * _pData) const
+	void Shader::SetParams(uint8_t const * _pData) const
 	{
-		for (auto & it : paramOffsets_)
+		for (auto & m : paramOffsets_)
 		{
-			setUniform(it.first, &_pData[it.second]);
+			SetUniform(m.first, &_pData[m.second]);
 		}
 	}
 
 
-	bool Shader::setUniform(size_t _nameKey, void const * _pVal, uint16_t _num)
+	bool Shader::SetUniform(size_t _nameKey, void const * _pVal, uint16_t _num)
 	{
-		auto it = s_uniforms.find(_nameKey);
-		if (it == s_uniforms.end())
+		decltype(s_uniforms)::const_iterator itr = s_uniforms.find(_nameKey);
+		if (itr == s_uniforms.end())
 			return false;
-		bgfx::setUniform(it->second, _pVal, _num);
+		bgfx::setUniform(itr->second, _pVal, _num);
 		return true;
 	}
 

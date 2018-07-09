@@ -49,16 +49,16 @@ namespace Ushuaia
 			Count
 		};
 
-		static void init();
-		static void clearAll();
-		static void updateAll(Matrix4x4 const & mtxView);
+		static void Init();
+		static void ClearAll();
+		static void UpdateAll(Matrix4x4 const & mtxView);
 
-		static void submit();
+		static void Submit();
 
 		static AmbientLight ambLight;
 		static DirLight dirLight;
 
-		static uint16_t addPointLight(bool isSpot);
+		static uint16_t AddPointLight(bool isSpot);
 
 	protected:
 

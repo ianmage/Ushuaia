@@ -4,10 +4,10 @@
 namespace Ushuaia
 {
 
-	bool init();
+	bool Init();
 
-	bool update();
+	bool Update();
 
-	bool fini();
+	bool Fini();
 
 }	// namespace

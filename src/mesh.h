@@ -4,74 +4,77 @@
 #include "bx/readerwriter.h"
 #include "shader.h"
 #include <memory>
+#include "math.h"
 
 
 namespace Ushuaia
 {
 
-	struct Sphere
+struct Sphere
+{
+	Vector3 center;
+	float radius;
+};
+
+
+struct Primitive
+{
+	uint32_t startIndex;
+	uint32_t numIndices;
+	uint32_t startVertex;
+	uint32_t numVertices;
+
+	Sphere sphere;
+	Box aabb;
+	Matrix4x4 obb;
+};
+
+
+struct Group
+{
+	Group()
 	{
-		Vector3 center;
-		float radius;
-	};
+		reset();
+	}
 
-
-	struct Primitive
+	void reset()
 	{
-		uint32_t startIndex;
-		uint32_t numIndices;
-		uint32_t startVertex;
-		uint32_t numVertices;
+		hVB.idx = bgfx::kInvalidHandle;
+		hIB.idx = bgfx::kInvalidHandle;
+		prims.clear();
+	}
 
-		Sphere sphere;
-		Box aabb;
-		Matrix4x4 obb;
-	};
-
-
-	struct Group
-	{
-		Group()
-		{
-			reset();
-		}
-
-		void reset()
-		{
-			hVB.idx = bgfx::kInvalidHandle;
-			hIB.idx = bgfx::kInvalidHandle;
-			prims.clear();
-		}
-
-		bgfx::VertexBufferHandle hVB;
-		bgfx::IndexBufferHandle hIB;
-		Sphere sphere;
-		Box aabb;
-		Matrix4x4 obb;
-		std::vector<Primitive> prims;
-	};
+	bgfx::VertexBufferHandle hVB;
+	bgfx::IndexBufferHandle hIB;
+	Sphere sphere;
+	Box aabb;
+	Matrix4x4 obb;
+	std::vector<Primitive> prims;
+};
 
 
-	struct Mesh
-	{
-		bgfx::VertexDecl vtxDecl;
-		std::vector<Group> groups;
-		std::string name;
+struct Mesh
+{
+	bgfx::VertexDecl vtxDecl;
+	std::vector<Group> groups;
 
-		virtual ~Mesh();
+	virtual ~Mesh();
 
-		bool deserialize();
-		void release();
+	bool Deserialize();
+	void Release();
 
-		void submit(bgfx::ViewId _id, Shader const *_pProgram) const;
+	std::string const & Name() const { return name_; }
 
-		static std::shared_ptr<Mesh> create(void const * _vertices, uint32_t _numVertices, bgfx::VertexDecl const & _decl, uint16_t const * _indices, uint32_t _numIndices);
-		static std::shared_ptr<Mesh> load(std::string const & _name);
+	void Submit(bgfx::ViewId _id, Shader const *_pProgram) const;
 
-	private:
-		static std::unordered_map<size_t, std::weak_ptr<Mesh>> s_meshes;
+	static std::shared_ptr<Mesh> Create(void const * _vertices, uint32_t _numVertices, bgfx::VertexDecl const & _decl, uint16_t const * _indices, uint32_t _numIndices);
+	static std::shared_ptr<Mesh> Load(std::string const & _name);
 
-		Mesh(std::string const & _name);
-	};
+private:
+	static std::unordered_map<size_t, std::weak_ptr<Mesh>> s_meshes;
+	std::string name_;
+
+	Mesh(std::string const & _name);
+};
 
 }

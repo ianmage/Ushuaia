@@ -24,7 +24,7 @@ static Mesh mesh;
 static bgfx::ProgramHandle hProgram = BGFX_INVALID_HANDLE;
 #endif
 
-bool init()
+bool Init()
 {
 	//entry::setCurrentDir("/Users/iAn/Programs/bgfx/examples/runtime/");
 	//bool fExist = bx::open(entry::getFileReader(), "res/shaders/glsl/vs_mesh.bin");
@@ -39,11 +39,11 @@ bool init()
 #if TEST
 	hProgram = loadProgram("vs_exam", "fs_exam");
 
-	mesh.load("meshes/bunny.bin");
+	mesh.Load("meshes/bunny.bin");
 #else
 	initVtxDecl();
 
-	Camera::initDefault();
+	Camera::InitDefault();
 
 	float const camFovY = 60.f;
 	float const camAspect = float(g_viewState.width) / float(g_viewState.height);
@@ -51,48 +51,49 @@ bool init()
 	float const camFar = 2000.f;
 	//float const projHeight = bx::tan(bx::toRad(camFovY) * 0.5f);
 	//float const projWidth = projHeight * camAspect;
-	Camera::pCurrent->init(camFovY, camAspect, camNear, camFar);
+	Camera::pCurrent->Init(camFovY, camAspect, camNear, camFar);
 
 	Vector3 const initCamPos{ 0.f, 60.f, -105.f };
-	Camera::pCurrent->setPos(initCamPos);
-	Camera::pCurrent->setVerticalAngle(-0.45f);
+	Camera::pCurrent->SetPos(initCamPos);
+	Camera::pCurrent->SetVerticalAngle(-0.45f);
 
-	Light::init();
+	Shader::Init();
+	Light::Init();
 
-	DrawChannel::init();
-	Shading::init();
+	DrawChannel::Init();
+	Shading::Init();
 
-	initResData();
+	InitResData();
 #endif
 
 	return true;
 }
 
 
-bool fini()
+bool Fini()
 {
 #if TEST
-	mesh.unload();
+	mesh.unLoad();
 
 	bgfx::destroy(hProgram);
 #else
-	finiResData();
+	FiniResData();
 #endif
 
-	Entity::fini();
-	Model::fini();
+	Entity::Fini();
+	Model::Fini();
 
-	Shading::fini();
-	Light::clearAll();
-	Shader::clearAll();
+	Shading::Fini();
+	Light::ClearAll();
+	Shader::ClearAll();
 
-	Camera::finiDefault();
+	Camera::FiniDefault();
 
 	return true;
 }
 
 
-bool update()
+bool Update()
 {
 #if TEST
 	bgfx::setViewRect(0, 0, 0,
@@ -130,13 +131,13 @@ bool update()
 	bgfx::setState(_state);
 	mesh.submit(0, hProgram);
 #else
-	Camera::pCurrent->update();
+	Camera::pCurrent->Update();
 
-	updateResData();
+	UpdateResData();
 
-	Light::updateAll(Camera::pCurrent->mtxView);
+	Light::UpdateAll(Camera::pCurrent->mtxView);
 
-	Shading::update();
+	Shading::Update();
 
 	Shading::render();
 #endif

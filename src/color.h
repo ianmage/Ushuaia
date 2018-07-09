@@ -10,7 +10,7 @@ namespace Ushuaia
 	typedef TVec3<float>	Color3F;
 
 
-	Color4F convertToColorF(uint32_t const iVal);
+	Color4F ConvertToColorF(uint32_t const iVal);
 
-	uint32_t convertToColorI(Color4F const & c);
+	uint32_t ConvertToColorI(Color4F const & c);
 }

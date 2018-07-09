@@ -8,10 +8,10 @@ namespace Ushuaia
 decltype(Entity::s_entNames) Entity::s_entNames;
 
 
-void Entity::serialize(JsonWriter & _writer) const
+void Entity::Serialize(JsonWriter & _writer) const
 {
 	_writer.Key("Model");
-	_writer.String(pModel->name);
+	_writer.String(pModel->Name());
 	_writer.Key("Transform");
 	size_t const maxFltWidth = 12;
 	char buf[maxFltWidth * ArrayCount(transform)];
@@ -22,13 +22,13 @@ void Entity::serialize(JsonWriter & _writer) const
 }
 
 
-bool Entity::deserialize(JsonValue const & _jsObj)
+bool Entity::Deserialize(JsonValue const & _jsObj)
 {
 	JsonValue::ConstMemberIterator itr;
 
 	itr = _jsObj.FindMember("Model");
 	if (itr != _jsObj.MemberEnd()) {
-		pModel = Model::load(itr->value.GetString());
+		pModel = Model::Load(itr->value.GetString());
 	}
 
 	itr = _jsObj.FindMember("Transform");
@@ -38,15 +38,17 @@ bool Entity::deserialize(JsonValue const & _jsObj)
 			transform[i++] = v.GetFloat();
 		}
 	}
+	else
+		return false;
 
 	return true;
 }
 
 
-Entity* Entity::create(std::string const & _name)
+Entity* Entity::Create(std::string const & _name)
 {
 	size_t k = RT_HASH(_name.c_str());
-	Entity* pEnt = get(k);
+	Entity* pEnt = Get(k);
 	if (pEnt)
 		return pEnt;
 
@@ -58,24 +60,24 @@ Entity* Entity::create(std::string const & _name)
 }
 
 
-void Entity::load(JsonValue const & _jsObj)
+void Entity::Load(JsonValue const & _jsObj)
 {
 	for (auto & m : _jsObj.GetObject()) {
-		Entity *pEnt = create(m.name.GetString());
-		pEnt->deserialize(m.value);
+		Entity *pEnt = Create(m.name.GetString());
+		pEnt->Deserialize(m.value);
 	}
 }
 
 
-void Entity::save(JsonWriter & _writer)
+void Entity::Save(JsonWriter & _writer)
 {
 	_writer.StartObject();
-	for (auto const & it : s_entNames)
+	for (auto const & m : s_entNames)
 	{
-		_writer.String(it.second);
+		_writer.String(m.second);
 		_writer.StartObject();
 
-		s_entities[it.first]->serialize(_writer);
+		s_entities[m.first]->Serialize(_writer);
 
 		_writer.EndObject();
 	}
@@ -83,10 +85,10 @@ void Entity::save(JsonWriter & _writer)
 }
 
 
-void Entity::fini()
+void Entity::Fini()
 {
-	for (auto & it : s_entities) {
-		delete it.second;
+	for (auto & m : s_entities) {
+		delete m.second;
 	}
 	s_entities.clear();
 }

@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 import sys, os
 sys.dont_write_bytecode = True
+sys.path.append("../shaders")
 import fxc
 
 
@@ -21,11 +22,11 @@ def headerLastMod() :
 if __name__ == '__main__' :
 	curDir = sys.argv[0].replace('\\', '/')
 	curDir = curDir[:curDir.rfind('/')+1]
+	os.chdir(curDir + '../shaders')
 	fileList = []
 	listFile(fileList)
-	lmt = headerLastMod()
-	#force = raw_input("force all ? (y/n) : ")
-	force = 0
+	lastModTime = headerLastMod()
+	force = raw_input("force all ? (y/n) : ")
 
 	force = force in ('y', 'Y', '1')
 	for f in fileList :
@@ -33,6 +34,6 @@ if __name__ == '__main__' :
 		modTime = None
 		if not force :
 			modTime = os.stat(inPath).st_mtime
-			modTime = max(lmt, modTime)
+			modTime = max(lastModTime, modTime)
 		fxc.proc(inPath, None, modTime)
 	fxc.press_any_key_exit()
