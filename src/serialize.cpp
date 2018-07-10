@@ -48,7 +48,6 @@ bool JsonReader::Load(std::string _fPath)
 	::fclose(pFile);
 	content.back() = '\0';
 
-
 	if (Parse(content.data()).HasParseError()) {
 #ifdef _DEBUG
 		pFile = ::fopen("r:/test.json", "wb");

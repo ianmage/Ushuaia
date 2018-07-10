@@ -1,7 +1,7 @@
 #include "shader.h"
 #include "../examples/common/bgfx_utils.h"
 #include "../../cpp_common/commUtil.h"
-#include "math.h"
+#include "../../cpp_common/strUtil.h"
 
 #pragma optimize("", off)
 
@@ -88,6 +88,8 @@ namespace Ushuaia
 
 	void Shader::Deserailize()
 	{
+		std::string vsName = ::endsWith(vsName_, "_instance")
+			? vsName_.substr(0, vsName_.length() - sizeof("_instance")+1) : vsName_;
 		std::string strKey = vsName_ + "^" + fsName_;
 		JsonValue::ConstMemberIterator itr;
 		itr = s_annos.FindMember(strKey);
