@@ -74,15 +74,15 @@ void Model::Fini()
 }
 
 
-void Model::Draw(bgfx::ViewId viewId
-	, uint64_t override0, uint64_t override1
-	, Shader const *pShader)
+void Model::Draw(bgfx::ViewId _viewId
+	, uint64_t _overrideSt0, uint64_t _overrideSt1
+	, Shader const * _overrideShader)
 {
 	if (!pMesh || !pMtl)
 		return;
 
-	pMtl->Submit(override0, override1);
-	pMesh->Submit(viewId, pShader ? pShader : pMtl->GetShader());
+	pMtl->Submit(_overrideSt0, _overrideSt1, _overrideShader);
+	pMesh->Submit(_viewId, _overrideShader ? _overrideShader : pMtl->GetShader());
 }
 
 }

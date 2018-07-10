@@ -56,7 +56,6 @@ struct Group
 struct Mesh
 {
 	bgfx::VertexDecl vtxDecl;
-	std::vector<Group> groups;
 
 	virtual ~Mesh();
 
@@ -67,12 +66,15 @@ struct Mesh
 
 	void Submit(bgfx::ViewId _id, Shader const *_pProgram) const;
 
-	static std::shared_ptr<Mesh> Create(void const * _vertices, uint32_t _numVertices, bgfx::VertexDecl const & _decl, uint16_t const * _indices, uint32_t _numIndices);
+	static std::shared_ptr<Mesh> Create(std::string const & _name,
+		void const * _vertices, uint32_t _numVertices, bgfx::VertexDecl const & _decl,
+		uint16_t const * _indices, uint32_t _numIndices);
 	static std::shared_ptr<Mesh> Load(std::string const & _name);
 
 private:
 	static std::unordered_map<size_t, std::weak_ptr<Mesh>> s_meshes;
 	std::string name_;
+	std::vector<Group> groups_;
 
 	Mesh(std::string const & _name);
 };

@@ -125,7 +125,7 @@ void Material::SetShader(Shader *_pShader)
 		return;
 	if (_pShader)
 	{
-		paramData_.resize(_pShader->paramSize_);
+		paramData_.resize(_pShader->ParamSize());
 	}
 	else
 	{
@@ -136,12 +136,15 @@ void Material::SetShader(Shader *_pShader)
 }
 
 
-void Material::Submit(uint64_t override0, uint64_t override1)
+void Material::Submit(uint64_t _overrideSt0, uint64_t _overrideSt1,
+	Shader const * _overrideProgram)
 {
-	assert(pShader_);
-	bgfx::setState(RenderState::overrideMe(renderStates, override0, override1));
+	bgfx::setState(RenderState::overrideMe(renderStates, _overrideSt0, _overrideSt1));
 
-	pShader_->SetParams(paramData_.data());
+	if (_overrideProgram)
+		_overrideProgram->SetPerDrawParams(paramData_.data());
+	else
+		pShader_->SetPerDrawParams(paramData_.data());
 }
 
 

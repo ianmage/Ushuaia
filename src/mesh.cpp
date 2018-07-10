@@ -31,9 +31,11 @@ Mesh::~Mesh()
 }
 
 
-std::shared_ptr<Mesh> Mesh::Create(void const * _vertices, uint32_t _numVertices, bgfx::VertexDecl const & _decl, uint16_t const * _indices, uint32_t _numIndices)
+std::shared_ptr<Mesh> Mesh::Create(std::string const & _name,
+	void const * _vertices, uint32_t _numVertices, bgfx::VertexDecl const & _decl,
+	uint16_t const * _indices, uint32_t _numIndices)
 {
-	std::shared_ptr<Mesh> pMesh(new Mesh(""));
+	std::shared_ptr<Mesh> pMesh(new Mesh(_name));
 
 	std::vector<uint16_t> idx(_numIndices);
 	for (uint32_t i = 0; i < _numIndices; ++i)
@@ -51,7 +53,7 @@ std::shared_ptr<Mesh> Mesh::Create(void const * _vertices, uint32_t _numVertices
 	memcpy(mem->data, _indices, mem->size);
 	group.hIB = bgfx::createIndexBuffer(mem);
 
-	pMesh->groups.emplace_back(std::move(group));
+	pMesh->groups_.emplace_back(std::move(group));
 
 	return std::move(pMesh);
 }
@@ -81,8 +83,10 @@ bool Mesh::Deserialize()
 	std::string filePath = "mesh/" + name_ + ".bin";
 
 	bx::FileReaderI* pReader = entry::getFileReader();
-	if (!bx::open(pReader, filePath.c_str()))
+	if (!bx::open(pReader, filePath.c_str())) {
+		assert(false);
 		return false;
+	}
 
 #define BGFX_CHUNK_MAGIC_VB  BX_MAKEFOURCC('V', 'B', ' ', 0x1)
 #define BGFX_CHUNK_MAGIC_IB  BX_MAKEFOURCC('I', 'B', ' ', 0x0)
@@ -184,7 +188,7 @@ bool Mesh::Deserialize()
 				group.prims.push_back(prim);
 			}
 
-			groups.push_back(group);
+			groups_.push_back(group);
 			group.reset();
 		}
 		break;
@@ -201,7 +205,7 @@ bool Mesh::Deserialize()
 
 void Mesh::Release()
 {
-	for (auto const & group : groups)
+	for (auto const & group : groups_)
 	{
 		bgfx::destroy(group.hVB);
 
@@ -210,20 +214,20 @@ void Mesh::Release()
 			bgfx::destroy(group.hIB);
 		}
 	}
-	groups.clear();
+	groups_.clear();
 }
 
 
 void Mesh::Submit(bgfx::ViewId _id, Shader const *_pProgram) const
 {
-	for (decltype(groups)::const_iterator it = groups.begin(), itEnd = groups.end(); it != itEnd; ++it)
+	for (decltype(groups_)::const_iterator itr = groups_.begin(), itrEnd = groups_.end(); itr != itrEnd; ++itr)
 	{
-		Group const & group = *it;
+		Group const & group = *itr;
 
 		if (bgfx::isValid(group.hIB))
 			bgfx::setIndexBuffer(group.hIB);
 		bgfx::setVertexBuffer(0, group.hVB);
-		bgfx::submit(_id, _pProgram->hProgram, 0, it != itEnd-1);
+		bgfx::submit(_id, _pProgram->hProgram, 0, itr != itrEnd-1);
 	}
 }
 

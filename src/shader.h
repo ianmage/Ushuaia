@@ -12,14 +12,14 @@ namespace Ushuaia
 	{
 	public:
 		bgfx::ProgramHandle hProgram;
-		size_t paramSize_;
 
 		~Shader();
 
 		void Deserailize();
 
 		uint16_t ParamIndex(size_t _nameKey) const;
-		void SetParams(uint8_t const * _pData) const;
+		void SetPerDrawParams(uint8_t const * _pData) const;
+		size_t ParamSize() const { return paramSize_; }
 
 		static std::unordered_map<size_t, std::string> s_vec4NameMap;
 
@@ -36,7 +36,10 @@ namespace Ushuaia
 
 		std::string vsName_, fsName_;
 
-		std::unordered_map<size_t, uint16_t> paramOffsets_;
+		// PerDraw parameters
+		typedef std::pair<uint16_t, uint16_t>	ParamInfo;
+		std::unordered_map<size_t, ParamInfo> paramOffsets_;
+		size_t paramSize_;
 
 		static std::unordered_map<size_t, Shader*> s_shaders;
 

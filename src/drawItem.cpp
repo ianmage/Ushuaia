@@ -119,7 +119,7 @@ namespace Ushuaia
 			auto pMtlShader = m.pModel->pMtl->GetShader();
 			Shader *pInstShader = Shader::Load(
 				pMtlShader->VsName() + "_instance", pMtlShader->FsName());
-			assert(pInstShader);
+
 			bgfx::setInstanceDataBuffer(&idb);
 			m.pModel->Draw(viewId, override0, override1, pInstShader);
 		}

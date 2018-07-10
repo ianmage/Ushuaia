@@ -80,12 +80,26 @@ static void floatFmt(char *f, int m, int n)
 }
 
 
+int trimTail(char *s, int len, char const c)
+{
+	while (s[len - 1] == c) {
+		if (len < 2)
+			break;
+		--len;
+	}
+	s[len] = 0;
+	return len;
+}
+
+
 int ftoa(float v, char *s, int m, int n)
 {
 	char f[16];
 	floatFmt(f, m, n);
 
-	return sprintf(s, f, v);
+	int len = sprintf(s, f, v);
+	len = trimTail(s, len, '0');
+	return len;
 }
 
 
@@ -96,14 +110,18 @@ int ftoa(float const *v, size_t cnt, char *s, int m, int n)
 
 	int ret = 0;
 	int len = 0;
-	len = sprintf(s, f, v[0]) + 1;
+	len = sprintf(s, f, v[0]);
+	len = trimTail(s, len, '0');
+	++len;	// for ,
 	ret += len;
 
 	for (size_t i = 1; i < cnt; ++i)
 	{
 		s[len-1] = ',';
 		s += len;
-		len = sprintf(s, f, v[i]) + 1;
+		len = sprintf(s, f, v[i]);
+		len = trimTail(s, len, '0');
+		++len;	// for ,
 		ret += len;
 	}
 
@@ -127,9 +145,9 @@ std::string NumToAry79Str(uint64_t num)	// base on ascii visable char
 	uint8_t const ary = 79;
 
 	std::string s;
-	s.resize(CalcAryLength(num, ary) + 1);
+	s.resize(CalcAryLength(num, ary));
 
-	size_t idx = s.size() - 2;
+	size_t idx = s.size() - 1;
 	while (num >= ary) {
 		s[idx--] = (num % ary) + aryBegin;
 		num /= ary;
@@ -149,7 +167,7 @@ uint64_t Ary79StrToNum(std::string const & s)
 	uint64_t n = 0;
 
 	uint64_t powBase = 1;
-	for (size_t i = s.size()-2; i > 0; --i) {
+	for (size_t i = s.size()-1; i > 0; --i) {
 		n += (s[i] - aryBegin) * powBase;
 		powBase *= ary;
 	}

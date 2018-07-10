@@ -42,6 +42,7 @@ namespace Ushuaia
 		decltype(s_uniforms)::const_iterator itr = s_uniforms.find(k);
 		if (itr != s_uniforms.end())
 			return itr->second;
+
 		auto ret = bgfx::createUniform(_name.c_str(),
 			bgfx::UniformType::Enum::Vec4, _num);
 		s_uniforms[k] = ret;
@@ -94,8 +95,14 @@ namespace Ushuaia
 			for (auto & m : itr->value.GetObject()) {
 				auto uType = static_cast<bgfx::UniformType::Enum>(m.value[0].GetUint());
 				auto uCnt = static_cast<uint16_t>(m.value[1].GetUint());
-				if (bgfx::UniformType::Enum::Vec4 == uType)
-					AddUniformVec4(m.name.GetString(), uCnt);
+				auto uName = m.name.GetString();
+				auto uKey = RT_HASH(uName);
+				if (bgfx::UniformType::Enum::Vec4 == uType) {
+					AddUniformVec4(uName, uCnt);
+					uint16_t uOffset = static_cast<uint16_t>(paramSize_);
+					paramOffsets_.emplace(uKey, std::make_pair(uOffset, uCnt));
+					paramSize_ += sizeof(Vector4) * uCnt;
+				}
 			}
 		}
 	}
@@ -106,17 +113,17 @@ namespace Ushuaia
 		decltype(paramOffsets_)::const_iterator itr = paramOffsets_.find(_nameKey);
 		if (itr != paramOffsets_.end())
 		{
-			return itr->second;
+			return itr->second.first;
 		}
 		return UINT16_MAX;
 	}
 
 
-	void Shader::SetParams(uint8_t const * _pData) const
+	void Shader::SetPerDrawParams(uint8_t const * _pData) const
 	{
 		for (auto & m : paramOffsets_)
 		{
-			SetUniform(m.first, &_pData[m.second]);
+			SetUniform(m.first, &_pData[m.second.first], m.second.second);
 		}
 	}
 

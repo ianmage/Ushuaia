@@ -18,9 +18,10 @@ struct Model
 	void Serialize() const;
 	bool Deserialize();
 
-	void Draw(bgfx::ViewId viewId
-		, uint64_t override0 = RenderState::s_val[0], uint64_t override1 = RenderState::s_val[1]
-		, Shader const *pShader = nullptr);
+	void Draw(bgfx::ViewId _viewId
+		, uint64_t _overrideSt0 = RenderState::s_val[0]
+		, uint64_t _overrideSt1 = RenderState::s_val[1]
+		, Shader const * _overrideShader = nullptr);
 
 	static std::shared_ptr<Model> Load(std::string const & _name);
 
