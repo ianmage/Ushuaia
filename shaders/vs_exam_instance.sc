@@ -33,8 +33,8 @@ void main()
 	mtxInst[3] = i_data3;
 #endif
 
-	//vec4 worldPos = instMul(mtxInst, vec4(a_position, 1.0));
-	vec4 worldPos = mul(mtxInst, vec4(a_position, 1.0));
+	vec4 worldPos = instMul(mtxInst, vec4(a_position, 1.0));
+	//vec4 worldPos = mul(mtxInst, vec4(a_position, 1.0));
 
 	gl_Position = mul(u_modelViewProj, worldPos);
 

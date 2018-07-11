@@ -22,6 +22,7 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <AdditionalIncludeDirectories>$(BOOST_INCLUDE_DIR);$(BX_INCLUDE_DIR);$(BIMG_INCLUDE_DIR);$(BGFX_INCLUDE_DIR);$(BX_COMPAT_DIR);$(BGFX_INCLUDE_DIR)\..\3rdparty;$(JSON_INCLUDE_DIR);</AdditionalIncludeDirectories>
+	  <PreprocessorDefinitions>BOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(BOOST_LIB_DIR);$(BGFX_LIB_DIR);</AdditionalLibraryDirectories>

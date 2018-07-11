@@ -26,12 +26,12 @@ namespace Ushuaia
 	{
 		std::vector<Entity*> entArray;
 		if (Scene::pActive) {
-			for (auto const & eIt : Scene::pActive->entities) {
-				entArray.push_back(eIt.second);
+			for (auto const & e : Scene::pActive->entities) {
+				entArray.push_back(e.second);
 			}
 		}
-		for (auto const & eIt : Entity::s_entities) {
-			entArray.push_back(eIt.second);
+		for (auto const & e : Entity::s_entities) {
+			entArray.push_back(e.second);
 		}
 
 		std::sort(entArray.begin(), entArray.end(),

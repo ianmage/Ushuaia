@@ -1,8 +1,6 @@
 # -*- coding: UTF-8 -*-
 import sys, os
 sys.dont_write_bytecode = True
-sys.path.append("../shaders")
-import fxc
 
 
 def listFile(nameList) :
@@ -23,6 +21,10 @@ if __name__ == '__main__' :
 	curDir = sys.argv[0].replace('\\', '/')
 	curDir = curDir[:curDir.rfind('/')+1]
 	os.chdir(curDir + '../shaders')
+
+	sys.path.append(".")
+	import fxc
+
 	fileList = []
 	listFile(fileList)
 	lastModTime = headerLastMod()
@@ -30,7 +32,7 @@ if __name__ == '__main__' :
 
 	force = force in ('y', 'Y', '1')
 	for f in fileList :
-		inPath = curDir + f
+		inPath = f
 		modTime = None
 		if not force :
 			modTime = os.stat(inPath).st_mtime
