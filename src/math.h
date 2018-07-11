@@ -140,6 +140,8 @@ struct Matrix4x4
 	inline void Transform(Vector3 & out, Vector3 const & in) const;
 
 	constexpr void Mtx4x3(float * out) const;
+
+	constexpr void Transpose();
 };
 
 
@@ -153,6 +155,8 @@ struct Matrix3x3
 	inline void SetIdentity();
 
 	constexpr void Transform(Vector3 & out, Vector3 const & in) const;
+
+	constexpr void Transpose();
 };
 
 

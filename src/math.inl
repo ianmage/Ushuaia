@@ -329,11 +329,18 @@ inline void Matrix4x4::Transform(Vector3 & out, Vector3 const & in) const
 constexpr void Matrix4x4::Mtx4x3(float * out) const
 {
 	int i = 0;
-	for (int j = 0; j < 4; ++j)
-	{
-		for (int k = 0; k < 3; ++k)
-		{
+	for (int j = 0; j < 4; ++j) {
+		for (int k = 0; k < 3; ++k) {
 			out[i++] = v[j * 4 + k];
+		}
+	}
+}
+
+constexpr void Matrix4x4::Transpose()
+{
+	for (int i = 0; i < 3; ++i) {
+		for (int j = i+1; j < 4; ++j) {
+			std::swap(v[i*4+j], v[j*4+i]);
 		}
 	}
 }
@@ -359,6 +366,15 @@ constexpr void Matrix3x3::Transform(Vector3 & out, Vector3 const & in) const
 	out.x = in.x * v[0] + in.y * v[3] + in.z * v[6];
 	out.y = in.x * v[1] + in.y * v[4] + in.z * v[7];
 	out.z = in.x * v[2] + in.y * v[5] + in.z * v[8];
+}
+
+constexpr void Matrix3x3::Transpose()
+{
+	for (int i = 0; i < 2; ++i) {
+		for (int j = i+1; j < 3; ++j) {
+			std::swap(v[i*4+j], v[j*4+i]);
+		}
+	}
 }
 
 

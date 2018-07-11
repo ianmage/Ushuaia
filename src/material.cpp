@@ -47,35 +47,7 @@ void Material::Serialize() const
 {
 	JsonWriter writer;
 
-	if (pShader_) {
-		writer.Key("Shader");
-		writer.StartArray();
-		writer.String(pShader_->VsName());
-		writer.String(pShader_->FsName());
-		writer.EndArray();
-	}
-
-	writer.Key("RenderState");
-	writer.String(NumToAry79Str(renderStates));
-
-	writer.Key("Parameters");
-	writer.StartObject();
-	if (!Shader::s_vec4NameMap.empty()) {
-		writer.Key("Vec4");
-		writer.StartObject();
-		for (auto & m : Shader::s_vec4NameMap) {
-			writer.Key(m.second);
-			Vector4 *vec4 = GetParamVec4(m.first);
-			size_t const maxFltWidth = 12;
-			char buf[maxFltWidth * 4];
-			int len = ftoa(vec4->v, 4, buf, 0, 4);
-			writer.StartArray();
-			writer.RawValue(buf, len, rapidjson::kArrayType);
-			writer.EndArray();
-		}
-		writer.EndObject();
-	}
-	writer.EndObject();
+	Serialize(writer);
 
 	writer.Save("material/" + name_);
 }
@@ -87,21 +59,63 @@ bool Material::Deserialize()
 	if (!reader.Load("material/" + name_))
 		return false;
 
+	Deserialize(reader);
+
+	return true;
+}
+
+
+void Material::Serialize(JsonWriter & _writer) const
+{
+	if (pShader_) {
+		_writer.Key("Shader");
+		_writer.StartArray();
+		_writer.String(pShader_->VsName());
+		_writer.String(pShader_->FsName());
+		_writer.EndArray();
+	}
+
+	_writer.Key("RenderState");
+	_writer.String(NumToAry79Str(renderStates));
+
+	_writer.Key("Parameters");
+	_writer.StartObject();
+	if (!Shader::s_vec4NameMap.empty()) {
+		_writer.Key("Vec4");
+		_writer.StartObject();
+		for (auto & m : Shader::s_vec4NameMap) {
+			_writer.Key(m.second);
+			Vector4 *vec4 = GetParamVec4(m.first);
+			size_t const maxFltWidth = 12;
+			char buf[maxFltWidth * 4];
+			int len = ftoa(vec4->v, 4, buf, 0, 4);
+			_writer.StartArray();
+			_writer.RawValue(buf, len, rapidjson::kArrayType);
+			_writer.EndArray();
+		}
+		_writer.EndObject();
+	}
+	_writer.EndObject();
+}
+
+
+bool Material::Deserialize(JsonValue const & _jsObj)
+{
 	JsonValue::ConstMemberIterator itr;
-	itr = reader.FindMember("Shader");
-	if (itr != reader.MemberEnd()) {
+	itr = _jsObj.FindMember("Shader");
+	if (itr != _jsObj.MemberEnd()) {
 		std::string vsName = itr->value[0].GetString();
 		std::string fsName = itr->value[1].GetString();
 		SetShader( Shader::Load(vsName, fsName) );
 	}
 
-	itr = reader.FindMember("RenderState");
-	if (itr != reader.MemberEnd()) {
+	itr = _jsObj.FindMember("RenderState");
+	if (itr != _jsObj.MemberEnd()) {
 		renderStates = Ary79StrToNum(itr->value.GetString());
 	}
 
-	itr = reader.FindMember("Parameters");
-	if (itr != reader.MemberEnd()) {
+	itr = _jsObj.FindMember("Parameters");
+	if (itr != _jsObj.MemberEnd()) {
 		auto const & paramMap = itr->value;
 		JsonValue::ConstMemberIterator v4Itr = paramMap.FindMember("Vec4");
 		if (v4Itr != paramMap.MemberEnd()) {

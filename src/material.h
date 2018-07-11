@@ -34,6 +34,8 @@ public:
 
 	void Serialize() const;
 	bool Deserialize();
+	void Serialize(JsonWriter & _writer) const;
+	bool Deserialize(JsonValue const & _jsObj);
 
 	static Material* Load(std::string const & _name);
 	static void ClearAll();
