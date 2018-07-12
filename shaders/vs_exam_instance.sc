@@ -6,7 +6,7 @@ $output v_normal, v_pos
 void main()
 {
 	mat4 mtxInst;
-#if 0
+#if 1
 	mtxInst[0] = vec4(i_data0.x, i_data0.y, i_data0.z, 0);
 	mtxInst[1] = vec4(i_data0.w, i_data1.x, i_data1.y, 0);
 	mtxInst[2] = vec4(i_data1.z, i_data1.w, i_data2.x, 0);
@@ -33,13 +33,12 @@ void main()
 	mtxInst[3] = i_data3;
 #endif
 
-	//vec4 worldPos = instMul(mtxInst, vec4(a_position, 1.0));
-	vec4 worldPos = mul(mtxInst, vec4(a_position, 1.0));
+	vec4 worldPos = instMul(mtxInst, vec4(a_position, 1.0));
 
 	gl_Position = mul(u_modelViewProj, worldPos);
 
 	vec4 normal = vec4(a_normal.xyz * 2.0 - 1.0, 0);
-	normal = mul(mtxInst, normal);
+	normal = instMul(mtxInst, normal);
 	v_normal = normalize(mul(u_modelView, normal).xyz);
 	v_pos = mul(u_modelView, vec4(a_position, 1.0)).xyz;
 }

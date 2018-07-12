@@ -1,4 +1,5 @@
 #include "scene.h"
+#include "light.h"
 
 
 namespace Ushuaia
@@ -26,6 +27,9 @@ void Scene::Serialize()
 {
 	JsonWriter writer;
 
+	writer.Key("Lights");
+	Light::Serialize(writer);
+
 	writer.Key("Entities");
 	writer.StartObject();
 	for (auto const & m : entities) {
@@ -43,7 +47,14 @@ bool Scene::Deserialize()
 	if (!reader.Load("scene/" + name_))
 		return false;
 
-	JsonValue::ConstMemberIterator itr = reader.FindMember("Entities");
+	JsonValue::ConstMemberIterator itr;
+
+	itr = reader.FindMember("Lights");
+	if (itr != reader.MemberEnd()) {
+		Light::Deserialize(itr->value);
+	}
+
+	itr = reader.FindMember("Entities");
 	if (itr != reader.MemberEnd()) {
 		for (auto const & m : itr->value.GetObject()) {
 			char const * entName = m.name.GetString();

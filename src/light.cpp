@@ -85,7 +85,7 @@ void Light::Serialize(JsonWriter & _writer)
 		WriteFloatArray(_writer, pl.color);
 		_writer.Key("Pos");
 		WriteFloatArray(_writer, pl.pos);
-		_writer.Key("Attnuation");
+		_writer.Key("Attenuation");
 		WriteFloatArray(_writer, pl.attn);
 		_writer.EndObject();
 	}
@@ -113,7 +113,64 @@ void Light::Serialize(JsonWriter & _writer)
 
 void Light::Deserialize(JsonValue const & _jsObj)
 {
+	ClearAll();
 	JsonValue::ConstMemberIterator itr;
+
+	itr = _jsObj.FindMember("Ambient");
+	if (itr != _jsObj.MemberEnd())
+		ReadFloatArray(itr->value, ambLight.color);
+
+	itr = _jsObj.FindMember("Directional");
+	if (itr != _jsObj.MemberEnd()) {
+		JsonValue::ConstMemberIterator dirItr;
+		auto const & dirObj = itr->value;
+		dirItr = dirObj.FindMember("Color");
+		if (dirItr != dirObj.MemberEnd())
+			ReadFloatArray(dirItr->value, dirLight.color);
+		dirItr = dirObj.FindMember("Dir");
+		if (dirItr != dirObj.MemberEnd())
+			ReadFloatArray(dirItr->value, dirLight.dir);
+	}
+
+	itr = _jsObj.FindMember("Point");
+	if (itr != _jsObj.MemberEnd()) {
+		int i = 0;
+		for (auto const & ptObj : itr->value.GetArray()) {
+			JsonValue::ConstMemberIterator ptItr;
+			auto & pl = s_pointLights[i++];
+			ptItr = ptObj.FindMember("Color");
+			if (ptItr != ptObj.MemberEnd())
+				ReadFloatArray(ptItr->value, pl.color);
+			ptItr = ptObj.FindMember("Pos");
+			if (ptItr != ptObj.MemberEnd())
+				ReadFloatArray(ptItr->value, pl.pos);
+			ptItr = ptObj.FindMember("Attenuation");
+			if (ptItr != ptObj.MemberEnd())
+				ReadFloatArray(ptItr->value, pl.attn);
+		}
+	}
+
+	itr = _jsObj.FindMember("Spot");
+	if (itr != _jsObj.MemberEnd()) {
+		int i = 0;
+		for (auto const & spObj : itr->value.GetArray()) {
+			JsonValue::ConstMemberIterator spItr;
+			auto & sl = s_spotLights[i++];
+			spItr = spObj.FindMember("Color");
+			if (spItr != spObj.MemberEnd())
+				ReadFloatArray(spItr->value, sl.color);
+			spItr = spObj.FindMember("Pos");
+			if (spItr != spObj.MemberEnd())
+				ReadFloatArray(spItr->value, sl.pos);
+			spItr = spObj.FindMember("AttnOuter");
+			if (spItr != spObj.MemberEnd())
+				ReadFloatArray(spItr->value, sl.attnOuter);
+			spItr = spObj.FindMember("DirInner");
+			if (spItr != spObj.MemberEnd())
+				ReadFloatArray(spItr->value, sl.dirInner);
+		}
+	}
+
 #if 0
 	itr = _jsObj.FindMember("Model");
 	if (itr != _jsObj.MemberEnd()) {

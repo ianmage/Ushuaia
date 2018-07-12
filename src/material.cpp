@@ -120,11 +120,8 @@ bool Material::Deserialize(JsonValue const & _jsObj)
 		JsonValue::ConstMemberIterator v4Itr = paramMap.FindMember("Vec4");
 		if (v4Itr != paramMap.MemberEnd()) {
 			for (auto & v4m : v4Itr->value.GetObject()) {
-				auto const & a = v4m.value.GetArray();
 				Vector4 *vec4 = GetParamVec4(RT_HASH(v4m.name.GetString()));
-				for (uint8_t i = 0; i < 4; ++i) {
-					vec4->v[i] = a[i].GetFloat();
-				}
+				ReadFloatArray(v4m.value, *vec4);
 			}
 		}
 	}

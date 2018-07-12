@@ -45,12 +45,24 @@ uint64_t Ary79StrToNum(std::string const & s);
 template <typename T>
 void WriteFloatArray(JsonWriter & writer, T const & v, size_t maxWidth = 12)
 {
-	size_t cnt = ArrayCount(v);
+	size_t const cnt = ArrayCount(v);
 	std::vector<char> buf(maxWidth * cnt);
 	size_t len = ftoa(v.v, cnt, buf.data(), 0, 4);
 	writer.StartArray();
 	writer.RawValue(buf.data(), len, rapidjson::kArrayType);
 	writer.EndArray();
+}
+
+template <typename T>
+void ReadFloatArray(JsonValue const & jsObj, T & v)
+{
+	int i = 0;
+	for (auto const & arrVal : jsObj.GetArray()) {
+		v[i++] = arrVal.GetFloat();
+	}
+#ifdef _DEBUG
+	assert(i == ArrayCount(v));
+#endif
 }
 
 }

@@ -2,19 +2,19 @@
 import sys, os
 import zipfile
 sys.dont_write_bytecode = True
-import platform
+#import platform
 
 
-isWin = False
-isOSX = False
+#isWin = False
+#isOSX = False
 
-def init() :
-	global isWin, isOSX
-	curSys = platform.system()
-	isWin = curSys == 'Windows'
-	isOSX = curSys == 'Darwin'
+#def init() :
+#	global isWin, isOSX
+#	curSys = platform.system()
+#	isWin = curSys == 'Windows'
+#	isOSX = curSys == 'Darwin'
 
-init()
+#init()
 
 
 resDir = (
@@ -35,16 +35,12 @@ def gather_desc(fileList) :
 			if os.path.isfile(f) and f.endswith('.json') :
 				fileList.append(f)
 				emptyDir = False
-		if emptyDir :
+		if emptyDir and False :
 			fileList.append(d)
 
 
 def proc() :
-	if isWin :
-		zfPath = 'R:/'
-	elif isOSX :
-		zfPath = '/Volumes/RamDisk/'
-	zfPath += 'res.zip'
+	zfPath = '../res.zip'
 	zf = zipfile.ZipFile(zfPath, 'w', zipfile.ZIP_DEFLATED)
 
 	fileList = []
