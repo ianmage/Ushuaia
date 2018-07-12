@@ -1,5 +1,4 @@
 #include "model.h"
-#include "../../cpp_common/commUtil.h"
 #include "serialize.h"
 
 
@@ -9,6 +8,12 @@ namespace Ushuaia
 Model::Model(std::string const & _name)
 	: name_(_name), pMesh(nullptr), pMtl(nullptr)
 {
+}
+
+
+Model::~Model()
+{
+	delete pMtl;
 }
 
 
@@ -22,7 +27,11 @@ void Model::Serialize() const
 	}
 	if (pMtl) {
 		writer.Key("Material");
+#if 0
 		writer.String(pMtl->Name());
+#else
+		pMtl->Serialize(writer);
+#endif
 	}
 
 	writer.Save("model/" + name_);
@@ -31,6 +40,7 @@ void Model::Serialize() const
 
 bool Model::Deserialize()
 {
+	assert(!pMesh && !pMtl);
 	JsonReader reader;
 	if (!reader.Load("model/" + name_))
 		return false;
@@ -42,7 +52,12 @@ bool Model::Deserialize()
 	}
 	itr = reader.FindMember("Material");
 	if (itr != reader.MemberEnd()) {
+#if 0
 		pMtl = Material::Load(itr->value.GetString());
+#else
+		pMtl = new Material;
+		pMtl->Deserialize(itr->value);
+#endif
 	}
 
 	return true;

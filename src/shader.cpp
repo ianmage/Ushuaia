@@ -1,6 +1,5 @@
 #include "shader.h"
 #include "../examples/common/bgfx_utils.h"
-#include "../../cpp_common/commUtil.h"
 #include "../../cpp_common/strUtil.h"
 
 #pragma optimize("", off)

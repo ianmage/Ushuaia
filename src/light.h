@@ -3,6 +3,7 @@
 #include "color.h"
 #include "bgfx/bgfx.h"
 #include <vector>
+#include "serialize.h"
 
 
 namespace Ushuaia
@@ -51,6 +52,10 @@ namespace Ushuaia
 
 		static void Init();
 		static void ClearAll();
+
+		static void Serialize(JsonWriter & _writer);
+		static void Deserialize(JsonValue const & _jsObj);
+
 		static void UpdateAll(Matrix4x4 const & mtxView);
 
 		static void Submit();

@@ -13,6 +13,8 @@ struct Model
 	std::shared_ptr<Mesh> pMesh;
 	Material *pMtl;
 
+	virtual ~Model();
+
 	std::string const & Name() const { return name_; }
 
 	void Serialize() const;

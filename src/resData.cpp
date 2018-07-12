@@ -4,7 +4,6 @@
 #include "appConf.h"
 #include "vtxDecl.h"
 #include "../examples/common/bgfx_utils.h"
-#include "../../cpp_common/commUtil.h"
 #ifdef _APPLE
 //#include <mach/mach.h>
 #endif
@@ -22,7 +21,7 @@ static float timeAccuScene = 0.f;
 void InitResData()
 {
 	Light::ambLight.color.Set(0.1f, 0.1f, 0.2f, 0.f);
-	Light::dirLight.color.Set(0.8f, 0.8f, 0.8f, 0.f);
+	Light::dirLight.color.Set(0.8f, 0.8f, 0.8f, 0.8f);
 	Light::dirLight.dir.Set(0.1f, -0.95f, 0.f, 0.f);
 
 	Scene *pScene = new Scene("test");
@@ -48,7 +47,17 @@ void InitResData()
 	assert(!pFloorModel->pMesh);
 	pFloorModel->pMesh = Mesh::Create("floor", hPlaneVert, BX_COUNTOF(hPlaneVert),
 		PosNormTC0Vertex::s_decl, planeIndices, BX_COUNTOF(planeIndices));
+#if 0
 	pFloorModel->pMtl = Material::Load("default");
+#else
+	Shader *pShader = Shader::Load("vs_exam", "fs_exam");
+	Material * pMtl = new Material;
+	pMtl->SetShader(pShader);
+	pMtl->renderState = BGFX_STATE_CULL_CCW;
+	pMtl->SetParamVec4(CT_HASH("u_mtlAlbedoMetal"), 1, 1, 1, 0);
+	pMtl->SetParamVec4(CT_HASH("u_mtlNormalGloss"), 0, 0, 0, 0);
+	pFloorModel->pMtl = pMtl;
+#endif
 
 	JsonReader reader;
 	if (reader.Load("scene/dynamic")) {

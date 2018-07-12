@@ -21,37 +21,43 @@ public:
 
 	std::vector<TexState> texStates;
 
-	uint64_t renderStates;
+	uint64_t renderState;
 
 	void Submit(
 		uint64_t _overrideSt0 = RenderState::s_val[0],
 		uint64_t _overrideSt1 = RenderState::s_val[1],
 		Shader const *_overrideProgram = nullptr);
+
 	Vector4* GetParamVec4(size_t _nameKey) const;
+	inline bool SetParamVec4(size_t _nameKey, float _x, float _y, float _z, float _w) {
+		Vector4 *v4 = GetParamVec4(_nameKey);
+		if (!v4) return false;
+		v4->x = _x; v4->y = _y; v4->z = _z; v4->w = _w;
+		return true;
+	}
 
 	Shader* GetShader() const { return pShader_; }
-	std::string const & Name() const { return name_; }
+	void SetShader(Shader *_pShader);
+	//std::string const & Name() const { return name_; }
 
 	void Serialize() const;
 	bool Deserialize();
 	void Serialize(JsonWriter & _writer) const;
 	bool Deserialize(JsonValue const & _jsObj);
 
-	static Material* Load(std::string const & _name);
-	static void ClearAll();
+	//static Material* Load(std::string const & _name);
+	//static void ClearAll();
 
 private:
-	Material(std::string const & _name);
+	//Material(std::string const & _name);
 
-	void SetShader(Shader *_pShader);
-
-	std::string name_;
+	//std::string name_;
 
 	Shader* pShader_;
 
 	std::vector<uint8_t> paramData_;
 
-	static std::unordered_map<size_t, Material*> s_mtls;
+	//static std::unordered_map<size_t, Material*> s_mtls;
 };
 
 }

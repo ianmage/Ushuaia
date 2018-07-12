@@ -1,5 +1,4 @@
 #include "entity.h"
-#include "../../cpp_common/commUtil.h"
 
 
 namespace Ushuaia
@@ -13,12 +12,7 @@ void Entity::Serialize(JsonWriter & _writer) const
 	_writer.Key("Model");
 	_writer.String(pModel->Name());
 	_writer.Key("Transform");
-	size_t const maxFltWidth = 12;
-	char buf[maxFltWidth * ArrayCount(transform)];
-	int len = ftoa(transform.v, ArrayCount(transform), buf, 0, 4);
-	_writer.StartArray();
-	_writer.RawValue(buf, len, rapidjson::kArrayType);
-	_writer.EndArray();
+	WriteFloatArray(_writer, transform);
 }
 
 

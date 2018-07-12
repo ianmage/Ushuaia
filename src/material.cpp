@@ -7,7 +7,7 @@
 
 namespace Ushuaia
 {
-
+#if 0
 decltype(Material::s_mtls) Material::s_mtls;
 
 
@@ -63,7 +63,7 @@ bool Material::Deserialize()
 
 	return true;
 }
-
+#endif
 
 void Material::Serialize(JsonWriter & _writer) const
 {
@@ -76,7 +76,7 @@ void Material::Serialize(JsonWriter & _writer) const
 	}
 
 	_writer.Key("RenderState");
-	_writer.String(NumToAry79Str(renderStates));
+	_writer.String(NumToAry79Str(renderState));
 
 	_writer.Key("Parameters");
 	_writer.StartObject();
@@ -111,7 +111,7 @@ bool Material::Deserialize(JsonValue const & _jsObj)
 
 	itr = _jsObj.FindMember("RenderState");
 	if (itr != _jsObj.MemberEnd()) {
-		renderStates = Ary79StrToNum(itr->value.GetString());
+		renderState = Ary79StrToNum(itr->value.GetString());
 	}
 
 	itr = _jsObj.FindMember("Parameters");
@@ -153,7 +153,7 @@ void Material::SetShader(Shader *_pShader)
 void Material::Submit(uint64_t _overrideSt0, uint64_t _overrideSt1,
 	Shader const * _overrideProgram)
 {
-	bgfx::setState(RenderState::overrideMe(renderStates, _overrideSt0, _overrideSt1));
+	bgfx::setState(RenderState::overrideMe(renderState, _overrideSt0, _overrideSt1));
 
 	if (_overrideProgram)
 		_overrideProgram->SetPerDrawParams(paramData_.data());
