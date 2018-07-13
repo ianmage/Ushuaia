@@ -15,6 +15,12 @@ namespace Ushuaia
 
 		~Shader();
 
+		std::string const & VsName() const { return vsName_; }
+		std::string const & FsName() const { return fsName_; }
+
+		std::string Name() const;
+
+		void Serailize() const;
 		void Deserailize();
 
 		uint16_t ParamIndex(size_t _nameKey) const;
@@ -46,14 +52,6 @@ namespace Ushuaia
 		static std::unordered_map<size_t, bgfx::UniformHandle> s_uniforms;
 
 		static JsonReader s_annos;
-
-	public:
-		std::string const & VsName() const {
-			return vsName_;
-		}
-		std::string const & FsName() const {
-			return fsName_;
-		}
 	};
 
 }

@@ -64,7 +64,7 @@ struct Mesh
 
 	std::string const & Name() const { return name_; }
 
-	void Submit(bgfx::ViewId _id, Shader const *_pProgram) const;
+	void Submit(bgfx::ViewId _id, Shader const *_program) const;
 
 	static std::shared_ptr<Mesh> Create(std::string const & _name,
 		void const * _vertices, uint32_t _numVertices, bgfx::VertexDecl const & _decl,

@@ -218,7 +218,7 @@ void Mesh::Release()
 }
 
 
-void Mesh::Submit(bgfx::ViewId _id, Shader const *_pProgram) const
+void Mesh::Submit(bgfx::ViewId _id, Shader const *_program) const
 {
 	for (decltype(groups_)::const_iterator itr = groups_.begin(), itrEnd = groups_.end(); itr != itrEnd; ++itr)
 	{
@@ -227,7 +227,7 @@ void Mesh::Submit(bgfx::ViewId _id, Shader const *_pProgram) const
 		if (bgfx::isValid(group.hIB))
 			bgfx::setIndexBuffer(group.hIB);
 		bgfx::setVertexBuffer(0, group.hVB);
-		bgfx::submit(_id, _pProgram->hProgram, 0, itr != itrEnd-1);
+		bgfx::submit(_id, _program->hProgram, 0, itr != itrEnd-1);
 	}
 }
 

@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 import sys, os
-import zipfile
 sys.dont_write_bytecode = True
-#import platform
+import zipfile
+import shutil
 
 
 #isWin = False
@@ -28,6 +28,8 @@ resDir = (
 
 
 def gather_desc(fileList) :
+	if os.path.exists("../shaders/annotations.json")
+	shutil.copyfile("../shaders/annotations.json", "./shaders/annotations.json")
 	for d in resDir :
 		emptyDir = True
 		for fn in os.listdir(d) :
@@ -39,14 +41,17 @@ def gather_desc(fileList) :
 			fileList.append(d)
 
 
-def proc() :
+def proc(flag) :
 	zfPath = '../res.zip'
-	zf = zipfile.ZipFile(zfPath, 'w', zipfile.ZIP_DEFLATED)
+	zf = zipfile.ZipFile(zfPath, flag, zipfile.ZIP_DEFLATED)
 
-	fileList = []
-	gather_desc(fileList)
-	for f in fileList :
-		zf.write(f)
+	if flag == 'w' :
+		fileList = []
+		gather_desc(fileList)
+		for f in fileList :
+			zf.write(f)
+	elif flag == 'r' :
+		zf.extractall(".")
 
 	zf.close()
 
@@ -56,4 +61,11 @@ if __name__ == '__main__' :
 	curDir = curDir[:curDir.rfind('/')+1]
 	os.chdir(curDir + '../res')
 
-	proc()
+	argErr = True
+	if len(sys.argv) == 2 :
+		flag = sys.argv[1].lower()
+		if flag in ('r', 'w') :
+			proc(flag)
+			argErr = False
+	if argErr :
+		print "ArgErr, need provide r/w mode"

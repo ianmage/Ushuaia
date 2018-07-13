@@ -20,11 +20,6 @@ static float timeAccuScene = 0.f;
 
 void InitResData()
 {
-#if 0
-	Light::ambLight.color.Set(0.1f, 0.1f, 0.2f, 0.f);
-	Light::dirLight.color.Set(0.8f, 0.8f, 0.8f, 0.8f);
-	Light::dirLight.dir.Set(0.1f, -0.95f, 0.f, 0.f);
-#endif
 
 	Scene *pScene = new Scene("test");
 	pScene->Deserialize();
@@ -52,7 +47,7 @@ void InitResData()
 #if 0
 	pFloorModel->pMtl = Material::Load("default");
 #else
-	Shader *pShader = Shader::Load("vs_exam", "fs_exam");
+	Shader *pShader = Shader::Load("vs_clay", "fs_clay");
 	Material * pMtl = new Material;
 	pMtl->SetShader(pShader);
 	pMtl->renderState = BGFX_STATE_CULL_CCW;

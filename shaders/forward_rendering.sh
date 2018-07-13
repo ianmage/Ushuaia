@@ -118,7 +118,7 @@ vec4 CalcLighting(vec3 normal, vec3 view_dir, float shininess, vec3 pos_es)
 vec3 ShadingFS(vec3 normal, vec3 pos_es)
 {
 	vec3 view_dir = normalize(pos_es);
-	float shininess = Glossiness2Shininess(u_mtlNormalGloss.z);
+	float shininess = Glossiness2Shininess(u_mtlNormalGloss.w);
 
 	vec4 lighting = CalcLighting(normal, view_dir, shininess, pos_es);
 
