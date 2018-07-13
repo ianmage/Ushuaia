@@ -25,7 +25,6 @@ if __name__ == '__main__' :
 
 	sys.path.append(".")
 	import fxc
-	shutil.copyfile("annotations.json", "../res/shaders/annotations.json")
 
 	fileList = []
 	listFile(fileList)

@@ -35,14 +35,14 @@ static Vector4 s_lightsCnt;
 
 void Light::Init()
 {
-	uhLightsCnt = Shader::AddUniformVec4("u_lightsCnt");
-	uhAmbientColor = Shader::AddUniformVec4("u_lightAmbColor");
-	uhDirectionalColor = Shader::AddUniformVec4("u_lightDirColor");
-	uhDirectionalDir = Shader::AddUniformVec4("u_lightDirDir");
-	uhPointColor = Shader::AddUniformVec4("u_lightColor", MAX_POINT_LIGHT + MAX_SPOT_LIGHT);
-	uhPointPos = Shader::AddUniformVec4("u_lightPos", MAX_POINT_LIGHT + MAX_SPOT_LIGHT);
-	uhPointAttnRange = Shader::AddUniformVec4("u_lightAttnRange", MAX_POINT_LIGHT + MAX_SPOT_LIGHT);
-	uhSpotDirInner = Shader::AddUniformVec4("u_lightSpotDirInner", MAX_SPOT_LIGHT);
+	uhLightsCnt = Shader::AddUniformVec4("PV_lightsCnt");
+	uhAmbientColor = Shader::AddUniformVec4("PV_lightAmbColor");
+	uhDirectionalColor = Shader::AddUniformVec4("PV_lightDirColor");
+	uhDirectionalDir = Shader::AddUniformVec4("PV_lightDirDir");
+	uhPointColor = Shader::AddUniformVec4("PV_lightColor", MAX_POINT_LIGHT + MAX_SPOT_LIGHT);
+	uhPointPos = Shader::AddUniformVec4("PV_lightPos", MAX_POINT_LIGHT + MAX_SPOT_LIGHT);
+	uhPointAttnRange = Shader::AddUniformVec4("PV_lightAttnRange", MAX_POINT_LIGHT + MAX_SPOT_LIGHT);
+	uhSpotDirInner = Shader::AddUniformVec4("PV_lightSpotDirInner", MAX_SPOT_LIGHT);
 }
 
 

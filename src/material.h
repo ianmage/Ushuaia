@@ -23,10 +23,8 @@ public:
 
 	uint64_t renderState;
 
-	void Submit(
-		uint64_t _overrideSt0 = RenderState::s_val[0],
-		uint64_t _overrideSt1 = RenderState::s_val[1],
-		Shader const *_overrideProgram = nullptr);
+	void Submit(uint64_t _overrideSt0 = RenderState::s_val[0],
+		uint64_t _overrideSt1 = RenderState::s_val[1]);
 
 	Vector4* GetParamVec4(size_t _nameKey) const;
 	inline bool SetParamVec4(size_t _nameKey, float _x, float _y, float _z, float _w) {

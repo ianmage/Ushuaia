@@ -20,17 +20,17 @@ namespace Ushuaia
 
 		std::string Name() const;
 
-		void Serailize() const;
-		void Deserailize();
+		void SetMtlParams(uint8_t const * _pData) const;
+		void SaveMtlParams(JsonWriter & _writer, uint8_t const * _pData) const;
 
 		uint16_t ParamIndex(size_t _nameKey) const;
-		void SetPerDrawParams(uint8_t const * _pData) const;
 		size_t ParamSize() const { return paramSize_; }
 
-		static std::unordered_map<size_t, std::string> s_vec4NameMap;
+		Shader* GetInstance() const;
+
+		bool SetUniform(size_t _nameKey, void const * _pVal, uint16_t _num = UINT16_MAX) const;
 
 		static bgfx::UniformHandle AddUniformVec4(std::string const & _name, uint16_t _num = 1);
-		static bool SetUniform(size_t _nameKey, void const * _pVal, uint16_t _num = UINT16_MAX);
 
 		static Shader* Load(std::string const & _vsName, std::string const & _fsName);
 
@@ -40,18 +40,22 @@ namespace Ushuaia
 	private:
 		Shader(std::string const & _vsName, std::string const & _fsName);
 
+		void ParseUniform(bgfx::ShaderHandle hShader);
+
 		std::string vsName_, fsName_;
 
 		// PerDraw parameters
-		typedef std::pair<uint16_t, uint16_t>	ParamInfo;
-		std::unordered_map<size_t, ParamInfo> paramOffsets_;
-		size_t paramSize_;
+#if 0
+		std::unordered_map<size_t, uint16_t> paramOffsets_;
+#endif
+		uint32_t paramSize_;
+		typedef std::pair<bgfx::UniformHandle, uint16_t>	ParamInfo;
+		std::unordered_map<size_t, ParamInfo> uniforms_;
 
 		static std::unordered_map<size_t, Shader*> s_shaders;
+		static std::unordered_map<size_t, bgfx::ShaderHandle> s_shaderHandles;
 
 		static std::unordered_map<size_t, bgfx::UniformHandle> s_uniforms;
-
-		static JsonReader s_annos;
 	};
 
 }

@@ -96,7 +96,7 @@ void Model::Draw(bgfx::ViewId _viewId
 	if (!pMesh || !pMtl)
 		return;
 
-	pMtl->Submit(_overrideSt0, _overrideSt1, _overrideShader);
+	pMtl->Submit(_overrideSt0, _overrideSt1);
 	pMesh->Submit(_viewId, _overrideShader ? _overrideShader : pMtl->GetShader());
 }
 

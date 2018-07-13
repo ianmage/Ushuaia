@@ -3,17 +3,17 @@
 #define MAX_POINT_LIGHT	6
 #define MAX_SPOT_LIGHT	2
 
-uniform vec4 u_mtlAlbedoMetal;
-uniform vec4 u_mtlNormalGloss;
+uniform vec4 PM_albedoMetal;
+uniform vec4 PM_normalGloss;
 
-uniform vec4 u_lightsCnt;
-uniform vec4 u_lightAmbColor;
-uniform vec4 u_lightDirColor;
-uniform vec4 u_lightDirDir;
-uniform vec4 u_lightColor[MAX_POINT_LIGHT + MAX_SPOT_LIGHT];
-uniform vec4 u_lightPos[MAX_POINT_LIGHT + MAX_SPOT_LIGHT];	// w for spot Outer
-uniform vec4 u_lightAttnRange[MAX_POINT_LIGHT + MAX_SPOT_LIGHT];
-uniform vec4 u_lightSpotDirInner[MAX_SPOT_LIGHT];
+uniform vec4 PV_lightsCnt;
+uniform vec4 PV_lightAmbColor;
+uniform vec4 PV_lightDirColor;
+uniform vec4 PV_lightDirDir;
+uniform vec4 PV_lightColor[MAX_POINT_LIGHT + MAX_SPOT_LIGHT];
+uniform vec4 PV_lightPos[MAX_POINT_LIGHT + MAX_SPOT_LIGHT];	// w for spot Outer
+uniform vec4 PV_lightAttnRange[MAX_POINT_LIGHT + MAX_SPOT_LIGHT];
+uniform vec4 PV_lightSpotDirInner[MAX_SPOT_LIGHT];
 
 
 vec4 CalcColor(float n_dot_l, float spec, float atten, vec3 shadow, vec4 light_color)
@@ -94,21 +94,21 @@ vec4 CalcLighting(vec3 normal, vec3 view_dir, float shininess, vec3 pos_es)
 {
 	vec4 lighting = vec4_splat(0);
 
-	lighting += CalcAmbient(normal, u_lightAmbColor, u_lightDirDir.xyz) * u_lightsCnt.x;
+	lighting += CalcAmbient(normal, PV_lightAmbColor, PV_lightDirDir.xyz) * PV_lightsCnt.x;
 
-	lighting += CalcDirectional(normal, u_lightDirColor, u_lightDirDir.xyz, view_dir, shininess);
-	lighting *= u_lightsCnt.y;
+	lighting += CalcDirectional(normal, PV_lightDirColor, PV_lightDirDir.xyz, view_dir, shininess);
+	lighting *= PV_lightsCnt.y;
 
-	for (int i = 0; i < u_lightsCnt.z; ++i)
+	for (int i = 0; i < PV_lightsCnt.z; ++i)
 	{
-		lighting += CalcPoint(normal, u_lightColor[i], view_dir, shininess, 
-			pos_es, u_lightPos[i], u_lightAttnRange[i]);
+		lighting += CalcPoint(normal, PV_lightColor[i], view_dir, shininess, 
+			pos_es, PV_lightPos[i], PV_lightAttnRange[i]);
 	}
 
-	for (int i = 0; i < u_lightsCnt.w; ++i)
+	for (int i = 0; i < PV_lightsCnt.w; ++i)
 	{
-		lighting += CalcSpot(normal, u_lightColor[MAX_POINT_LIGHT + i], view_dir, shininess, 
-			pos_es, u_lightPos[MAX_POINT_LIGHT + i], u_lightAttnRange[MAX_POINT_LIGHT + i], u_lightSpotDirInner[i]);
+		lighting += CalcSpot(normal, PV_lightColor[MAX_POINT_LIGHT + i], view_dir, shininess, 
+			pos_es, PV_lightPos[MAX_POINT_LIGHT + i], PV_lightAttnRange[MAX_POINT_LIGHT + i], PV_lightSpotDirInner[i]);
 	}
 
 	return lighting;
@@ -118,12 +118,12 @@ vec4 CalcLighting(vec3 normal, vec3 view_dir, float shininess, vec3 pos_es)
 vec3 ShadingFS(vec3 normal, vec3 pos_es)
 {
 	vec3 view_dir = normalize(pos_es);
-	float shininess = Glossiness2Shininess(u_mtlNormalGloss.w);
+	float shininess = Glossiness2Shininess(PM_normalGloss.w);
 
 	vec4 lighting = CalcLighting(normal, view_dir, shininess, pos_es);
 
-	vec3 c_diff = DiffuseColor(u_mtlAlbedoMetal.xyz, u_mtlAlbedoMetal.w);
-	vec3 c_spec = SpecularColor(u_mtlAlbedoMetal.xyz, u_mtlAlbedoMetal.w);
+	vec3 c_diff = DiffuseColor(PM_albedoMetal.xyz, PM_albedoMetal.w);
+	vec3 c_spec = SpecularColor(PM_albedoMetal.xyz, PM_albedoMetal.w);
 
 	vec3 shading = CalcShading(lighting, shininess, c_diff, c_spec, view_dir, normal);
 	return shading;

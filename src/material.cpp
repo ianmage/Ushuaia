@@ -80,21 +80,20 @@ void Material::Serialize(JsonWriter & _writer) const
 
 	_writer.Key("Parameters");
 	_writer.StartObject();
+#if 1
+	pShader_->SaveMtlParams(_writer, paramData_.data());
+#else
 	if (!Shader::s_vec4NameMap.empty()) {
 		_writer.Key("Vec4");
 		_writer.StartObject();
 		for (auto & m : Shader::s_vec4NameMap) {
 			_writer.Key(m.second);
 			Vector4 *vec4 = GetParamVec4(m.first);
-			size_t const maxFltWidth = 12;
-			char buf[maxFltWidth * 4];
-			int len = ftoa(vec4->v, 4, buf, 0, 4);
-			_writer.StartArray();
-			_writer.RawValue(buf, len, rapidjson::kArrayType);
-			_writer.EndArray();
+			WriteFloatArray(_writer, *vec4);
 		}
 		_writer.EndObject();
 	}
+#endif
 	_writer.EndObject();
 }
 
@@ -147,15 +146,11 @@ void Material::SetShader(Shader *_pShader)
 }
 
 
-void Material::Submit(uint64_t _overrideSt0, uint64_t _overrideSt1,
-	Shader const * _overrideProgram)
+void Material::Submit(uint64_t _overrideSt0, uint64_t _overrideSt1)
 {
 	bgfx::setState(RenderState::overrideMe(renderState, _overrideSt0, _overrideSt1));
 
-	if (_overrideProgram)
-		_overrideProgram->SetPerDrawParams(paramData_.data());
-	else
-		pShader_->SetPerDrawParams(paramData_.data());
+	pShader_->SetMtlParams(paramData_.data());
 }
 
 

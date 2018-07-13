@@ -28,8 +28,6 @@ resDir = (
 
 
 def gather_desc(fileList) :
-	if os.path.exists("../shaders/annotations.json")
-	shutil.copyfile("../shaders/annotations.json", "./shaders/annotations.json")
 	for d in resDir :
 		emptyDir = True
 		for fn in os.listdir(d) :

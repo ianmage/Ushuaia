@@ -51,8 +51,8 @@ void InitResData()
 	Material * pMtl = new Material;
 	pMtl->SetShader(pShader);
 	pMtl->renderState = BGFX_STATE_CULL_CCW;
-	pMtl->SetParamVec4(CT_HASH("u_mtlAlbedoMetal"), 1, 1, 1, 0);
-	pMtl->SetParamVec4(CT_HASH("u_mtlNormalGloss"), 0, 0, 0, 0);
+	pMtl->SetParamVec4(CT_HASH("PM_albedoMetal"), 1, 1, 1, 0);
+	pMtl->SetParamVec4(CT_HASH("PM_normalGloss"), 0, 0, 0, 0);
 	pFloorModel->pMtl = pMtl;
 #endif
 
