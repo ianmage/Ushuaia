@@ -102,7 +102,6 @@ void DrawChannel::Init()
 
 void DrawChannel::Gather()
 {
-	std::vector<Entity*> entArray;
 	if (Scene::pActive) {
 		for (auto const & e : Scene::pActive->entities) {
 			e.second->pModel->Draw(e.second->transform);

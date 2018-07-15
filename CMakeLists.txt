@@ -99,6 +99,7 @@ add_executable(my3D
 	src/serialize.cpp
 	src/shader.cpp
 	src/shading.cpp
+	src/texture.cpp
 	src/vtxDecl.cpp
 )
 
