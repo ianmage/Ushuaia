@@ -20,17 +20,17 @@ namespace Ushuaia
 
 		std::string Name() const;
 
-		void SetMtlParams(uint8_t const * _pData) const;
-		void SaveMtlParams(JsonWriter & _writer, uint8_t const * _pData) const;
+		void SetMtlParams(uint8_t const * pData) const;
+		void SaveMtlParams(JsonWriter & writer, uint8_t const * pData) const;
 
-		uint16_t ParamIndex(size_t _nameKey) const;
+		uint16_t ParamIndex(size_t nameKey) const;
 		size_t ParamSize() const { return paramSize_; }
 
 		Shader* GetInstance() const;
 
-		bool SetUniform(size_t _nameKey, void const * _pVal, uint16_t _num = UINT16_MAX) const;
+		bool SetUniform(size_t nameKey, void const * pVal, uint16_t num = UINT16_MAX) const;
 
-		static bgfx::UniformHandle AddUniformVec4(std::string const & _name, uint16_t _num = 1);
+		static bgfx::UniformHandle AddUniformVec4(std::string const & uName, uint16_t _num = 1);
 
 		static Shader* Load(std::string const & _vsName, std::string const & _fsName);
 

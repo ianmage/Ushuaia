@@ -33,6 +33,7 @@ void Scene::Serialize()
 	writer.Key("Entities");
 	writer.StartObject();
 	for (auto const & m : entities) {
+		writer.Key(entNames_.at(m.first));
 		m.second->Serialize(writer);
 	}
 	writer.EndObject();

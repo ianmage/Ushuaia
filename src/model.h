@@ -11,7 +11,8 @@ namespace Ushuaia
 struct Model
 {
 	std::shared_ptr<Mesh> pMesh;
-	Material *pMtl;
+	std::vector<Material> materials;
+	std::vector<uint8_t> mtlIndices;
 
 	virtual ~Model();
 
@@ -20,12 +21,10 @@ struct Model
 	void Serialize() const;
 	bool Deserialize();
 
-	void Draw(bgfx::ViewId _viewId
-		, uint64_t _overrideSt0 = RenderState::s_val[0]
-		, uint64_t _overrideSt1 = RenderState::s_val[1]
-		, Shader const * _overrideShader = nullptr);
+	void Draw(Matrix4x4 const & transform);
 
 	static std::shared_ptr<Model> Load(std::string const & _name);
+	static void SaveAll();
 
 	static void Fini();
 

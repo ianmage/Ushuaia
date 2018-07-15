@@ -7,26 +7,28 @@ namespace Ushuaia
 decltype(Entity::s_entNames) Entity::s_entNames;
 
 
-void Entity::Serialize(JsonWriter & _writer) const
+void Entity::Serialize(JsonWriter & writer) const
 {
-	_writer.Key("Model");
-	_writer.String(pModel->Name());
-	_writer.Key("Transform");
-	WriteFloatArray(_writer, transform);
+	writer.StartObject();
+	writer.Key("Model");
+	writer.String(pModel->Name());
+	writer.Key("Transform");
+	WriteFloatArray(writer, transform.v, ArrayCount(transform));
+	writer.EndObject();
 }
 
 
-bool Entity::Deserialize(JsonValue const & _jsObj)
+bool Entity::Deserialize(JsonValue const & jsObj)
 {
 	JsonValue::ConstMemberIterator itr;
 
-	itr = _jsObj.FindMember("Model");
-	if (itr != _jsObj.MemberEnd()) {
+	itr = jsObj.FindMember("Model");
+	if (itr != jsObj.MemberEnd()) {
 		pModel = Model::Load(itr->value.GetString());
 	}
 
-	itr = _jsObj.FindMember("Transform");
-	if (itr != _jsObj.MemberEnd()) {
+	itr = jsObj.FindMember("Transform");
+	if (itr != jsObj.MemberEnd()) {
 		int i = 0;
 		for (auto & v : itr->value.GetArray()) {
 			transform[i++] = v.GetFloat();
@@ -54,28 +56,28 @@ Entity* Entity::Create(std::string const & _name)
 }
 
 
-void Entity::Load(JsonValue const & _jsObj)
+void Entity::Load(JsonValue const & jsObj)
 {
-	for (auto & m : _jsObj.GetObject()) {
+	for (auto & m : jsObj.GetObject()) {
 		Entity *pEnt = Create(m.name.GetString());
 		pEnt->Deserialize(m.value);
 	}
 }
 
 
-void Entity::Save(JsonWriter & _writer)
+void Entity::Save(JsonWriter & writer)
 {
-	_writer.StartObject();
+	writer.StartObject();
 	for (auto const & m : s_entNames)
 	{
-		_writer.String(m.second);
-		_writer.StartObject();
+		writer.String(m.second);
+		writer.StartObject();
 
-		s_entities[m.first]->Serialize(_writer);
+		s_entities[m.first]->Serialize(writer);
 
-		_writer.EndObject();
+		writer.EndObject();
 	}
-	_writer.EndObject();
+	writer.EndObject();
 }
 
 

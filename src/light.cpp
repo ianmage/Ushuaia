@@ -67,14 +67,14 @@ void Light::Serialize(JsonWriter & _writer)
 	_writer.StartObject();
 
 	_writer.Key("Ambient");
-	WriteFloatArray(_writer, ambLight.color);
+	WriteFloatArray(_writer, ambLight.color.v, 4);
 
 	_writer.Key("Directional");
 	_writer.StartObject();
 	_writer.Key("Color");
-	WriteFloatArray(_writer, dirLight.color);
+	WriteFloatArray(_writer, dirLight.color.v, 4);
 	_writer.Key("Dir");
-	WriteFloatArray(_writer, dirLight.dir);
+	WriteFloatArray(_writer, dirLight.dir.v, 4);
 	_writer.EndObject();
 
 	_writer.Key("Point");
@@ -82,11 +82,11 @@ void Light::Serialize(JsonWriter & _writer)
 	for (auto const & pl : s_pointLights) {
 		_writer.StartObject();
 		_writer.Key("Color");
-		WriteFloatArray(_writer, pl.color);
+		WriteFloatArray(_writer, pl.color.v, 4);
 		_writer.Key("Pos");
-		WriteFloatArray(_writer, pl.pos);
+		WriteFloatArray(_writer, pl.pos.v, 4);
 		_writer.Key("Attenuation");
-		WriteFloatArray(_writer, pl.attn);
+		WriteFloatArray(_writer, pl.attn.v, 4);
 		_writer.EndObject();
 	}
 	_writer.EndArray();
@@ -96,13 +96,13 @@ void Light::Serialize(JsonWriter & _writer)
 	for (auto const & spl : s_spotLights) {
 		_writer.StartObject();
 		_writer.Key("Color");
-		WriteFloatArray(_writer, spl.color);
+		WriteFloatArray(_writer, spl.color.v, 4);
 		_writer.Key("Pos");
-		WriteFloatArray(_writer, spl.pos);
+		WriteFloatArray(_writer, spl.pos.v, 4);
 		_writer.Key("AttnOuter");
-		WriteFloatArray(_writer, spl.attnOuter);
+		WriteFloatArray(_writer, spl.attnOuter.v, 4);
 		_writer.Key("DirInner");
-		WriteFloatArray(_writer, spl.dirInner);
+		WriteFloatArray(_writer, spl.dirInner.v, 4);
 		_writer.EndObject();
 	}
 	_writer.EndArray();
@@ -118,7 +118,7 @@ void Light::Deserialize(JsonValue const & _jsObj)
 
 	itr = _jsObj.FindMember("Ambient");
 	if (itr != _jsObj.MemberEnd())
-		ReadFloatArray(itr->value, ambLight.color);
+		ReadFloatArray(itr->value, ambLight.color.v);
 
 	itr = _jsObj.FindMember("Directional");
 	if (itr != _jsObj.MemberEnd()) {
@@ -126,10 +126,10 @@ void Light::Deserialize(JsonValue const & _jsObj)
 		auto const & dirObj = itr->value;
 		dirItr = dirObj.FindMember("Color");
 		if (dirItr != dirObj.MemberEnd())
-			ReadFloatArray(dirItr->value, dirLight.color);
+			ReadFloatArray(dirItr->value, dirLight.color.v);
 		dirItr = dirObj.FindMember("Dir");
 		if (dirItr != dirObj.MemberEnd())
-			ReadFloatArray(dirItr->value, dirLight.dir);
+			ReadFloatArray(dirItr->value, dirLight.dir.v);
 	}
 
 	itr = _jsObj.FindMember("Point");
@@ -140,13 +140,13 @@ void Light::Deserialize(JsonValue const & _jsObj)
 			auto & pl = s_pointLights[i++];
 			ptItr = ptObj.FindMember("Color");
 			if (ptItr != ptObj.MemberEnd())
-				ReadFloatArray(ptItr->value, pl.color);
+				ReadFloatArray(ptItr->value, pl.color.v);
 			ptItr = ptObj.FindMember("Pos");
 			if (ptItr != ptObj.MemberEnd())
-				ReadFloatArray(ptItr->value, pl.pos);
+				ReadFloatArray(ptItr->value, pl.pos.v);
 			ptItr = ptObj.FindMember("Attenuation");
 			if (ptItr != ptObj.MemberEnd())
-				ReadFloatArray(ptItr->value, pl.attn);
+				ReadFloatArray(ptItr->value, pl.attn.v);
 		}
 	}
 
@@ -158,16 +158,16 @@ void Light::Deserialize(JsonValue const & _jsObj)
 			auto & sl = s_spotLights[i++];
 			spItr = spObj.FindMember("Color");
 			if (spItr != spObj.MemberEnd())
-				ReadFloatArray(spItr->value, sl.color);
+				ReadFloatArray(spItr->value, sl.color.v);
 			spItr = spObj.FindMember("Pos");
 			if (spItr != spObj.MemberEnd())
-				ReadFloatArray(spItr->value, sl.pos);
+				ReadFloatArray(spItr->value, sl.pos.v);
 			spItr = spObj.FindMember("AttnOuter");
 			if (spItr != spObj.MemberEnd())
-				ReadFloatArray(spItr->value, sl.attnOuter);
+				ReadFloatArray(spItr->value, sl.attnOuter.v);
 			spItr = spObj.FindMember("DirInner");
 			if (spItr != spObj.MemberEnd())
-				ReadFloatArray(spItr->value, sl.dirInner);
+				ReadFloatArray(spItr->value, sl.dirInner.v);
 		}
 	}
 

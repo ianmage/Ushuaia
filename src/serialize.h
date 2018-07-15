@@ -42,27 +42,21 @@ int ftoa(float const *v, size_t len, char *s, int m = 0, int n = 0);
 std::string NumToAry79Str(uint64_t num);
 uint64_t Ary79StrToNum(std::string const & s);
 
-template <typename T>
-void WriteFloatArray(JsonWriter & writer, T const & v, size_t maxWidth = 12)
+inline void WriteFloatArray(JsonWriter & writer, float const * v, uint16_t cnt, uint8_t maxWidth = 12)
 {
-	size_t const cnt = ArrayCount(v);
 	std::vector<char> buf(maxWidth * cnt);
-	size_t len = ftoa(v.v, cnt, buf.data(), 0, 4);
+	size_t len = ftoa(v, cnt, buf.data(), 0, 4);
 	writer.StartArray();
 	writer.RawValue(buf.data(), len, rapidjson::kArrayType);
 	writer.EndArray();
 }
 
-template <typename T>
-void ReadFloatArray(JsonValue const & jsObj, T & v)
+inline void ReadFloatArray(JsonValue const & jsObj, float * v)
 {
 	int i = 0;
-	for (auto const & arrVal : jsObj.GetArray()) {
-		v[i++] = arrVal.GetFloat();
+	for (auto const & m : jsObj.GetArray()) {
+		v[i++] = m.GetFloat();
 	}
-#ifdef _DEBUG
-	assert(i == ArrayCount(v));
-#endif
 }
 
 }

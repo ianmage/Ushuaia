@@ -1,10 +1,8 @@
 #pragma once
 
 #include <vector>
-#include "bx/readerwriter.h"
-#include "shader.h"
+#include "material.h"
 #include <memory>
-#include "math.h"
 
 
 namespace Ushuaia
@@ -30,9 +28,9 @@ struct Primitive
 };
 
 
-struct Group
+struct PrimitiveGroup
 {
-	Group()
+	PrimitiveGroup()
 	{
 		reset();
 	}
@@ -57,14 +55,14 @@ struct Mesh
 {
 	bgfx::VertexDecl vtxDecl;
 
+	std::vector<PrimitiveGroup> groups;
+
 	virtual ~Mesh();
 
 	bool Deserialize();
 	void Release();
 
 	std::string const & Name() const { return name_; }
-
-	void Submit(bgfx::ViewId _id, Shader const *_program) const;
 
 	static std::shared_ptr<Mesh> Create(std::string const & _name,
 		void const * _vertices, uint32_t _numVertices, bgfx::VertexDecl const & _decl,
@@ -74,7 +72,6 @@ struct Mesh
 private:
 	static std::unordered_map<size_t, std::weak_ptr<Mesh>> s_meshes;
 	std::string name_;
-	std::vector<Group> groups_;
 
 	Mesh(std::string const & _name);
 };

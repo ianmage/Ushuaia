@@ -54,7 +54,6 @@ Shader* Shader::Load(std::string const & _vsName, std::string const & _fsName)
 #if USE_NEW_PARSE
 	ret->ParseUniform(hVtxShader);
 	ret->ParseUniform(hFragShader);
-	ret->uniforms_;
 #else
 	ret->Deserailize();
 #endif
@@ -63,15 +62,15 @@ Shader* Shader::Load(std::string const & _vsName, std::string const & _fsName)
 }
 
 
-bgfx::UniformHandle Shader::AddUniformVec4(std::string const & _name, uint16_t _num)
+bgfx::UniformHandle Shader::AddUniformVec4(std::string const & uName, uint16_t num)
 {
-	size_t k = RT_HASH(_name.c_str());
+	size_t k = RT_HASH(uName.c_str());
 	decltype(s_uniforms)::const_iterator itr = s_uniforms.find(k);
 	if (itr != s_uniforms.end())
 		return itr->second;
 
-	auto ret = bgfx::createUniform(_name.c_str(),
-		bgfx::UniformType::Enum::Vec4, _num);
+	auto ret = bgfx::createUniform(uName.c_str(),
+		bgfx::UniformType::Enum::Vec4, num);
 	s_uniforms[k] = ret;
 
 	return ret;
@@ -120,17 +119,33 @@ std::string Shader::Name() const
 }
 
 
-inline uint32_t GetUniformTypeSize(bgfx::UniformType::Enum t)
+constexpr uint32_t GetUniformTypeSize(bgfx::UniformType::Enum t)
 {
-	if (t == bgfx::UniformType::Int1)
-		return sizeof(int32_t);
-	if (t == bgfx::UniformType::Vec4)
-		return sizeof(Vector4);
-	if (t == bgfx::UniformType::Mat3)
-		return sizeof(Matrix3x3);
-	if (t == bgfx::UniformType::Mat4)
-		return sizeof(Matrix4x4);
-	return 0;
+	return (t == bgfx::UniformType::Int1) ? sizeof(int32_t)
+		: (t == bgfx::UniformType::Vec4) ? sizeof(Vector4)
+		: (t == bgfx::UniformType::Mat3) ? sizeof(Matrix3x3)
+		: (t == bgfx::UniformType::Mat4) ? sizeof(Matrix4x4)
+		: 0;
+}
+
+
+constexpr uint8_t PackUniformType(bgfx::UniformType::Enum t)
+{
+	return (t == bgfx::UniformType::Vec4) ? 1
+		: (t == bgfx::UniformType::Mat3) ? 2
+		: (t == bgfx::UniformType::Mat4) ? 3
+		: 0;
+}
+
+constexpr bgfx::UniformType::Enum UnpackUniformType(uint8_t t)
+{
+	bgfx::UniformType::Enum ut[] = {
+		bgfx::UniformType::Int1,
+		bgfx::UniformType::Vec4,
+		bgfx::UniformType::Mat3,
+		bgfx::UniformType::Mat4
+	};
+	return ut[t];
 }
 
 
@@ -146,7 +161,8 @@ void Shader::ParseUniform(bgfx::ShaderHandle hShader)
 	for (auto h : uHandles) {
 		char const * uName = bgfx::getName(h);
 		if (strStartsWith(uName, "PM_")) {
-			uniforms_.emplace(RT_HASH(uName), std::make_pair(h, (uint16_t)paramSize_));
+			uint16_t offset = static_cast<uint16_t>(paramSize_);
+			uniforms_.emplace(RT_HASH(uName), std::make_pair(h, offset));
 			bgfx::getUniformInfo(h, ui);
 			paramSize_ += GetUniformTypeSize(ui.type) * ui.num;
 		}
@@ -166,10 +182,10 @@ Shader* Shader::GetInstance() const
 }
 
 
-uint16_t Shader::ParamIndex(size_t _nameKey) const
+uint16_t Shader::ParamIndex(size_t nameKey) const
 {
 #if USE_NEW_PARSE
-	decltype(uniforms_)::const_iterator itr = uniforms_.find(_nameKey);
+	decltype(uniforms_)::const_iterator itr = uniforms_.find(nameKey);
 	if (itr != uniforms_.end())
 	{
 		return itr->second.second;
@@ -185,38 +201,38 @@ uint16_t Shader::ParamIndex(size_t _nameKey) const
 }
 
 
-void Shader::SetMtlParams(uint8_t const * _pData) const
+void Shader::SetMtlParams(uint8_t const * pData) const
 {
 	for (auto & m : uniforms_)
 	{
-		SetUniform(m.first, &_pData[m.second.second]);
+		bgfx::setUniform(m.second.first, &pData[m.second.second]);
 	}
 }
 
 
-void Shader::SaveMtlParams(JsonWriter & _writer, uint8_t const * _pData) const
+void Shader::SaveMtlParams(JsonWriter & writer, uint8_t const * pData) const
 {
 	bgfx::UniformInfo ui;
 	for (auto const & m : uniforms_) {
 		bgfx::getUniformInfo(m.second.first, ui);
-		_writer.Key(ui.name);
-		auto pBuf = &_pData[ParamIndex(m.first)];
+		writer.Key(ui.name);
+		auto pBuf = &pData[ParamIndex(m.first)];
 		if (bgfx::UniformType::Vec4 == ui.type)
-			WriteFloatArray(_writer, *(Vector4*)pBuf);
+			WriteFloatArray(writer, (float const*)pBuf, 4 * ui.num);
 		else if (bgfx::UniformType::Mat3 == ui.type)
-			WriteFloatArray(_writer, *(Matrix3x3*)pBuf);
+			WriteFloatArray(writer, (float const*)pBuf, 9 * ui.num);
 		else if (bgfx::UniformType::Mat4 == ui.type)
-			WriteFloatArray(_writer, *(Matrix4x4*)pBuf);
+			WriteFloatArray(writer, (float const*)pBuf, 16 * ui.num);
 	}
 }
 
 
-bool Shader::SetUniform(size_t _nameKey, void const * _pVal, uint16_t _num) const
+bool Shader::SetUniform(size_t nameKey, void const * pVal, uint16_t num) const
 {
-	decltype(uniforms_)::const_iterator itr = uniforms_.find(_nameKey);
+	decltype(uniforms_)::const_iterator itr = uniforms_.find(nameKey);
 	if (itr == uniforms_.end())
 		return false;
-	bgfx::setUniform(itr->second.first, _pVal, _num);
+	bgfx::setUniform(itr->second.first, pVal, num);
 	return true;
 }
 

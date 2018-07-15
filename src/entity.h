@@ -14,19 +14,19 @@ namespace Ushuaia
 		std::shared_ptr<Model> pModel;
 		Matrix4x4 transform;
 
-		void Serialize(JsonWriter & _writer) const;
-		bool Deserialize(JsonValue const & _jsObj);
+		void Serialize(JsonWriter & writer) const;
+		bool Deserialize(JsonValue const & jsObj);
 
 		static EntMap s_entities;
 		static std::unordered_map<size_t, std::string> s_entNames;
 
 		static Entity* Create(std::string const & _name);
-		static Entity* Get(size_t _key) {
-			auto const & itr = s_entities.find(_key);
+		static Entity* Get(size_t key) {
+			auto const & itr = s_entities.find(key);
 			return (itr != s_entities.end()) ? itr->second : nullptr;
 		}
-		static void Load(JsonValue const & _jsObj);
-		static void Save(JsonWriter & _writer);
+		static void Load(JsonValue const & jsObj);
+		static void Save(JsonWriter & writer);
 
 		static void Fini();
 	};

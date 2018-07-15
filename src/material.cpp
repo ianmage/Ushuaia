@@ -65,63 +65,63 @@ bool Material::Deserialize()
 }
 #endif
 
-void Material::Serialize(JsonWriter & _writer) const
+void Material::Serialize(JsonWriter & writer) const
 {
+	writer.StartObject();
+
 	if (pShader_) {
-		_writer.Key("Shader");
-		_writer.StartArray();
-		_writer.String(pShader_->VsName());
-		_writer.String(pShader_->FsName());
-		_writer.EndArray();
+		writer.Key("Shader");
+		writer.StartArray();
+		writer.String(pShader_->VsName());
+		writer.String(pShader_->FsName());
+		writer.EndArray();
 	}
 
-	_writer.Key("RenderState");
-	_writer.String(NumToAry79Str(renderState));
+	writer.Key("RenderState");
+	writer.String(NumToAry79Str(renderState));
 
-	_writer.Key("Parameters");
-	_writer.StartObject();
+	writer.Key("Parameters");
+	writer.StartObject();
 #if 1
-	pShader_->SaveMtlParams(_writer, paramData_.data());
+	pShader_->SaveMtlParams(writer, paramData_.data());
 #else
 	if (!Shader::s_vec4NameMap.empty()) {
-		_writer.Key("Vec4");
-		_writer.StartObject();
+		writer.Key("Vec4");
+		writer.StartObject();
 		for (auto & m : Shader::s_vec4NameMap) {
-			_writer.Key(m.second);
+			writer.Key(m.second);
 			Vector4 *vec4 = GetParamVec4(m.first);
-			WriteFloatArray(_writer, *vec4);
+			WriteFloatArray(writer, vec4->v, 4);
 		}
-		_writer.EndObject();
+		writer.EndObject();
 	}
 #endif
-	_writer.EndObject();
+	writer.EndObject();
+
+	writer.EndObject();
 }
 
 
-bool Material::Deserialize(JsonValue const & _jsObj)
+bool Material::Deserialize(JsonValue const & jsObj)
 {
 	JsonValue::ConstMemberIterator itr;
-	itr = _jsObj.FindMember("Shader");
-	if (itr != _jsObj.MemberEnd()) {
+	itr = jsObj.FindMember("Shader");
+	if (itr != jsObj.MemberEnd()) {
 		std::string vsName = itr->value[0].GetString();
 		std::string fsName = itr->value[1].GetString();
 		SetShader( Shader::Load(vsName, fsName) );
 	}
 
-	itr = _jsObj.FindMember("RenderState");
-	if (itr != _jsObj.MemberEnd()) {
+	itr = jsObj.FindMember("RenderState");
+	if (itr != jsObj.MemberEnd()) {
 		renderState = Ary79StrToNum(itr->value.GetString());
 	}
 
-	itr = _jsObj.FindMember("Parameters");
-	if (itr != _jsObj.MemberEnd()) {
-		auto const & paramMap = itr->value;
-		JsonValue::ConstMemberIterator v4Itr = paramMap.FindMember("Vec4");
-		if (v4Itr != paramMap.MemberEnd()) {
-			for (auto & v4m : v4Itr->value.GetObject()) {
-				Vector4 *vec4 = GetParamVec4(RT_HASH(v4m.name.GetString()));
-				ReadFloatArray(v4m.value, *vec4);
-			}
+	itr = jsObj.FindMember("Parameters");
+	if (itr != jsObj.MemberEnd()) {
+		for (auto & m : itr->value.GetObject()) {
+			float *pBuf = GetParam(RT_HASH(m.name.GetString()));
+			ReadFloatArray(m.value, pBuf);
 		}
 	}
 
@@ -146,22 +146,14 @@ void Material::SetShader(Shader *_pShader)
 }
 
 
-void Material::Submit(uint64_t _overrideSt0, uint64_t _overrideSt1)
-{
-	bgfx::setState(RenderState::overrideMe(renderState, _overrideSt0, _overrideSt1));
-
-	pShader_->SetMtlParams(paramData_.data());
-}
-
-
-Vector4* Material::GetParamVec4(size_t _nameKey) const
+float* Material::GetParam(size_t nameKey) const
 {
 	assert(pShader_);
-	uint16_t const idx = pShader_->ParamIndex(_nameKey);
+	uint16_t const idx = pShader_->ParamIndex(nameKey);
 	if (UINT16_MAX == idx)
 		return nullptr;
 	auto pData = const_cast<uint8_t*>(&paramData_[idx]);
-	return reinterpret_cast<Vector4*>(pData);
+	return reinterpret_cast<float*>(pData);
 }
 
 }

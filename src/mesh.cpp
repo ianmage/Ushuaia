@@ -1,9 +1,10 @@
 #include "mesh.h"
+#include "bx/readerwriter.h"
 #include "../examples/common/entry/entry.h"
 #include "ib-compress/indexbufferdecompression.h"
 #include "../../cpp_common/commUtil.h"
 
-//#pragma optimize("", off)
+#pragma optimize("", off)
 
 
 namespace bgfx
@@ -42,7 +43,7 @@ std::shared_ptr<Mesh> Mesh::Create(std::string const & _name,
 	{
 		idx[i] =  _indices[i];
 	}
-	Group group;
+	PrimitiveGroup group;
 	bgfx::Memory const * mem;
 
 	mem = bgfx::alloc(_numVertices * _decl.getStride());
@@ -53,7 +54,7 @@ std::shared_ptr<Mesh> Mesh::Create(std::string const & _name,
 	memcpy(mem->data, _indices, mem->size);
 	group.hIB = bgfx::createIndexBuffer(mem);
 
-	pMesh->groups_.emplace_back(std::move(group));
+	pMesh->groups.emplace_back(std::move(group));
 
 	return std::move(pMesh);
 }
@@ -93,7 +94,7 @@ bool Mesh::Deserialize()
 #define BGFX_CHUNK_MAGIC_IBC BX_MAKEFOURCC('I', 'B', 'C', 0x0)
 #define BGFX_CHUNK_MAGIC_PRI BX_MAKEFOURCC('P', 'R', 'I', 0x0)
 
-	Group group;
+	PrimitiveGroup group;
 
 	bx::AllocatorI* allocator = entry::getAllocator();
 
@@ -188,7 +189,7 @@ bool Mesh::Deserialize()
 				group.prims.push_back(prim);
 			}
 
-			groups_.push_back(group);
+			groups.push_back(group);
 			group.reset();
 		}
 		break;
@@ -205,7 +206,7 @@ bool Mesh::Deserialize()
 
 void Mesh::Release()
 {
-	for (auto const & group : groups_)
+	for (auto const & group : groups)
 	{
 		bgfx::destroy(group.hVB);
 
@@ -214,21 +215,7 @@ void Mesh::Release()
 			bgfx::destroy(group.hIB);
 		}
 	}
-	groups_.clear();
-}
-
-
-void Mesh::Submit(bgfx::ViewId _id, Shader const *_program) const
-{
-	for (decltype(groups_)::const_iterator itr = groups_.begin(), itrEnd = groups_.end(); itr != itrEnd; ++itr)
-	{
-		Group const & group = *itr;
-
-		if (bgfx::isValid(group.hIB))
-			bgfx::setIndexBuffer(group.hIB);
-		bgfx::setVertexBuffer(0, group.hVB);
-		bgfx::submit(_id, _program->hProgram, 0, itr != itrEnd-1);
-	}
+	groups.clear();
 }
 
 }

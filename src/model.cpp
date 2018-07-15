@@ -1,19 +1,19 @@
 #include "model.h"
 #include "serialize.h"
+#include "drawItem.h"
 
 
 namespace Ushuaia
 {
 
 Model::Model(std::string const & _name)
-	: name_(_name), pMesh(nullptr), pMtl(nullptr)
+	: name_(_name), pMesh(nullptr)
 {
 }
 
 
 Model::~Model()
 {
-	delete pMtl;
 }
 
 
@@ -25,13 +25,22 @@ void Model::Serialize() const
 		writer.Key("Mesh");
 		writer.String(pMesh->Name());
 	}
-	if (pMtl) {
+
+	if (!materials.empty()) {
 		writer.Key("Material");
-#if 0
-		writer.String(pMtl->Name());
-#else
-		pMtl->Serialize(writer);
-#endif
+		writer.StartArray();
+		for (auto const & m : materials) {
+			m.Serialize(writer);
+		}
+		writer.EndArray();
+	}
+	if (!mtlIndices.empty()) {
+		writer.Key("MtlIndices");
+		writer.StartArray();
+		for (auto m : mtlIndices) {
+			writer.Int(m);
+		}
+		writer.EndArray();
 	}
 
 	writer.Save("model/" + name_);
@@ -40,7 +49,7 @@ void Model::Serialize() const
 
 bool Model::Deserialize()
 {
-	assert(!pMesh && !pMtl);
+	assert(!pMesh && materials.empty());
 	JsonReader reader;
 	if (!reader.Load("model/" + name_))
 		return false;
@@ -52,12 +61,18 @@ bool Model::Deserialize()
 	}
 	itr = reader.FindMember("Material");
 	if (itr != reader.MemberEnd()) {
-#if 0
-		pMtl = Material::Load(itr->value.GetString());
-#else
-		pMtl = new Material;
-		pMtl->Deserialize(itr->value);
-#endif
+		materials.resize(itr->value.Size());
+		uint32_t idx = 0;
+		for (auto const & m : itr->value.GetArray()) {
+			materials[idx++].Deserialize(m);
+		}
+	}
+	itr = reader.FindMember("MtlIndices");
+	if (itr != reader.MemberEnd()) {
+		mtlIndices.reserve(itr->value.Size());
+		for (auto const & m : itr->value.GetArray()) {
+			mtlIndices.push_back(m.GetInt());
+		}
 	}
 
 	return true;
@@ -83,21 +98,39 @@ std::shared_ptr<Model> Model::Load(std::string const & _name)
 }
 
 
+void Model::SaveAll()
+{
+	for (auto & m : s_models) {
+		if (!m.second.expired())
+			m.second.lock()->Serialize();
+	}
+}
+
+
 void Model::Fini()
 {
 	s_models.clear();
 }
 
 
-void Model::Draw(bgfx::ViewId _viewId
-	, uint64_t _overrideSt0, uint64_t _overrideSt1
-	, Shader const * _overrideShader)
+void Model::Draw(Matrix4x4 const & transform)
 {
-	if (!pMesh || !pMtl)
+	if (!pMesh || materials.empty())
 		return;
 
-	pMtl->Submit(_overrideSt0, _overrideSt1);
-	pMesh->Submit(_viewId, _overrideShader ? _overrideShader : pMtl->GetShader());
+	std::string n = name_;
+	size_t gs = pMesh->groups.size();
+
+	assert(mtlIndices.size() == pMesh->groups.size());
+	uint8_t idx = 0;
+	for (auto const & g : pMesh->groups) {
+		Material & mtl = materials[mtlIndices[idx]];
+		DrawItem & di = DrawChannel::Add();
+		di.primGroup = &g;
+		di.pMtl = &materials[mtlIndices[idx]];
+		di.transform = transform;
+		di.isValid = true;
+	}
 }
 
 }

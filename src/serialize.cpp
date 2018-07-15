@@ -50,7 +50,11 @@ bool JsonReader::Load(std::string _fPath)
 
 	if (Parse(content.data()).HasParseError()) {
 #ifdef _DEBUG
+#ifdef _WIN
 		pFile = ::fopen("r:/test.json", "wb");
+#elif defined(_APPLE)
+		pFile = ::fopen("/Volumes/RamDisk/test.json", "wb");
+#endif
 		::fwrite(content.data(), sizeof(char), content.size(), pFile);
 		::fclose(pFile);
 		assert(false);
@@ -82,7 +86,7 @@ static void floatFmt(char *f, int m, int n)
 int trimTail(char *s, int len, char const c)
 {
 	while (s[len - 1] == c) {
-		if (len < 2)
+		if (len < 5)
 			break;
 		--len;
 	}

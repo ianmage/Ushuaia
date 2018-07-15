@@ -23,15 +23,17 @@ public:
 
 	uint64_t renderState;
 
-	void Submit(uint64_t _overrideSt0 = RenderState::s_val[0],
-		uint64_t _overrideSt1 = RenderState::s_val[1]);
-
-	Vector4* GetParamVec4(size_t _nameKey) const;
-	inline bool SetParamVec4(size_t _nameKey, float _x, float _y, float _z, float _w) {
-		Vector4 *v4 = GetParamVec4(_nameKey);
+	float* GetParam(size_t nameKey) const;
+	inline bool SetParamVec4(size_t nameKey, float _x, float _y, float _z, float _w) {
+		auto v4 = reinterpret_cast<Vector4*>(GetParam(nameKey));
 		if (!v4) return false;
 		v4->x = _x; v4->y = _y; v4->z = _z; v4->w = _w;
 		return true;
+	}
+
+	void SubmitParams(Shader const * pOverrideShader = nullptr) const {
+		(pOverrideShader ? pOverrideShader : pShader_)
+			->SetMtlParams(paramData_.data());
 	}
 
 	Shader* GetShader() const { return pShader_; }
@@ -40,8 +42,8 @@ public:
 
 	void Serialize() const;
 	bool Deserialize();
-	void Serialize(JsonWriter & _writer) const;
-	bool Deserialize(JsonValue const & _jsObj);
+	void Serialize(JsonWriter & writer) const;
+	bool Deserialize(JsonValue const & jsObj);
 
 	//static Material* Load(std::string const & _name);
 	//static void ClearAll();

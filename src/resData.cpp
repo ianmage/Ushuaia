@@ -20,7 +20,6 @@ static float timeAccuScene = 0.f;
 
 void InitResData()
 {
-
 	Scene *pScene = new Scene("test");
 	pScene->Deserialize();
 	Scene::pActive = pScene;
@@ -48,12 +47,13 @@ void InitResData()
 	pFloorModel->pMtl = Material::Load("default");
 #else
 	Shader *pShader = Shader::Load("vs_clay", "fs_clay");
-	Material * pMtl = new Material;
-	pMtl->SetShader(pShader);
-	pMtl->renderState = BGFX_STATE_CULL_CCW;
-	pMtl->SetParamVec4(CT_HASH("PM_albedoMetal"), 1, 1, 1, 0);
-	pMtl->SetParamVec4(CT_HASH("PM_normalGloss"), 0, 0, 0, 0);
-	pFloorModel->pMtl = pMtl;
+	pFloorModel->materials.emplace_back();
+	Material & mtl = pFloorModel->materials.back();
+	mtl.SetShader(pShader);
+	mtl.renderState = BGFX_STATE_CULL_CCW;
+	mtl.SetParamVec4(CT_HASH("PM_albedoMetal"), 1, 1, 1, 0);
+	mtl.SetParamVec4(CT_HASH("PM_normalGloss"), 0, 1, 0, 0);
+	pFloorModel->mtlIndices.push_back(0);
 #endif
 
 	JsonReader reader;
