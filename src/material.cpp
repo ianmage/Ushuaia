@@ -65,6 +65,14 @@ bool Material::Deserialize()
 }
 #endif
 
+Material::~Material()
+{
+	for (auto & ts : texStates) {
+		bgfx::destroy(ts.hSampler);
+	}
+}
+
+
 void Material::Serialize(JsonWriter & writer) const
 {
 	writer.StartObject();
@@ -97,7 +105,27 @@ void Material::Serialize(JsonWriter & writer) const
 	}
 #endif
 	writer.EndObject();
-	pShader_->SaveMtlTexs(writer, texStates);
+
+	if (!texStates.empty()) {
+		writer.Key("TexStates");
+		writer.StartObject();
+		bgfx::UniformInfo ui;
+		for (auto const & ts : texStates) {
+			if (!ts.pTex)
+				continue;
+			bgfx::getUniformInfo(ts.hSampler, ui);
+			writer.Key(ui.name);
+			writer.StartObject();
+			writer.Key("Stage");
+			writer.Uint(ts.stage);
+			writer.Key("Tex");
+			writer.String(ts.pTex->Name());
+			writer.Key("Flag");
+			writer.Uint(ts.flags);
+			writer.EndObject();
+		}
+		writer.EndObject();
+	}
 
 	writer.EndObject();
 }
@@ -120,9 +148,22 @@ bool Material::Deserialize(JsonValue const & jsObj)
 
 	itr = jsObj.FindMember("Parameters");
 	if (itr != jsObj.MemberEnd()) {
-		for (auto & m : itr->value.GetObject()) {
+		for (auto const & m : itr->value.GetObject()) {
 			float *pBuf = GetParam(RT_HASH(m.name.GetString()));
 			ReadFloatArray(m.value, pBuf);
+		}
+	}
+
+	itr = jsObj.FindMember("TexStates");
+	if (itr != jsObj.MemberEnd()) {
+		for (auto const & m : itr->value.GetObject()) {
+			TexState ts;
+			ts.hSampler = bgfx::createUniform(
+				m.name.GetString(), bgfx::UniformType::Int1);
+			auto const tsObj = m.value.GetObject();
+			ts.stage = tsObj["Stage"].GetUint();
+			ts.pTex = TexMgr::LoadFromFile(tsObj["Tex"].GetString());
+			ts.flags = tsObj["Flag"].GetUint();
 		}
 	}
 
@@ -155,6 +196,22 @@ float* Material::GetParam(size_t nameKey) const
 		return nullptr;
 	auto pData = const_cast<uint8_t*>(&paramData_[idx]);
 	return reinterpret_cast<float*>(pData);
+}
+
+
+void Material::SubmitParams(Shader const * pOverrideShader) const
+{
+	Shader const * pShader = pOverrideShader ? pOverrideShader : pShader_;
+	pShader->SetMtlParams(paramData_.data());
+
+	for (auto & ts : texStates) {
+		if (ts.pTex)
+			bgfx::setTexture(ts.stage, ts.hSampler, ts.pTex->Get(), ts.flags);
+		else {
+			bgfx::TextureHandle hNull = BGFX_INVALID_HANDLE;
+			bgfx::setTexture(ts.stage, ts.hSampler, hNull, ts.flags);
+		}
+	}
 }
 
 }

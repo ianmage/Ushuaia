@@ -2,10 +2,20 @@
 
 #include "shader.h"
 #include "renderState.h"
+#include "texture.h"
 
 
 namespace Ushuaia
 {
+
+struct TexState
+{
+	uint32_t flags;
+	bgfx::UniformHandle hSampler;
+	uint8_t stage;
+	std::shared_ptr<Texture> pTex;
+};
+
 
 struct Material
 {
@@ -13,6 +23,9 @@ public:
 	std::vector<TexState> texStates;
 
 	uint64_t renderState;
+
+	Material() {}
+	virtual ~Material();
 
 	float* GetParam(size_t nameKey) const;
 	inline bool SetParamVec4(size_t nameKey, float _x, float _y, float _z, float _w) {
@@ -22,10 +35,7 @@ public:
 		return true;
 	}
 
-	void SubmitParams(Shader const * pOverrideShader = nullptr) const {
-		Shader const * pShader = pOverrideShader ? pOverrideShader : pShader_;
-		pShader->SetMtlParams(paramData_.data(), texStates);
-	}
+	void SubmitParams(Shader const * pOverrideShader = nullptr) const;
 
 	Shader* GetShader() const { return pShader_; }
 	void SetShader(Shader *_pShader);

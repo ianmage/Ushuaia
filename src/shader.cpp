@@ -15,7 +15,6 @@ namespace Ushuaia
 
 decltype(Shader::s_shaders) Shader::s_shaders;
 decltype(Shader::s_shaderHandles) Shader::s_shaderHandles;
-decltype(Shader::s_uniforms) Shader::s_uniforms;
 
 
 Shader* Shader::Load(std::string const & _vsName, std::string const & _fsName)
@@ -62,21 +61,6 @@ Shader* Shader::Load(std::string const & _vsName, std::string const & _fsName)
 }
 
 
-bgfx::UniformHandle Shader::AddUniformVec4(std::string const & uName, uint16_t num)
-{
-	size_t k = RT_HASH(uName.c_str());
-	decltype(s_uniforms)::const_iterator itr = s_uniforms.find(k);
-	if (itr != s_uniforms.end())
-		return itr->second;
-
-	auto ret = bgfx::createUniform(uName.c_str(),
-		bgfx::UniformType::Enum::Vec4, num);
-	s_uniforms[k] = ret;
-
-	return ret;
-}
-
-
 bool Shader::Init()
 {
 	return true;
@@ -89,10 +73,6 @@ void Shader::ClearAll()
 		delete m.second;
 	}
 	s_shaders.clear();
-	for (auto & m : s_uniforms) {
-		bgfx::destroy(m.second);
-	}
-	s_uniforms.clear();
 	for (auto & m : s_shaderHandles) {
 		bgfx::destroy(m.second);
 	}
@@ -165,9 +145,6 @@ void Shader::ParseUniform(bgfx::ShaderHandle hShader)
 			bgfx::getUniformInfo(h, ui);
 			paramSize_ += GetUniformTypeSize(ui.type) * ui.num;
 		}
-		else if (strStartsWith(uName, "S_")) {
-			samplers_[RT_HASH(uName)] = h;
-		}
 	}
 }
 
@@ -203,22 +180,10 @@ uint16_t Shader::ParamIndex(size_t nameKey) const
 }
 
 
-void Shader::SetMtlParams(uint8_t const * pData, std::vector<TexState> const & texStates) const
+void Shader::SetMtlParams(uint8_t const * pData) const
 {
 	for (auto & m : uniforms_) {
 		bgfx::setUniform(m.second.first, &pData[m.second.second]);
-	}
-
-	for (auto & ts : texStates) {
-		decltype(samplers_)::const_iterator itr = samplers_.find(ts.samplerKey);
-		if (itr != samplers_.end()) {
-			if (ts.pTex)
-				bgfx::setTexture(ts.stage, itr->second, ts.pTex->Get(), ts.flags);
-			else {
-				bgfx::TextureHandle hNull = BGFX_INVALID_HANDLE;
-				bgfx::setTexture(ts.stage, itr->second, hNull, ts.flags);
-			}
-		}
 	}
 }
 
@@ -238,32 +203,6 @@ void Shader::SaveMtlParams(JsonWriter & writer, uint8_t const * pData) const
 			WriteFloatArray(writer, (float const*)pBuf, 16 * ui.num);
 	}
 	
-}
-
-
-void Shader::SaveMtlTexs(JsonWriter & writer, std::vector<TexState> const & texStates) const
-{
-	if (!texStates.empty()) {
-		writer.Key("TexStates");
-		writer.StartObject();
-		bgfx::UniformInfo ui;
-		for (auto const & ts : texStates) {
-			if (!ts.pTex)
-				continue;
-			auto hSampler = samplers_.at(ts.samplerKey);
-			bgfx::getUniformInfo(hSampler, ui);
-			writer.Key(ui.name);
-			writer.StartObject();
-			writer.Key("Stage");
-			writer.Uint(ts.stage);
-			writer.Key("Tex");
-			writer.String(ts.pTex->Name());
-			writer.Key("Flag");
-			writer.Uint(ts.flags);
-			writer.EndObject();
-		}
-		writer.EndObject();
-	}
 }
 
 

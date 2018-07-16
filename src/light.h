@@ -51,7 +51,8 @@ namespace Ushuaia
 		};
 
 		static void Init();
-		static void ClearAll();
+		static void Fini();
+		static void Clear();
 
 		static void Serialize(JsonWriter & _writer);
 		static void Deserialize(JsonValue const & _jsObj);

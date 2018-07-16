@@ -54,7 +54,7 @@ void InitResData()
 	mtl.SetParamVec4(CT_HASH("PM_albedoMetal"), 1, 1, 1, 0);
 	mtl.SetParamVec4(CT_HASH("PM_normalGloss"), 0, 1, 0, 0);
 	TexState ts;
-	ts.samplerKey = CT_HASH("S_albedoTex");
+	ts.hSampler = bgfx::createUniform("S_albedoTex", bgfx::UniformType::Int1);
 	ts.stage = 0;
 	ts.pTex = TexMgr::LoadFromFile("figure-rgba");
 	ts.flags = UINT32_MAX;

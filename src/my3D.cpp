@@ -85,7 +85,7 @@ bool Fini()
 	//Material::ClearAll();
 
 	Shading::Fini();
-	Light::ClearAll();
+	Light::Fini();
 	Shader::ClearAll();
 
 	Camera::FiniDefault();

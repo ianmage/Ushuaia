@@ -35,18 +35,31 @@ static Vector4 s_lightsCnt;
 
 void Light::Init()
 {
-	uhLightsCnt = Shader::AddUniformVec4("PV_lightsCnt");
-	uhAmbientColor = Shader::AddUniformVec4("PV_lightAmbColor");
-	uhDirectionalColor = Shader::AddUniformVec4("PV_lightDirColor");
-	uhDirectionalDir = Shader::AddUniformVec4("PV_lightDirDir");
-	uhPointColor = Shader::AddUniformVec4("PV_lightColor", MAX_POINT_LIGHT + MAX_SPOT_LIGHT);
-	uhPointPos = Shader::AddUniformVec4("PV_lightPos", MAX_POINT_LIGHT + MAX_SPOT_LIGHT);
-	uhPointAttnRange = Shader::AddUniformVec4("PV_lightAttnRange", MAX_POINT_LIGHT + MAX_SPOT_LIGHT);
-	uhSpotDirInner = Shader::AddUniformVec4("PV_lightSpotDirInner", MAX_SPOT_LIGHT);
+	uhLightsCnt = bgfx::createUniform("PV_lightsCnt", bgfx::UniformType::Vec4);
+	uhAmbientColor = bgfx::createUniform("PV_lightAmbColor", bgfx::UniformType::Vec4);
+	uhDirectionalColor = bgfx::createUniform("PV_lightDirColor", bgfx::UniformType::Vec4);
+	uhDirectionalDir = bgfx::createUniform("PV_lightDirDir", bgfx::UniformType::Vec4);
+	uhPointColor = bgfx::createUniform("PV_lightColor", bgfx::UniformType::Vec4, MAX_POINT_LIGHT + MAX_SPOT_LIGHT);
+	uhPointPos = bgfx::createUniform("PV_lightPos", bgfx::UniformType::Vec4, MAX_POINT_LIGHT + MAX_SPOT_LIGHT);
+	uhPointAttnRange = bgfx::createUniform("PV_lightAttnRange", bgfx::UniformType::Vec4, MAX_POINT_LIGHT + MAX_SPOT_LIGHT);
+	uhSpotDirInner = bgfx::createUniform("PV_lightSpotDirInner", bgfx::UniformType::Vec4, MAX_SPOT_LIGHT);
 }
 
 
-void Light::ClearAll()
+void Light::Fini()
+{
+	bgfx::destroy(uhLightsCnt);
+	bgfx::destroy(uhAmbientColor);
+	bgfx::destroy(uhDirectionalColor);
+	bgfx::destroy(uhDirectionalDir);
+	bgfx::destroy(uhPointColor);
+	bgfx::destroy(uhPointPos);
+	bgfx::destroy(uhPointAttnRange);
+	bgfx::destroy(uhSpotDirInner);
+}
+
+
+void Light::Clear()
 {
 	s_lightsCnt.Set(0, 0, 0, 0);
 	s_lightColorBuf.clear();
@@ -113,7 +126,7 @@ void Light::Serialize(JsonWriter & _writer)
 
 void Light::Deserialize(JsonValue const & _jsObj)
 {
-	ClearAll();
+	Clear();
 	JsonValue::ConstMemberIterator itr;
 
 	itr = _jsObj.FindMember("Ambient");
