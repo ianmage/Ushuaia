@@ -3,9 +3,6 @@
 #define MAX_POINT_LIGHT	6
 #define MAX_SPOT_LIGHT	2
 
-uniform vec4 PM_albedoMetal;
-uniform vec4 PM_normalGloss;
-
 uniform vec4 PV_lightsCnt;
 uniform vec4 PV_lightAmbColor;
 uniform vec4 PV_lightDirColor;
@@ -115,15 +112,15 @@ vec4 CalcLighting(vec3 normal, vec3 view_dir, float shininess, vec3 pos_es)
 }
 
 
-vec3 ShadingFS(vec3 normal, vec3 pos_es)
+vec3 ShadingFS(vec3 normal, vec3 pos_es, vec4 mtlAlbedoMetal, vec4 mtlNormalGloss)
 {
 	vec3 view_dir = normalize(pos_es);
-	float shininess = Glossiness2Shininess(PM_normalGloss.w);
+	float shininess = Glossiness2Shininess(mtlNormalGloss.w);
 
 	vec4 lighting = CalcLighting(normal, view_dir, shininess, pos_es);
 
-	vec3 c_diff = DiffuseColor(PM_albedoMetal.xyz, PM_albedoMetal.w);
-	vec3 c_spec = SpecularColor(PM_albedoMetal.xyz, PM_albedoMetal.w);
+	vec3 c_diff = DiffuseColor(mtlAlbedoMetal.xyz, mtlAlbedoMetal.w);
+	vec3 c_spec = SpecularColor(mtlAlbedoMetal.xyz, mtlAlbedoMetal.w);
 
 	vec3 shading = CalcShading(lighting, shininess, c_diff, c_spec, view_dir, normal);
 	return shading;

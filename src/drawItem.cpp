@@ -9,8 +9,7 @@
 namespace Ushuaia
 {
 
-void DrawUnit::Submit(bgfx::ViewId vId,
-		uint64_t overrideSt0, uint64_t overrideSt1) const
+void DrawUnit::Submit(uint64_t overrideSt0, uint64_t overrideSt1) const
 {
 	bgfx::setState(RenderState::overrideMe(pMtl->renderState, overrideSt0, overrideSt1));
 	
@@ -27,9 +26,9 @@ void DrawItem::Submit(bgfx::ViewId vId,
 
 	pMtl->SubmitParams();
 
-	DrawUnit::Submit(vId, overrideSt0, overrideSt1);
+	DrawUnit::Submit(overrideSt0, overrideSt1);
 
-	bgfx::submit(vId, pMtl->GetShader()->hProgram);
+	bgfx::submit(vId, pMtl->GetShader()->Get());
 }
 
 
@@ -81,9 +80,9 @@ void InstanceItem::Submit(bgfx::ViewId vId,
 
 	pMtl->SubmitParams(pInstShader);
 
-	DrawUnit::Submit(vId, overrideSt0, overrideSt1);
+	DrawUnit::Submit(overrideSt0, overrideSt1);
 
-	bgfx::submit(vId, pInstShader->hProgram);
+	bgfx::submit(vId, pInstShader->Get());
 }
 	
 
@@ -115,7 +114,7 @@ void DrawChannel::Gather()
 
 	if (s_supportInstancing)
 	{
-		for (uint32_t i = 0, arrEnd = s_opaque.size(); i < arrEnd;)
+		for (uint32_t i = 0, arrEnd = (uint32_t)s_opaque.size(); i < arrEnd;)
 		{
 			uint32_t j = i + 1;
 			for (; j < arrEnd; ++j)
@@ -141,7 +140,7 @@ void DrawChannel::Gather()
 	}
 	else // no support instancing
 	{
-		for (uint32_t i = 0, arrEnd = s_opaque.size(); i < arrEnd; ++i)
+		for (uint32_t i = 0, arrEnd = (uint32_t)s_opaque.size(); i < arrEnd; ++i)
 		{
 			s_opaque[i].isValid = true;
 		}

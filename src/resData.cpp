@@ -46,13 +46,19 @@ void InitResData()
 #if 0
 	pFloorModel->pMtl = Material::Load("default");
 #else
-	Shader *pShader = Shader::Load("vs_clay", "fs_clay");
+	Shader *pShader = Shader::Load("vs_tex", "fs_tex");
 	pFloorModel->materials.emplace_back();
 	Material & mtl = pFloorModel->materials.back();
 	mtl.SetShader(pShader);
 	mtl.renderState = BGFX_STATE_CULL_CCW;
 	mtl.SetParamVec4(CT_HASH("PM_albedoMetal"), 1, 1, 1, 0);
 	mtl.SetParamVec4(CT_HASH("PM_normalGloss"), 0, 1, 0, 0);
+	TexState ts;
+	ts.samplerKey = CT_HASH("S_albedoTex");
+	ts.stage = 0;
+	ts.pTex = TexMgr::LoadFromFile("figure-rgba");
+	ts.flags = UINT32_MAX;
+	mtl.texStates.emplace_back(std::move(ts));
 	pFloorModel->mtlIndices.push_back(0);
 #endif
 

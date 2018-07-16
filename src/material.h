@@ -1,7 +1,6 @@
 #pragma once
 
 #include "shader.h"
-#include <vector>
 #include "renderState.h"
 
 
@@ -11,14 +10,6 @@ namespace Ushuaia
 struct Material
 {
 public:
-	struct TexState
-	{
-		uint32_t flags;
-		bgfx::UniformHandle hSampler;
-		bgfx::TextureHandle hTex;
-		uint8_t stage;
-	};
-
 	std::vector<TexState> texStates;
 
 	uint64_t renderState;
@@ -32,8 +23,8 @@ public:
 	}
 
 	void SubmitParams(Shader const * pOverrideShader = nullptr) const {
-		(pOverrideShader ? pOverrideShader : pShader_)
-			->SetMtlParams(paramData_.data());
+		Shader const * pShader = pOverrideShader ? pOverrideShader : pShader_;
+		pShader->SetMtlParams(paramData_.data(), texStates);
 	}
 
 	Shader* GetShader() const { return pShader_; }

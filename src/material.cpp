@@ -97,6 +97,7 @@ void Material::Serialize(JsonWriter & writer) const
 	}
 #endif
 	writer.EndObject();
+	pShader_->SaveMtlTexs(writer, texStates);
 
 	writer.EndObject();
 }

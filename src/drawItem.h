@@ -12,8 +12,7 @@ struct DrawUnit
 	PrimitiveGroup const * primGroup;
 	Material const * pMtl;
 
-	void Submit(bgfx::ViewId vId,
-		uint64_t overrideSt0, uint64_t overrideSt1) const;
+	void Submit(uint64_t overrideSt0, uint64_t overrideSt1) const;
 };
 
 

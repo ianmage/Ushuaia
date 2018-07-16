@@ -1,43 +1,57 @@
 #pragma once
 
 #include <string>
-#include <unordered_map>
+#include <map>
+#include <memory>
 #include <bgfx/bgfx.h>
 
 
 namespace Ushuaia
 {
 
-class TexMgr;
+struct TexMgr;
 
 
 struct Texture
 {
 public:
+	enum FLAG {
+		FROM_FILE = 1,
+		FROM_MEM
+	};
+
 	virtual ~Texture();
 
 	bgfx::TextureHandle Get();
+	std::string const & Name() const { return name_; }
 
 private:
+	enum STATE_FLAG {
+		STATE_NORMAL,
+		FILE_NOT_FOUND
+	};
+
 	Texture(std::string const & _name);
 
 	std::string name_;
 	bgfx::TextureHandle handle_;
+	uint8_t flag_;
+	uint8_t stateFlag_;
 
-	friend class TexMgr;
+	friend struct TexMgr;
 };
 
 
 struct TexMgr
 {
 public:
-	static Texture* Load(std::string const & name);
-	static Texture* Get(size_t nameKey);
+	static std::shared_ptr<Texture> LoadFromFile(std::string const & name);
+	static std::shared_ptr<Texture> Get(size_t nameKey);
 
 private:
 	TexMgr();
 
-	static std::unordered_map<size_t, Texture*> s_texs;
+	static std::map<size_t, std::weak_ptr<Texture>> s_texs;
 };
 
 }

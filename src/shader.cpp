@@ -100,7 +100,7 @@ void Shader::ClearAll()
 
 
 Shader::Shader(std::string const & _vsName, std::string const & _fsName)
-	: paramSize_(0), vsName_(_vsName), fsName_(_fsName)
+	: paramSize_(0), vsName_(_vsName), fsName_(_fsName), hProgram(BGFX_INVALID_HANDLE)
 {
 }
 
@@ -154,7 +154,6 @@ void Shader::ParseUniform(bgfx::ShaderHandle hShader)
 	uint16_t numUniform;
 	std::vector<bgfx::UniformHandle> uHandles;
 	bgfx::UniformInfo ui;
-
 	numUniform = bgfx::getShaderUniforms(hShader);
 	uHandles.resize(numUniform);
 	bgfx::getShaderUniforms(hShader, uHandles.data(), numUniform);
@@ -165,6 +164,9 @@ void Shader::ParseUniform(bgfx::ShaderHandle hShader)
 			uniforms_.emplace(RT_HASH(uName), std::make_pair(h, offset));
 			bgfx::getUniformInfo(h, ui);
 			paramSize_ += GetUniformTypeSize(ui.type) * ui.num;
+		}
+		else if (strStartsWith(uName, "S_")) {
+			samplers_[RT_HASH(uName)] = h;
 		}
 	}
 }
@@ -201,11 +203,22 @@ uint16_t Shader::ParamIndex(size_t nameKey) const
 }
 
 
-void Shader::SetMtlParams(uint8_t const * pData) const
+void Shader::SetMtlParams(uint8_t const * pData, std::vector<TexState> const & texStates) const
 {
-	for (auto & m : uniforms_)
-	{
+	for (auto & m : uniforms_) {
 		bgfx::setUniform(m.second.first, &pData[m.second.second]);
+	}
+
+	for (auto & ts : texStates) {
+		decltype(samplers_)::const_iterator itr = samplers_.find(ts.samplerKey);
+		if (itr != samplers_.end()) {
+			if (ts.pTex)
+				bgfx::setTexture(ts.stage, itr->second, ts.pTex->Get(), ts.flags);
+			else {
+				bgfx::TextureHandle hNull = BGFX_INVALID_HANDLE;
+				bgfx::setTexture(ts.stage, itr->second, hNull, ts.flags);
+			}
+		}
 	}
 }
 
@@ -223,6 +236,33 @@ void Shader::SaveMtlParams(JsonWriter & writer, uint8_t const * pData) const
 			WriteFloatArray(writer, (float const*)pBuf, 9 * ui.num);
 		else if (bgfx::UniformType::Mat4 == ui.type)
 			WriteFloatArray(writer, (float const*)pBuf, 16 * ui.num);
+	}
+	
+}
+
+
+void Shader::SaveMtlTexs(JsonWriter & writer, std::vector<TexState> const & texStates) const
+{
+	if (!texStates.empty()) {
+		writer.Key("TexStates");
+		writer.StartObject();
+		bgfx::UniformInfo ui;
+		for (auto const & ts : texStates) {
+			if (!ts.pTex)
+				continue;
+			auto hSampler = samplers_.at(ts.samplerKey);
+			bgfx::getUniformInfo(hSampler, ui);
+			writer.Key(ui.name);
+			writer.StartObject();
+			writer.Key("Stage");
+			writer.Uint(ts.stage);
+			writer.Key("Tex");
+			writer.String(ts.pTex->Name());
+			writer.Key("Flag");
+			writer.Uint(ts.flags);
+			writer.EndObject();
+		}
+		writer.EndObject();
 	}
 }
 

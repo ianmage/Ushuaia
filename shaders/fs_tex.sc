@@ -1,10 +1,11 @@
-$input v_normal, v_pos
+$input v_normal, v_pos, v_texcoord0
 
 #include "../common/common.sh"
 #include "forward_rendering.sh"
 
 uniform vec4 PM_albedoMetal;
 uniform vec4 PM_normalGloss;
+SAMPLER2D(S_albedoTex, 0);
 
 
 void main()
@@ -22,11 +23,11 @@ void main()
 	vec3 final = toGamma(abs(ambient + brdf));
 	*/
 	//vec3 final = v_normal * 0.5 + 0.5;
-#if 0
-	vec3 final = u_mtlAlbedoMetal.xyz;
-#else
-	vec3 final = ShadingFS(n, v, PM_albedoMetal, PM_normalGloss);
-#endif
+
+	vec3 albedo = texture2D(S_albedoTex, v_texcoord0).xyz;
+	vec4 mtlAlbedoMetal = vec4(albedo, PM_albedoMetal.w);
+	vec3 final = albedo;//ShadingFS(n, v, mtlAlbedoMetal, PM_normalGloss);
+
 	gl_FragColor.xyz = mix(fogColor, final, fogFactor);
 	gl_FragColor.w = 1.0;
 }

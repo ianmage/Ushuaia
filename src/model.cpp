@@ -71,7 +71,7 @@ bool Model::Deserialize()
 	if (itr != reader.MemberEnd()) {
 		mtlIndices.reserve(itr->value.Size());
 		for (auto const & m : itr->value.GetArray()) {
-			mtlIndices.push_back(m.GetInt());
+			mtlIndices.push_back((uint8_t)m.GetInt());
 		}
 	}
 
@@ -118,13 +118,9 @@ void Model::Draw(Matrix4x4 const & transform)
 	if (!pMesh || materials.empty())
 		return;
 
-	std::string n = name_;
-	size_t gs = pMesh->groups.size();
-
 	assert(mtlIndices.size() == pMesh->groups.size());
 	uint8_t idx = 0;
 	for (auto const & g : pMesh->groups) {
-		Material & mtl = materials[mtlIndices[idx]];
 		DrawItem & di = DrawChannel::Add();
 		di.primGroup = &g;
 		di.pMtl = &materials[mtlIndices[idx]];
