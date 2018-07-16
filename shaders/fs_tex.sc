@@ -26,7 +26,7 @@ void main()
 
 	vec3 albedo = texture2D(S_albedoTex, v_texcoord0).xyz;
 	vec4 mtlAlbedoMetal = vec4(albedo, PM_albedoMetal.w);
-	vec3 final = albedo;//ShadingFS(n, v, mtlAlbedoMetal, PM_normalGloss);
+	vec3 final = ShadingFS(n, v, mtlAlbedoMetal, PM_normalGloss);
 
 	gl_FragColor.xyz = mix(fogColor, final, fogFactor);
 	gl_FragColor.w = 1.0;
