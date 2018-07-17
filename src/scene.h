@@ -28,7 +28,6 @@ struct Scene
 
 private:
 	std::string name_;
-	std::unordered_map<size_t, std::string> entNames_;
 
 };
 

@@ -161,7 +161,7 @@ bool Material::Deserialize(JsonValue const & jsObj)
 			ts.hSampler = bgfx::createUniform(
 				m.name.GetString(), bgfx::UniformType::Int1);
 			auto const tsObj = m.value.GetObject();
-			ts.stage = tsObj["Stage"].GetUint();
+			ts.stage = static_cast<uint8_t>(tsObj["Stage"].GetUint());
 			ts.pTex = TexMgr::LoadFromFile(tsObj["Tex"].GetString());
 			ts.flags = tsObj["Flag"].GetUint();
 		}

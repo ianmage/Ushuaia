@@ -87,6 +87,7 @@ add_executable(my3D
 	src/confDef.cpp
 	src/drawItem.cpp
 	src/entity.cpp
+	src/forwardRendering.cpp
 	src/light.cpp
 	src/material.cpp
 	src/mesh.cpp

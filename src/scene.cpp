@@ -32,9 +32,9 @@ void Scene::Serialize()
 
 	writer.Key("Entities");
 	writer.StartObject();
-	for (auto const & m : entities) {
-		writer.Key(entNames_.at(m.first));
-		m.second->Serialize(writer);
+	for (auto const & e : entities) {
+		writer.Key(e.second->Name());
+		e.second->Serialize(writer);
 	}
 	writer.EndObject();
 
@@ -60,8 +60,7 @@ bool Scene::Deserialize()
 		for (auto const & m : itr->value.GetObject()) {
 			char const * entName = m.name.GetString();
 			size_t k = RT_HASH(entName);
-			entNames_[k] = entName;
-			Entity *pEnt = new Entity();
+			Entity *pEnt = new Entity(entName);
 			entities[k] = pEnt;
 			pEnt->Deserialize(m.value);
 		}
@@ -78,9 +77,8 @@ Entity* Scene::CreateEntity(std::string const & _name)
 	if (pEnt)
 		return pEnt;
 
-	pEnt = new Entity();
+	pEnt = new Entity(_name);
 	entities.emplace(k, pEnt);
-	entNames_.emplace(k, _name);
 
 	return pEnt;
 }

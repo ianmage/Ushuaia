@@ -4,9 +4,6 @@
 namespace Ushuaia
 {
 
-decltype(Entity::s_entNames) Entity::s_entNames;
-
-
 void Entity::Serialize(JsonWriter & writer) const
 {
 	writer.StartObject();
@@ -48,9 +45,8 @@ Entity* Entity::Create(std::string const & _name)
 	if (pEnt)
 		return pEnt;
 
-	pEnt = new Entity();
+	pEnt = new Entity(_name);
 	s_entities.emplace(k, pEnt);
-	s_entNames.emplace(k, _name);
 
 	return pEnt;
 }
@@ -68,12 +64,12 @@ void Entity::Load(JsonValue const & jsObj)
 void Entity::Save(JsonWriter & writer)
 {
 	writer.StartObject();
-	for (auto const & m : s_entNames)
+	for (auto const & e : s_entities)
 	{
-		writer.String(m.second);
+		writer.String(e.second->name_);
 		writer.StartObject();
 
-		s_entities[m.first]->Serialize(writer);
+		e.second->Serialize(writer);
 
 		writer.EndObject();
 	}

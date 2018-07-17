@@ -29,7 +29,7 @@ public:
 
 	Shader* GetInstance() const;
 
-	bool SetUniform(size_t nameKey, void const * pVal, uint16_t num = UINT16_MAX) const;
+	//bool SetUniform(size_t nameKey, void const * pVal, uint16_t num = UINT16_MAX) const;
 
 	static Shader* Load(std::string const & _vsName, std::string const & _fsName);
 
@@ -53,7 +53,7 @@ private:
 	std::unordered_map<size_t, ParamInfo> uniforms_;
 
 	static std::unordered_map<size_t, Shader*> s_shaders;
-	static std::unordered_map<size_t, bgfx::ShaderHandle> s_shaderHandles;
+	static std::unordered_map<size_t, bgfx::ShaderHandle> s_handles;
 };
 
 }

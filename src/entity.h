@@ -9,16 +9,18 @@ namespace Ushuaia
 
 	struct Entity
 	{
-		typedef std::unordered_map<size_t, Entity*>	EntMap;
-
+	public:
 		std::shared_ptr<Model> pModel;
 		Matrix4x4 transform;
+
+		Entity(std::string const & _name) : name_(_name) {}
+
+		std::string const & Name() const { return name_; }
 
 		void Serialize(JsonWriter & writer) const;
 		bool Deserialize(JsonValue const & jsObj);
 
-		static EntMap s_entities;
-		static std::unordered_map<size_t, std::string> s_entNames;
+		static std::unordered_map<size_t, Entity*> s_entities;
 
 		static Entity* Create(std::string const & _name);
 		static Entity* Get(size_t key) {
@@ -29,6 +31,9 @@ namespace Ushuaia
 		static void Save(JsonWriter & writer);
 
 		static void Fini();
+
+	private:
+		std::string name_;
 	};
 
 }

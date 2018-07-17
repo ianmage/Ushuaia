@@ -14,7 +14,7 @@ namespace Ushuaia
 {
 
 decltype(Shader::s_shaders) Shader::s_shaders;
-decltype(Shader::s_shaderHandles) Shader::s_shaderHandles;
+decltype(Shader::s_handles) Shader::s_handles;
 
 
 Shader* Shader::Load(std::string const & _vsName, std::string const & _fsName)
@@ -26,22 +26,22 @@ Shader* Shader::Load(std::string const & _vsName, std::string const & _fsName)
 	if (pItr != s_shaders.end())
 		return pItr->second;
 
-	decltype(s_shaderHandles)::const_iterator sItr;
+	decltype(s_handles)::const_iterator sItr;
 	bgfx::ShaderHandle hVtxShader, hFragShader;
 
-	sItr = s_shaderHandles.find(vsID);
-	if (sItr != s_shaderHandles.end())
+	sItr = s_handles.find(vsID);
+	if (sItr != s_handles.end())
 		hVtxShader = sItr->second;
 	else {
 		hVtxShader = ::loadShader(_vsName.c_str());
-		s_shaderHandles[vsID] = hVtxShader;
+		s_handles[vsID] = hVtxShader;
 	}
-	sItr = s_shaderHandles.find(fsID);
-	if (sItr != s_shaderHandles.end())
+	sItr = s_handles.find(fsID);
+	if (sItr != s_handles.end())
 		hFragShader = sItr->second;
 	else {
 		hFragShader = ::loadShader(_fsName.c_str());
-		s_shaderHandles[fsID] = hFragShader;
+		s_handles[fsID] = hFragShader;
 	}
 
 	auto hProgram = bgfx::createProgram(hVtxShader, hFragShader, false);
@@ -73,7 +73,7 @@ void Shader::ClearAll()
 		delete m.second;
 	}
 	s_shaders.clear();
-	for (auto & m : s_shaderHandles) {
+	for (auto & m : s_handles) {
 		bgfx::destroy(m.second);
 	}
 }
@@ -206,13 +206,13 @@ void Shader::SaveMtlParams(JsonWriter & writer, uint8_t const * pData) const
 }
 
 
-bool Shader::SetUniform(size_t nameKey, void const * pVal, uint16_t num) const
-{
-	decltype(uniforms_)::const_iterator itr = uniforms_.find(nameKey);
-	if (itr == uniforms_.end())
-		return false;
-	bgfx::setUniform(itr->second.first, pVal, num);
-	return true;
-}
+//bool Shader::SetUniform(size_t nameKey, void const * pVal, uint16_t num) const
+//{
+//	decltype(uniforms_)::const_iterator itr = uniforms_.find(nameKey);
+//	if (itr == uniforms_.end())
+//		return false;
+//	bgfx::setUniform(itr->second.first, pVal, num);
+//	return true;
+//}
 
 }
