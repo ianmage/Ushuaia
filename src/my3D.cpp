@@ -140,7 +140,7 @@ bool Update()
 
 	Shading::Update();
 
-	Shading::render();
+	Shading::Render();
 #endif
 
 	// Use debug font to print information about this example.

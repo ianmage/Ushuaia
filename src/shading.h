@@ -4,15 +4,18 @@
 namespace Ushuaia
 {
 
-	struct Shading
-	{
-		static void Init();
+struct Shading
+{
+	static void Init();
 
-		static void Fini();
+	static void Fini();
 
-		static void Update();
+	static void Update();
 
-		static void render();
-	};
+	static void Render();
+
+	static void Lost();
+	static void Reset();
+};
 
 }

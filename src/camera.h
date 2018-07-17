@@ -14,6 +14,8 @@ namespace Ushuaia
 
 		Matrix4x4 mtxView;
 		Matrix4x4 mtxProj;
+		Matrix4x4 mtxInvView;
+		Matrix4x4 mtxInvProj;
 
 		Camera();
 		virtual ~Camera();

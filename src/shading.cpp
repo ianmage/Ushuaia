@@ -8,96 +8,111 @@
 //#pragma optimize("", off)
 #define TEST	0
 
+
 namespace Ushuaia
 {
 
-	bgfx::ViewId const RENDERVIEW_DRAWSCENE_0 = 0;
+bgfx::ViewId const RENDER_PASS_GEOMETRY_ID = 0;
+bgfx::ViewId const RENDER_PASS_SHADING_ID = 1;
+bgfx::ViewId const RENDER_PASS_COMBINE_ID = 2;
+
+bgfx::TextureHandle h_gbufRT[3];
+bgfx::FrameBufferHandle h_gbufFB;
+bgfx::FrameBufferHandle h_shadeFB;
 
 
-	void Shading::Init()
-	{
-		
-	}
+void Shading::Init()
+{
+	for (uint8_t i = 0; i < ArrayCount(h_gbufRT); ++i)
+		h_gbufRT[i] = BGFX_INVALID_HANDLE;
+	h_gbufFB = BGFX_INVALID_HANDLE;
+	h_shadeFB = BGFX_INVALID_HANDLE;
+
+	bgfx::setViewClear(RENDER_PASS_GEOMETRY_ID,
+		BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 1.f, 0, 1);
+	bgfx::setViewClear(RENDER_PASS_SHADING_ID,
+		BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 1.f, 0, 0);
+}
 
 
-	void Shading::Fini()
-	{
-		
-	}
+void Shading::Fini()
+{
+	Lost();
+}
 
 
-	void Shading::Update()
-	{
-		
-	}
+void Shading::Update()
+{
+	
+}
 
 
-	void Shading::render()
-	{
-		bgfx::setViewRect(0, 0, 0, g_viewState.width, g_viewState.height);
-		bgfx::setViewFrameBuffer(0, BGFX_INVALID_HANDLE);
-#if TEST
-		Vector3 at{ 0.f, 0.f, 0.f };
-		Vector3 eye{ 0.f, 0.f, -35.f };
-		Matrix4x4 view;
-		bx::mtxLookAt(view.v, eye.v, at.v);
+void Shading::Lost()
+{
+	if (isValid(h_shadeFB))
+		bgfx::destroy(h_shadeFB);
+	if (isValid(h_gbufFB))
+		bgfx::destroy(h_gbufFB);
+}
 
-		float const camAspect = float(g_viewState.width) / float(g_viewState.height);
-		bgfx::Caps const * caps = bgfx::getCaps();
-		Matrix4x4 proj;
-		bx::mtxProj(proj.v, 60.f, camAspect, 0.1f, 100.f, caps->homogeneousDepth);
 
-		bgfx::setViewTransform(0, view.v, proj.v);
-
-#else
-		auto pCam = Camera::pCurrent;
-		bgfx::setViewTransform(0, pCam->mtxView.v, pCam->mtxProj.v);
-#endif
-
-		bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH
-			, 0x30303000, 1.f, 0);
-
-		Light::Submit();
-#if TEST
-		uint64_t state = 0
-			| BGFX_STATE_WRITE_R
-			| BGFX_STATE_WRITE_G
-			| BGFX_STATE_WRITE_B
-			| BGFX_STATE_WRITE_A
-			| BGFX_STATE_WRITE_Z
-			| BGFX_STATE_DEPTH_TEST_LESS
-			| BGFX_STATE_CULL_CW
-			| BGFX_STATE_MSAA
-			| UINT64_C(0)
-			;
-		bgfx::setState(state);
-#endif
-		uint64_t overrideSt0 = RenderState::s_val[0];
-		uint64_t overrideSt1 = 0
-			| BGFX_STATE_WRITE_RGB
-			| BGFX_STATE_WRITE_A
-			| BGFX_STATE_WRITE_Z
-			| BGFX_STATE_DEPTH_TEST_LESS
-			| BGFX_STATE_MSAA
+void Shading::Reset()
+{
+	uint32_t const samplerFlags = 0
+		| BGFX_TEXTURE_RT
+		| BGFX_TEXTURE_MIN_POINT
+		| BGFX_TEXTURE_MAG_POINT
+		| BGFX_TEXTURE_MIP_POINT
+		| BGFX_TEXTURE_U_CLAMP
+		| BGFX_TEXTURE_V_CLAMP
 		;
 
-		//for (auto const & m : Entity::s_scnEnts)
-		//{
-		//	auto const & e = m.second;
-		//	bgfx::setTransform(e->mtx.v);
-		//	e->pModel->draw(0, overrideSt0, overrideSt1);
-		//}
-		//for (auto const & m : Entity::s_dynEnts)
-		//{
-		//	auto const & e = m.second;
-		//	bgfx::setTransform(e->mtx.v);
-		//	e->pModel->draw(0, overrideSt0, overrideSt1);
-		//}
-		DrawChannel::Gather();
+	h_gbufRT[0] = bgfx::createTexture2D(g_viewState.width, g_viewState.height,
+		false, 1, bgfx::TextureFormat::BGRA8, samplerFlags);
+	h_gbufRT[1] = bgfx::createTexture2D(g_viewState.width, g_viewState.height,
+		false, 1, bgfx::TextureFormat::BGRA8, samplerFlags);
+	h_gbufRT[2] = bgfx::createTexture2D(g_viewState.width, g_viewState.height,
+		false, 1, bgfx::TextureFormat::D24, samplerFlags);
+	h_gbufFB = bgfx::createFrameBuffer(ArrayCount(h_gbufRT), h_gbufRT, true);
+	h_shadeFB = bgfx::createFrameBuffer(g_viewState.width, g_viewState.height,
+		bgfx::TextureFormat::BGRA8, samplerFlags);
 
-		DrawChannel::DrawOpaque(0, overrideSt0, overrideSt1);
+	bgfx::setViewRect(RENDER_PASS_GEOMETRY_ID, 0, 0, g_viewState.width, g_viewState.height);
+	bgfx::setViewRect(RENDER_PASS_SHADING_ID, 0, 0, g_viewState.width, g_viewState.height);
+	bgfx::setViewRect(RENDER_PASS_COMBINE_ID, 0, 0, g_viewState.width, g_viewState.height);
 
-		DrawChannel::ClearAll();
-	}
+	bgfx::setViewFrameBuffer(RENDER_PASS_GEOMETRY_ID, h_gbufFB);
+	bgfx::setViewFrameBuffer(RENDER_PASS_SHADING_ID, h_shadeFB);
+	bgfx::setViewFrameBuffer(RENDER_PASS_COMBINE_ID, BGFX_INVALID_HANDLE);
+
+	auto pCam = Camera::pCurrent;
+	bgfx::setViewTransform(RENDER_PASS_GEOMETRY_ID, pCam->mtxView.v, pCam->mtxProj.v);
+	bgfx::Caps const * caps = bgfx::getCaps();
+	Matrix4x4 mtxOrtho;
+	bx::mtxOrtho(mtxOrtho.v, 0.f, 1.f, 1.f, 0.f, 0.f, 100.f, 0.f, caps->homogeneousDepth);
+	bgfx::setViewTransform(RENDER_PASS_SHADING_ID, nullptr, mtxOrtho.v);
+	bgfx::setViewTransform(RENDER_PASS_COMBINE_ID, nullptr, mtxOrtho.v);
+}
+
+
+void Shading::Render()
+{
+	Light::Submit();
+
+	uint64_t overrideSt0 = RenderState::s_val[0];
+	uint64_t overrideSt1 = 0
+		| BGFX_STATE_WRITE_RGB
+		| BGFX_STATE_WRITE_A
+		| BGFX_STATE_WRITE_Z
+		| BGFX_STATE_DEPTH_TEST_LESS
+		| BGFX_STATE_MSAA
+	;
+
+	DrawChannel::Gather();
+
+	DrawChannel::DrawOpaque(RENDER_PASS_GEOMETRY_ID, overrideSt0, overrideSt1);
+
+	DrawChannel::ClearAll();
+}
 
 }
