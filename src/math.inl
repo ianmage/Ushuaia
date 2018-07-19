@@ -223,6 +223,14 @@ constexpr T TVec3<T>::Normalize()
 	return bx::vec3Norm(v, v);
 }
 
+template <typename T>
+inline TVec3<T> TVec3<T>::Cross(TVec3 const & rhs) const
+{
+	TVec3<T> ret;
+	bx::vec3Cross(ret.v, v, rhs.v);
+	return std::move(ret);
+}
+
 
 template <typename T>
 constexpr T& TVec4<T>::operator[](int i)

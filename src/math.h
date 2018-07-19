@@ -88,6 +88,7 @@ struct TVec3
 	constexpr T Dot(TVec3 const & rhs) const;
 	constexpr T Length() const;
 	constexpr T Normalize();
+	inline TVec3 Cross(TVec3 const & rhs) const;
 };
 
 typedef TVec3<float>	Vector3;
