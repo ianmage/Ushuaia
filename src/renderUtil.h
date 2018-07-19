@@ -8,16 +8,19 @@
 namespace Ushuaia
 {
 
-	void screenSpaceQuad(float _texW, float _texH,
-		bool _origBottmLeft = true, float _w = 1.f, float _h = 1.f);
+void ScreenSpaceQuad(float texW, float texH
+	, bool origBottmLeft = true, float w = 1.f, float h = 1.f);
 
-	typedef std::array<Vector3, 8>	FrustumCorners;
+typedef std::array<Vector3, 8>	FrustumCorners;
 
-	void worldSpaceFrustumCorners(FrustumCorners & _corners,
-		float _near, float _far, float _projWidth, float _projHeight,
-		Matrix4x4 const & _mtxInvView);
+void WorldSpaceFrustumCorners(FrustumCorners & corners
+	, float near, float far, float projWidth, float projHeight
+	, Matrix4x4 const & mtxInvView);
 
-	void splitFrustum(std::vector<float> & _splits, uint8_t _numSplits,
-		float _near, float _far, float _splitWeight = 0.75f);
+void SplitFrustum(std::vector<float> & splits, uint8_t numSplits
+	, float near, float far, float splitWeight = 0.75f);
+
+void CalcMeshNormal(std::vector<Vector3> & normals
+	, std::vector<Vector3> const & vertices, std::vector<uint16_t> indices);
 
 }
