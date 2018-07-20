@@ -32,10 +32,11 @@ namespace Ushuaia
 		static bgfx::VertexDecl s_decl;
 	};
 
-	struct PosColorVertex
+	struct PosColorNormVertex
 	{
 		Vector3 pos;
-		uint32_t abgr;
+		uint32_t color;
+		uint32_t normal;
 
 		static bgfx::VertexDecl s_decl;
 	};

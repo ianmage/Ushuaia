@@ -1,8 +1,8 @@
 #pragma once
 
-#include "math.h"
 #include <array>
 #include <vector>
+#include "vtxDecl.h"
 
 
 namespace Ushuaia
@@ -22,5 +22,9 @@ void SplitFrustum(std::vector<float> & splits, uint8_t numSplits
 
 void CalcMeshNormal(std::vector<Vector3> & normals
 	, std::vector<Vector3> const & vertices, std::vector<uint16_t> indices);
+
+void CreateCuboid(std::vector<PosColorNormVertex> & out, Vector3 const & length, uint32_t color);
+
+void CreateEllipsoid(std::vector<PosColorNormVertex> & out, float phi, float delta);
 
 }

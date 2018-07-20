@@ -6,7 +6,7 @@ namespace Ushuaia
 	bgfx::VertexDecl PosNormTC0Vertex::s_decl;
 	bgfx::VertexDecl PosVertex::s_decl;
 	bgfx::VertexDecl PosColorTC0Vertex::s_decl;
-	bgfx::VertexDecl PosColorVertex::s_decl;
+	bgfx::VertexDecl PosColorNormVertex::s_decl;
 	
 	void initVtxDecl()
 	{
@@ -28,9 +28,10 @@ namespace Ushuaia
 			.add(bgfx::Attrib::TexCoord0, 2, bgfx::AttribType::Float)
 			.end();
 
-		PosColorVertex::s_decl.begin()
+		PosColorNormVertex::s_decl.begin()
 			.add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
 			.add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8, false, true)
+			.add(bgfx::Attrib::Normal, 4, bgfx::AttribType::Uint8, true, true)
 			.end();
 	}
 }

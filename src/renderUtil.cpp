@@ -2,6 +2,7 @@
 #include "viewState.h"
 #include "bx/math.h"
 #include "vtxDecl.h"
+#include "../examples/common/bgfx_utils.h"
 
 
 namespace Ushuaia
@@ -122,6 +123,53 @@ void CalcMeshNormal(std::vector<Vector3> & normals
 	for (uint16_t i = 0; i < numVtx; ++i) {
 		normals[i].Normalize();
 	}
+}
+
+
+void CreateCuboid(std::vector<PosColorNormVertex> & out, Vector3 const & length, uint32_t color)
+{
+	std::vector<Vector3> const pos = {
+		{ -length.x,  length.y,  length.z },
+		{  length.x,  length.y,  length.z },
+		{ -length.x, -length.y,  length.z },
+		{  length.x, -length.y,  length.z },
+		{ -length.x,  length.y, -length.z },
+		{  length.x,  length.y, -length.z },
+		{ -length.x, -length.y, -length.z },
+		{  length.x, -length.y, -length.z },
+	};
+
+	std::vector<uint16_t> const idx = {
+		0, 1, 2, // 0
+		1, 3, 2,
+		4, 6, 5, // 2
+		5, 6, 7,
+		0, 2, 4, // 4
+		4, 2, 6,
+		1, 5, 3, // 6
+		5, 7, 3,
+		0, 4, 1, // 8
+		4, 5, 1,
+		2, 3, 6, // 10
+		6, 3, 7,
+	};
+
+	std::vector<Vector3> normals;
+	CalcMeshNormal(normals, pos, idx);
+
+	out.resize(8);
+	for (uint8_t i = 0; i < 8; ++i) {
+		out[i].pos = pos[i];
+		auto const & n = normals[i];
+		out[i].normal = encodeNormalRgba8(n.x, n.y, n.z);
+		out[i].color = color;
+	}
+}
+
+
+void CreateEllipsoid(std::vector<PosColorNormVertex> & out, float phi, float delta)
+{
+
 }
 
 }
