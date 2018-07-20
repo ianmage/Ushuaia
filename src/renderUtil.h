@@ -20,11 +20,12 @@ void WorldSpaceFrustumCorners(FrustumCorners & corners
 void SplitFrustum(std::vector<float> & splits, uint8_t numSplits
 	, float near, float far, float splitWeight = 0.75f);
 
-void CalcMeshNormal(std::vector<Vector3> & normals
-	, std::vector<Vector3> const & vertices, std::vector<uint16_t> indices);
+void CalcMeshNormal(Vector3 * normals, uint16_t numNorm
+	, Vector3 const * vertices, uint16_t numVtx
+	, uint16_t const * indices, uint32_t numIdx);
 
 void CreateCuboid(std::vector<PosColorNormVertex> & out, Vector3 const & length, uint32_t color);
 
-void CreateEllipsoid(std::vector<PosColorNormVertex> & out, float phi, float delta);
+void CreateSphere(std::vector<PosColorNormVertex> & out, float phi, float delta);
 
 }

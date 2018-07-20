@@ -103,12 +103,12 @@ void SplitFrustum(std::vector<float> & _splits, uint8_t _numSplits
 }
 
 
-void CalcMeshNormal(std::vector<Vector3> & normals
-	, std::vector<Vector3> const & vertices, std::vector<uint16_t> indices)
+void CalcMeshNormal(Vector3 * normals, uint16_t numNorm
+	, Vector3 const * vertices, uint16_t numVtx
+	, uint16_t const * indices, uint32_t numIdx)
 {
-	uint16_t const numVtx = static_cast<uint16_t>(vertices.size());
-	normals.resize(vertices.size(), {0,0,0});
-	uint32_t const numIdx = static_cast<uint32_t>(indices.size());
+	::memset(normals, 0, sizeof(Vector3) * numNorm);
+
 	for (uint32_t i = 0; i < numIdx; i += 3) {
 		Vector3 n;
 		Vector3 const & v0 = vertices[indices[i]];
@@ -128,7 +128,7 @@ void CalcMeshNormal(std::vector<Vector3> & normals
 
 void CreateCuboid(std::vector<PosColorNormVertex> & out, Vector3 const & length, uint32_t color)
 {
-	std::vector<Vector3> const pos = {
+	std::array<Vector3, 8> const pos{ {
 		{ -length.x,  length.y,  length.z },
 		{  length.x,  length.y,  length.z },
 		{ -length.x, -length.y,  length.z },
@@ -137,9 +137,9 @@ void CreateCuboid(std::vector<PosColorNormVertex> & out, Vector3 const & length,
 		{  length.x,  length.y, -length.z },
 		{ -length.x, -length.y, -length.z },
 		{  length.x, -length.y, -length.z },
-	};
+	} };
 
-	std::vector<uint16_t> const idx = {
+	std::array<uint16_t, 36> const idx{ {
 		0, 1, 2, // 0
 		1, 3, 2,
 		4, 6, 5, // 2
@@ -152,10 +152,10 @@ void CreateCuboid(std::vector<PosColorNormVertex> & out, Vector3 const & length,
 		4, 5, 1,
 		2, 3, 6, // 10
 		6, 3, 7,
-	};
+	} };
 
-	std::vector<Vector3> normals;
-	CalcMeshNormal(normals, pos, idx);
+	std::array<Vector3, 8> normals;
+	CalcMeshNormal(normals.data(), normals.size(), pos.data(), pos.size(), idx.data(), idx.size());
 
 	out.resize(8);
 	for (uint8_t i = 0; i < 8; ++i) {
@@ -167,9 +167,64 @@ void CreateCuboid(std::vector<PosColorNormVertex> & out, Vector3 const & length,
 }
 
 
-void CreateEllipsoid(std::vector<PosColorNormVertex> & out, float phi, float delta)
+static void Icosahedron(std::vector<Vector3> & vertices, std::vector<uint16_t> & indices)
+{
+	float const t = (1.f + std::sqrtf(5.f)) * 0.5f;
+
+	std::array<Vector3, 12> const vtx{ {
+		{ -1.f,    t,  0.f },
+		{ 1.f,    t,  0.f },
+		{ -1.f,   -t,  0.f },
+		{ 1.f,   -t,  0.f },
+		{ 0.f, -1.f,    t },
+		{ 0.f,  1.f,    t },
+		{ 0.f, -1.f,   -t },
+		{ 0.f,  1.f,   -t },
+		{ t,  0.f, -1.f },
+		{ t,  0.f,  1.f },
+		{ -t,  0.f, -1.f },
+		{ -t,  0.f,  1.f },
+	} };
+
+	std::array<uint16_t, 60> const idx{ {
+		0, 11,  5,
+		0,  5,  1,
+		0,  1,  7,
+		0,  7, 10,
+		0, 10, 11,
+		1,  5,  9,
+		5, 11,  4,
+		11, 10,  2,
+		10,  7,  6,
+		7,  1,  8,
+		3,  9,  4,
+		3,  4,  2,
+		3,  2,  6,
+		3,  6,  8,
+		3,  8,  9,
+		4,  9,  5,
+		2,  4, 11,
+		6,  2, 10,
+		8,  6,  7,
+		9,  8,  1,
+	} };
+
+	vertices.assign(vtx.begin(), vtx.end());
+	indices.assign(idx.begin(), idx.end());
+}
+
+
+static void subdivSphere(
+	std::vector<Vector3> const & vtxIn, std::vector<uint16_t> const & idxIn
+	, std::vector<Vector3> & vtxOut, std::vector<uint16_t> & idxOut)
 {
 
+}
+
+
+void CreateSphere(std::vector<PosColorNormVertex> & out, float phi, float delta)
+{
+	
 }
 
 }
