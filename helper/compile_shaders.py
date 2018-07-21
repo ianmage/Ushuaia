@@ -31,12 +31,15 @@ if __name__ == '__main__' :
 	lastModTime = headerLastMod()
 	force = raw_input("force all ? (y/n) : ")
 
+	vary = fxc.parseVaryDef('varying.predef')
+
 	force = force in ('y', 'Y', '1')
 	for f in fileList :
-		inPath = f
 		modTime = None
 		if not force :
-			modTime = os.stat(inPath).st_mtime
+			modTime = os.stat(f).st_mtime
 			modTime = max(lastModTime, modTime)
-		fxc.proc(inPath, None, modTime)
+		scId = f[3:-3]
+		if scId in vary :
+			fxc.proc(f, vary[scId], None, modTime)
 	fxc.press_any_key_exit()

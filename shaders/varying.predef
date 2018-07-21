@@ -1,0 +1,11 @@
+{
+	"clay": [
+		"clay", "clay_instance"
+	],
+	"tex": [
+		"tex"
+	],
+	"screen_quad": [
+		"screen_quad", "combine"
+	]
+}
