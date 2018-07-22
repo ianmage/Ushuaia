@@ -8,7 +8,12 @@
 #include "camera.h"
 #include "vtxDecl.h"
 #include "drawItem.h"
+#define DEFERRED_RENDERING	0
+#if DEFERRED_RENDERING
 #include "shading.h"
+#else
+#include "forwardRendering.h"
+#endif
 #include "resData.h"
 
 //#pragma optimize("", off)
@@ -41,7 +46,7 @@ bool Init()
 
 	mesh.Load("meshes/bunny.bin");
 #else
-	initVtxDecl();
+	InitVtxDecl();
 
 	Camera::InitDefault();
 
@@ -61,7 +66,11 @@ bool Init()
 	Light::Init();
 
 	DrawChannel::Init();
+#if DEFERRED_RENDERING
 	Shading::Init();
+#else
+	ForwardRendering::Init();
+#endif
 
 	InitResData();
 #endif
@@ -84,7 +93,11 @@ bool Fini()
 	Model::Fini();
 	//Material::ClearAll();
 
+#if DEFERRED_RENDERING
 	Shading::Fini();
+#else
+	ForwardRendering::Fini();
+#endif
 	Light::Fini();
 	Shader::ClearAll();
 
@@ -138,9 +151,14 @@ bool Update()
 
 	Light::UpdateAll(Camera::pCurrent->mtxView);
 
+#if DEFERRED_RENDERING
 	Shading::Update();
 
 	Shading::Render();
+#else
+	ForwardRendering::Update();
+	ForwardRendering::Render();
+#endif
 #endif
 
 	// Use debug font to print information about this example.

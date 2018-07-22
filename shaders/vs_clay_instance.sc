@@ -40,5 +40,6 @@ void main()
 	vec4 normal = vec4(a_normal.xyz * 2.0 - 1.0, 0);
 	normal = instMul(mtxInst, normal);
 	v_normal = normalize(mul(u_modelView, normal).xyz);
+
 	v_pos = mul(u_modelView, vec4(a_position, 1.0)).xyz;
 }

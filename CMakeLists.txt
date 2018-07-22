@@ -83,7 +83,6 @@ endif ()
 add_executable(my3D
 	src/appEntry.cpp
 	src/camera.cpp
-	src/color.cpp
 	src/confDef.cpp
 	src/drawItem.cpp
 	src/entity.cpp

@@ -7,7 +7,7 @@ namespace Ushuaia
 {
 
 Model::Model(std::string const & _name)
-	: name_(_name), pMesh(nullptr)
+	: name_(_name), pMesh(nullptr), mtlIndices_(0)
 {
 }
 
@@ -34,11 +34,13 @@ void Model::Serialize() const
 		}
 		writer.EndArray();
 	}
-	if (!mtlIndices.empty()) {
+	if (pMesh && mtlIndices_ != 0) {
 		writer.Key("MtlIndices");
 		writer.StartArray();
-		for (auto m : mtlIndices) {
-			writer.Int(m);
+		uint32_t mi = mtlIndices_;
+		for (uint8_t i = 0; i < pMesh->groups.size(); ++i) {
+			writer.Uint(mi & 0xF);
+			mi >>= 4;
 		}
 		writer.EndArray();
 	}
@@ -67,14 +69,35 @@ bool Model::Deserialize()
 			materials[idx++].Deserialize(m);
 		}
 	}
+	assert(pMesh->groups.size() <= 8);
+	mtlIndices_ = 0;
 	itr = reader.FindMember("MtlIndices");
 	if (itr != reader.MemberEnd()) {
-		mtlIndices.reserve(itr->value.Size());
+		size_t const idxCnt = itr->value.Size();
+		assert(idxCnt == pMesh->groups.size());
+		uint8_t shift = 0;
 		for (auto const & m : itr->value.GetArray()) {
-			mtlIndices.push_back((uint8_t)m.GetInt());
+			uint8_t mi = static_cast<uint8_t>(m.GetUint());
+			mtlIndices_ |= mi << shift;
+			shift += 4;
 		}
 	}
 
+	return true;
+}
+
+
+bool Model::SetMtlIndices(std::vector<uint8_t> const & indices)
+{
+	size_t const idxCnt = indices.size();
+	if (idxCnt != pMesh->groups.size())
+		return false;
+	mtlIndices_ = 0;
+	uint8_t shift = 0;
+	for (uint8_t i : indices) {
+		mtlIndices_ |= i << shift;
+		shift += 4;
+	}
 	return true;
 }
 
@@ -118,14 +141,25 @@ void Model::Draw(Matrix4x4 const & transform)
 	if (!pMesh || materials.empty())
 		return;
 
-	assert(mtlIndices.size() == pMesh->groups.size());
-	uint8_t idx = 0;
-	for (auto const & g : pMesh->groups) {
-		DrawItem & di = DrawChannel::Add();
-		di.primGroup = &g;
-		di.pMtl = &materials[mtlIndices[idx]];
-		di.transform = transform;
-		di.isValid = true;
+	if (mtlIndices_ == 0) {
+		for (auto const & g : pMesh->groups) {
+			DrawItem & di = DrawChannel::Add();
+			di.primGroup = &g;
+			di.pMtl = &materials[0];
+			di.transform = transform;
+			di.isValid = true;
+		}
+	}
+	else {
+		uint8_t mi = mtlIndices_;
+		for (auto const & g : pMesh->groups) {
+			DrawItem & di = DrawChannel::Add();
+			di.primGroup = &g;
+			di.pMtl = &materials[mi & 0xF];
+			mi >>= 4;
+			di.transform = transform;
+			di.isValid = true;
+		}
 	}
 }
 

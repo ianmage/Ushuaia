@@ -13,7 +13,7 @@ namespace Ushuaia
 		std::shared_ptr<Model> pModel;
 		Matrix4x4 transform;
 
-		Entity(std::string const & _name) : name_(_name) {}
+		Entity(std::string const & _name);
 
 		std::string const & Name() const { return name_; }
 

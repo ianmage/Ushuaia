@@ -25,6 +25,8 @@ uint8_t const MAX_POINT_LIGHT = 6;
 uint8_t const MAX_SPOT_LIGHT = 2;
 
 
+static Color4F s_ambLightColor;
+static Color4F s_dirLightColor;
 static Vector4 s_dirLightDir;
 static std::vector<Color4F> s_lightColorBuf;
 static std::vector<Vector4> s_lightPosBuf;
@@ -209,9 +211,12 @@ void Light::UpdateAll(Matrix4x4 const & mtxView)
 	s_lightAttnRangeBuf.clear();
 	s_spotDirInnerBuf.clear();
 
+	ToLinearAccurate(s_ambLightColor, ambLight.color);
+
+	ToLinearAccurate(s_dirLightColor, dirLight.color);
 	mtxView.TransformVec3(s_dirLightDir, dirLight.dir);
 	s_dirLightDir.Vec3().Normalize();
-		
+
 	s_lightsCnt.x = s_lightsCnt.y = 1.f;
 
 	uint8_t const plCnt = std::min(MAX_POINT_LIGHT, (uint8_t)s_pointLights.size());
@@ -225,7 +230,7 @@ void Light::UpdateAll(Matrix4x4 const & mtxView)
 	for (uint8_t i = 0; i < plCnt; ++i)
 	{
 		auto & pl = s_pointLights[i];
-		s_lightColorBuf[i] = pl.color;
+		ToLinearAccurate(s_lightColorBuf[i], pl.color);
 		mtxView.TransformVec3(s_lightPosBuf[i], pl.pos);
 		s_lightAttnRangeBuf[i] = pl.attn;
 	}
@@ -235,7 +240,7 @@ void Light::UpdateAll(Matrix4x4 const & mtxView)
 	{
 		auto & sl = s_spotLights[i];
 		uint8_t const bufIdx = MAX_POINT_LIGHT + i;
-		s_lightColorBuf[bufIdx] = sl.color;
+		ToLinearAccurate(s_lightColorBuf[bufIdx], sl.color);
 		mtxView.TransformVec3(s_lightPosBuf[bufIdx], sl.pos);
 		s_lightAttnRangeBuf[bufIdx] = sl.attnOuter;
 		mtxView.TransformVec3(s_spotDirInnerBuf[i], sl.dirInner);
@@ -266,9 +271,9 @@ void Light::Submit()
 {
 	bgfx::setUniform(uhLightsCnt, &s_lightsCnt);
 
-	bgfx::setUniform(uhAmbientColor, &ambLight.color);
+	bgfx::setUniform(uhAmbientColor, &s_ambLightColor);
 
-	bgfx::setUniform(uhDirectionalColor, &dirLight.color);
+	bgfx::setUniform(uhDirectionalColor, &s_dirLightColor);
 	bgfx::setUniform(uhDirectionalDir, &s_dirLightDir);
 
 	uint8_t const plCnt = std::min(MAX_POINT_LIGHT, (uint8_t)s_pointLights.size());

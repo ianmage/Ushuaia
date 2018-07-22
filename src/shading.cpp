@@ -6,7 +6,6 @@
 #include "drawItem.h"
 
 //#pragma optimize("", off)
-#define TEST	0
 
 
 namespace Ushuaia

@@ -150,7 +150,8 @@ bool Material::Deserialize(JsonValue const & jsObj)
 	if (itr != jsObj.MemberEnd()) {
 		for (auto const & m : itr->value.GetObject()) {
 			float *pBuf = GetParam(RT_HASH(m.name.GetString()));
-			ReadFloatArray(m.value, pBuf);
+			if (pBuf)
+				ReadFloatArray(m.value, pBuf);
 		}
 	}
 

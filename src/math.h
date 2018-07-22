@@ -1,7 +1,6 @@
 #pragma once
 
 #include <algorithm>
-#include <limits>
 
 
 namespace Ushuaia
@@ -34,19 +33,19 @@ struct TVec2
 
 	constexpr void Set(T _v0, T _v1);
 
-	constexpr bool operator==(TVec2 const & rhs) const;
+	constexpr bool operator==(TVec2 const & other) const;
 
-	constexpr TVec2 operator+(TVec2 const & rhs) const;
-	constexpr TVec2 operator-(TVec2 const & rhs) const;
+	constexpr TVec2 operator+(TVec2 const & other) const;
+	constexpr TVec2 operator-(TVec2 const & other) const;
 	constexpr TVec2 operator*(T s) const;
 	constexpr TVec2 operator/(T s) const;
 
-	constexpr void operator+=(TVec2 const & rhs);
-	constexpr void operator-=(TVec2 const & rhs);
+	constexpr void operator+=(TVec2 const & other);
+	constexpr void operator-=(TVec2 const & other);
 	constexpr void operator*=(T s);
 	constexpr void operator/=(T s);
 
-	constexpr T Dot(TVec2 const & rhs) const;
+	constexpr T Dot(TVec2 const & other) const;
 	inline T Length() const;
 	inline T Normalize();
 };
@@ -70,25 +69,25 @@ struct TVec3
 
 	constexpr void Set(T _v0, T _v1, T _v2);
 
-	constexpr bool operator==(TVec3 const & rhs) const;
+	constexpr bool operator==(TVec3 const & other) const;
 
-	inline TVec3 operator+(TVec3 const & rhs) const;
-	inline TVec3 operator-(TVec3 const & rhs) const;
+	inline TVec3 operator+(TVec3 const & other) const;
+	inline TVec3 operator-(TVec3 const & other) const;
 	inline TVec3 operator*(T s) const;
 	inline TVec3 operator/(T s) const;
 
-	inline void operator+=(TVec3 const & rhs);
-	inline void operator-=(TVec3 const & rhs);
+	inline void operator+=(TVec3 const & other);
+	inline void operator-=(TVec3 const & other);
 	inline void operator*=(T s);
 	inline void operator/=(T s);
 
 	inline void TransformBy(Matrix3x3 const & m);
 	inline void TransformBy(Matrix4x4 const & m);
 
-	constexpr T Dot(TVec3 const & rhs) const;
+	constexpr T Dot(TVec3 const & other) const;
 	constexpr T Length() const;
 	constexpr T Normalize();
-	inline TVec3 Cross(TVec3 const & rhs) const;
+	inline TVec3 Cross(TVec3 const & other) const;
 };
 
 typedef TVec3<float>	Vector3;
@@ -108,11 +107,12 @@ struct TVec4
 	constexpr T& operator[](int i);
 	constexpr T operator[](int i) const;
 
-	constexpr TVec3<T> & Vec3();
+	inline TVec3<T> & Vec3();
+	inline TVec3<T> const & Vec3() const;
 
 	constexpr void Set(T _v0, T _v1, T _v2, T _v3);
 
-	constexpr bool operator==(TVec4 const & rhs) const;
+	constexpr bool operator==(TVec4 const & other) const;
 
 	inline TVec4 operator*(T r) const;
 	inline TVec4 operator/(T r) const;
@@ -193,11 +193,11 @@ struct TRect
 
 	constexpr void Scale(float s);
 
-	constexpr bool operator==(TRect<T> const & rhs) const;
+	constexpr bool operator==(TRect<T> const & other) const;
 
-	constexpr bool Overlap(TRect<T> const & rhs) const;
+	constexpr bool Overlap(TRect<T> const & other) const;
 
-	constexpr bool Conatain(TRect<T> const & rhs) const;
+	constexpr bool Conatain(TRect<T> const & other) const;
 };
 
 
@@ -221,11 +221,11 @@ struct Box
 
 	inline void Scale(float s);
 
-	constexpr bool operator==(Box const & rhs) const;
+	constexpr bool operator==(Box const & other) const;
 
-	constexpr bool Overlap(Box const & rhs) const;
+	constexpr bool Overlap(Box const & other) const;
 
-	constexpr bool Conatain(Box const & rhs) const;
+	constexpr bool Conatain(Box const & other) const;
 };
 
 }

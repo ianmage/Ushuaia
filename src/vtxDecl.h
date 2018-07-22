@@ -7,41 +7,40 @@
 namespace Ushuaia
 {
 
-	struct PosNormTC0Vertex
-	{
-		Vector3 pos;
-		uint32_t normal;
-		Vector2 uv;
+struct PosNormTC0Vertex
+{
+	Vector3 pos;
+	uint32_t normal;
+	Vector2 uv;
 
-		static bgfx::VertexDecl s_decl;
-	};
+	static bgfx::VertexDecl s_decl;
+};
 
-	struct PosVertex
-	{
-		Vector3 pos;
+struct PosVertex
+{
+	Vector3 pos;
 
-		static bgfx::VertexDecl s_decl;
-	};
+	static bgfx::VertexDecl s_decl;
+};
 
-	struct PosColorTC0Vertex
-	{
-		Vector3 pos;
-		uint32_t rgba;
-		Vector2 uv;
+struct PosColorTC0Vertex
+{
+	Vector3 pos;
+	uint32_t rgba;
+	Vector2 uv;
 
-		static bgfx::VertexDecl s_decl;
-	};
+	static bgfx::VertexDecl s_decl;
+};
 
-	struct PosColorNormVertex
-	{
-		Vector3 pos;
-		uint32_t color;
-		uint32_t normal;
+struct PosNormVertex
+{
+	Vector3 pos;
+	uint32_t normal;
 
-		static bgfx::VertexDecl s_decl;
-	};
+	static bgfx::VertexDecl s_decl;
+};
 
 
-	void initVtxDecl();
+void InitVtxDecl();
 
 }

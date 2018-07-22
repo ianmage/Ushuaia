@@ -24,8 +24,10 @@ void CalcMeshNormal(Vector3 * normals, uint16_t numNorm
 	, Vector3 const * vertices, uint16_t numVtx
 	, uint16_t const * indices, uint32_t numIdx);
 
-void CreateCuboid(std::vector<PosColorNormVertex> & out, Vector3 const & length, uint32_t color);
+void CreateCuboid(std::vector<PosNormVertex> & vtxOut, std::vector<uint16_t> & idxOut
+	, Vector3 const & length);
 
-void CreateSphere(std::vector<PosColorNormVertex> & out, float phi, float delta);
+void CreateSphere(std::vector<PosNormVertex> & vtxOut, std::vector<uint16_t> & idxOut
+	, uint8_t lod, float scale);
 
 }

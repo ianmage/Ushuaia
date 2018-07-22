@@ -12,7 +12,6 @@ struct Model
 {
 	std::shared_ptr<Mesh> pMesh;
 	std::vector<Material> materials;
-	std::vector<uint8_t> mtlIndices;
 
 	virtual ~Model();
 
@@ -23,6 +22,8 @@ struct Model
 
 	void Draw(Matrix4x4 const & transform);
 
+	bool SetMtlIndices(std::vector<uint8_t> const & indices);
+
 	static std::shared_ptr<Model> Load(std::string const & _name);
 	static void SaveAll();
 
@@ -30,6 +31,7 @@ struct Model
 
 private:
 	std::string name_;
+	uint32_t mtlIndices_;
 
 	static std::unordered_map<size_t, std::weak_ptr<Model>> s_models;
 

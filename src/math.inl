@@ -1,5 +1,3 @@
-#pragma once
-
 #include <limits>
 #include <cassert>
 #include <bx/math.h>
@@ -26,24 +24,24 @@ constexpr void TVec2<T>::Set(T _v0, T _v1)
 }
 
 template <typename T>
-constexpr bool TVec2<T>::operator==(TVec2 const & rhs) const
+constexpr bool TVec2<T>::operator==(TVec2 const & other) const
 {
-	return v[0] == rhs.v[0] && v[1] == rhs.v[1];
+	return v[0] == other.v[0] && v[1] == other.v[1];
 }
 
 template <typename T>
-constexpr TVec2<T> TVec2<T>::operator+(TVec2 const & rhs) const
+constexpr TVec2<T> TVec2<T>::operator+(TVec2 const & other) const
 {
 	TVec2<T> ret;
-	ret.Set(v[0] + rhs.v[0], v[1] + rhs.v[1]);
+	ret.Set(v[0] + other.v[0], v[1] + other.v[1]);
 	return std::move(ret);
 }
 
 template <typename T>
-constexpr TVec2<T> TVec2<T>::operator-(TVec2 const & rhs) const
+constexpr TVec2<T> TVec2<T>::operator-(TVec2 const & other) const
 {
 	TVec2 ret;
-	ret.Set(v[0] - rhs.v[0], v[1] - rhs.v[1]);
+	ret.Set(v[0] - other.v[0], v[1] - other.v[1]);
 	return std::move(ret);
 }
 
@@ -62,15 +60,15 @@ constexpr TVec2<T> TVec2<T>::operator/(T s) const
 }
 
 template <typename T>
-constexpr void TVec2<T>::operator+=(TVec2 const & rhs)
+constexpr void TVec2<T>::operator+=(TVec2 const & other)
 {
-	set(v[0] + rhs.v[0], v[1] + rhs.v[1]);
+	set(v[0] + other.v[0], v[1] + other.v[1]);
 }
 
 template <typename T>
-constexpr void TVec2<T>::operator-=(TVec2 const & rhs)
+constexpr void TVec2<T>::operator-=(TVec2 const & other)
 {
-	set(v[0] - rhs.v[0], v[1] - rhs.v[1]);
+	set(v[0] - other.v[0], v[1] - other.v[1]);
 }
 
 template <typename T>
@@ -86,9 +84,9 @@ constexpr void TVec2<T>::operator/=(T s)
 }
 
 template <typename T>
-constexpr T TVec2<T>::Dot(TVec2 const & rhs) const
+constexpr T TVec2<T>::Dot(TVec2 const & other) const
 {
-	T ret = x * rhs.x + y * rhs.y;
+	T ret = x * other.x + y * other.y;
 	return ret;
 }
 
@@ -127,24 +125,24 @@ constexpr void TVec3<T>::Set(T _v0, T _v1, T _v2)
 }
 
 template <typename T>
-constexpr bool TVec3<T>::operator==(TVec3 const & rhs) const
+constexpr bool TVec3<T>::operator==(TVec3 const & other) const
 {
-	return v[0] == rhs.v[0] && v[1] == rhs.v[1] && v[2] == rhs.v[2];
+	return v[0] == other.v[0] && v[1] == other.v[1] && v[2] == other.v[2];
 }
 
 template <typename T>
-inline TVec3<T> TVec3<T>::operator+(TVec3 const & rhs) const
+inline TVec3<T> TVec3<T>::operator+(TVec3 const & other) const
 {
 	TVec3<T> ret;
-	bx::vec3Add(ret.v, v, rhs.v);
+	bx::vec3Add(ret.v, v, other.v);
 	return std::move(ret);
 }
 
 template <typename T>
-inline TVec3<T> TVec3<T>::operator-(TVec3 const & rhs) const
+inline TVec3<T> TVec3<T>::operator-(TVec3 const & other) const
 {
 	TVec3<T> ret;
-	bx::vec3Sub(ret.v, v, rhs.v);
+	bx::vec3Sub(ret.v, v, other.v);
 	return std::move(ret);
 }
 
@@ -165,15 +163,15 @@ inline TVec3<T> TVec3<T>::operator/(T s) const
 }
 
 template <typename T>
-inline void TVec3<T>::operator+=(TVec3 const & rhs)
+inline void TVec3<T>::operator+=(TVec3 const & other)
 {
-	bx::vec3Add(v, v, rhs.v);
+	bx::vec3Add(v, v, other.v);
 }
 
 template <typename T>
-inline void TVec3<T>::operator-=(TVec3 const & rhs)
+inline void TVec3<T>::operator-=(TVec3 const & other)
 {
-	bx::vec3Sub(v, v, rhs.v);
+	bx::vec3Sub(v, v, other.v);
 }
 
 template <typename T>
@@ -206,9 +204,9 @@ inline void TVec3<T>::TransformBy(Matrix4x4 const & m)
 }
 
 template <typename T>
-constexpr T TVec3<T>::Dot(TVec3 const & rhs) const
+constexpr T TVec3<T>::Dot(TVec3 const & other) const
 {
-	return bx::vec3Dot(v, rhs.v);
+	return bx::vec3Dot(v, other.v);
 }
 
 template <typename T>
@@ -224,10 +222,10 @@ constexpr T TVec3<T>::Normalize()
 }
 
 template <typename T>
-inline TVec3<T> TVec3<T>::Cross(TVec3 const & rhs) const
+inline TVec3<T> TVec3<T>::Cross(TVec3 const & other) const
 {
 	TVec3<T> ret;
-	bx::vec3Cross(ret.v, v, rhs.v);
+	bx::vec3Cross(ret.v, v, other.v);
 	return std::move(ret);
 }
 
@@ -244,9 +242,15 @@ constexpr T TVec4<T>::operator[](int i) const
 }
 
 template <typename T>
-constexpr TVec3<T> & TVec4<T>::Vec3()
+inline TVec3<T> & TVec4<T>::Vec3()
 {
 	return *reinterpret_cast<TVec3<T>*>(v);
+}
+
+template <typename T>
+inline TVec3<T> const & TVec4<T>::Vec3() const
+{
+	return *reinterpret_cast<TVec3<T> const *>(v);
 }
 
 template <typename T>
@@ -256,9 +260,9 @@ constexpr void TVec4<T>::Set(T _v0, T _v1, T _v2, T _v3)
 }
 
 template <typename T>
-constexpr bool TVec4<T>::operator==(TVec4 const & rhs) const
+constexpr bool TVec4<T>::operator==(TVec4 const & other) const
 {
-	return v[0] == rhs.v[0] && v[1] == rhs.v[1] && v[2] == rhs.v[2] && v[3] == rhs.v[3];
+	return v[0] == other.v[0] && v[1] == other.v[1] && v[2] == other.v[2] && v[3] == other.v[3];
 }
 
 template <typename T>
@@ -438,25 +442,25 @@ constexpr void TRect<T>::Scale(float s)
 }
 
 template <typename T>
-constexpr bool TRect<T>::operator==(TRect<T> const & rhs) const
+constexpr bool TRect<T>::operator==(TRect<T> const & other) const
 {
-	return rMin == rhs.rMin && rMax == rhs.rMax;
+	return rMin == other.rMin && rMax == other.rMax;
 }
 
 template <typename T>
-constexpr bool TRect<T>::Overlap(TRect<T> const & rhs) const
+constexpr bool TRect<T>::Overlap(TRect<T> const & other) const
 {
 	return !IsEmpty()
-		&& Overlap1D(rMin.x, rMax.x, rhs.rMin.x, rhs.rMax.x)
-		&& Overlap1D(rMin.y, rMax.y, rhs.rMin.y, rhs.rMax.y);
+		&& Overlap1D(rMin.x, rMax.x, other.rMin.x, other.rMax.x)
+		&& Overlap1D(rMin.y, rMax.y, other.rMin.y, other.rMax.y);
 }
 
 template <typename T>
-constexpr bool TRect<T>::Conatain(TRect<T> const & rhs) const
+constexpr bool TRect<T>::Conatain(TRect<T> const & other) const
 {
-	return !IsEmpty() && !rhs.IsEmpty()
-		&& Contain1D(rMin.x, rMax.x, rhs.rMin.x, rhs.rMax.x)
-		&& Contain1D(rMin.y, rMax.y, rhs.rMin.y, rhs.rMax.y);
+	return !IsEmpty() && !other.IsEmpty()
+		&& Contain1D(rMin.x, rMax.x, other.rMin.x, other.rMax.x)
+		&& Contain1D(rMin.y, rMax.y, other.rMin.y, other.rMax.y);
 }
 
 
@@ -507,26 +511,26 @@ inline void Box::Scale(float s)
 	bMax += sw;
 }
 
-constexpr bool Box::operator==(Box const & rhs) const
+constexpr bool Box::operator==(Box const & other) const
 {
-	return bMin == rhs.bMin && bMax == rhs.bMax;
+	return bMin == other.bMin && bMax == other.bMax;
 }
 
-constexpr bool Box::Overlap(Box const & rhs) const
+constexpr bool Box::Overlap(Box const & other) const
 {
 	return !IsEmpty()
-		&& Overlap1D(bMin.x, bMax.x, rhs.bMin.x, rhs.bMax.x)
-		&& Overlap1D(bMin.y, bMax.y, rhs.bMin.y, rhs.bMax.y)
-		&& Overlap1D(bMin.z, bMax.z, rhs.bMin.z, rhs.bMax.z);
+		&& Overlap1D(bMin.x, bMax.x, other.bMin.x, other.bMax.x)
+		&& Overlap1D(bMin.y, bMax.y, other.bMin.y, other.bMax.y)
+		&& Overlap1D(bMin.z, bMax.z, other.bMin.z, other.bMax.z);
 }
 
 
-constexpr bool Box::Conatain(Box const & rhs) const
+constexpr bool Box::Conatain(Box const & other) const
 {
-	return !IsEmpty() && !rhs.IsEmpty()
-		&& Contain1D(bMin.x, bMax.x, rhs.bMin.x, rhs.bMax.x)
-		&& Contain1D(bMin.y, bMax.y, rhs.bMin.y, rhs.bMax.y)
-		&& Contain1D(bMin.z, bMax.z, rhs.bMin.z, rhs.bMax.z);
+	return !IsEmpty() && !other.IsEmpty()
+		&& Contain1D(bMin.x, bMax.x, other.bMin.x, other.bMax.x)
+		&& Contain1D(bMin.y, bMax.y, other.bMin.y, other.bMax.y)
+		&& Contain1D(bMin.z, bMax.z, other.bMin.z, other.bMax.z);
 }
 
 }

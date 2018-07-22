@@ -12,7 +12,7 @@ namespace Ushuaia
 
 		static void Update();
 
-		static void render();
+		static void Render();
 	};
 
 }

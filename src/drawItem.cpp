@@ -94,7 +94,7 @@ std::vector<InstanceItem> DrawChannel::s_instance;
 
 void DrawChannel::Init()
 {
-	s_supportInstancing = (0 !=
+	s_supportInstancing = false && (0 !=
 		(BGFX_CAPS_INSTANCING & bgfx::getCaps()->supported));
 }
 

@@ -4,6 +4,12 @@
 namespace Ushuaia
 {
 
+Entity::Entity(std::string const & _name)
+ : name_(_name), pModel(nullptr)
+{
+}
+
+
 void Entity::Serialize(JsonWriter & writer) const
 {
 	writer.StartObject();

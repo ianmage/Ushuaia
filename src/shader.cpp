@@ -34,6 +34,7 @@ Shader* Shader::Load(std::string const & _vsName, std::string const & _fsName)
 		hVtxShader = sItr->second;
 	else {
 		hVtxShader = ::loadShader(_vsName.c_str());
+		assert(isValid(hVtxShader));
 		s_handles[vsID] = hVtxShader;
 	}
 	sItr = s_handles.find(fsID);
@@ -41,12 +42,15 @@ Shader* Shader::Load(std::string const & _vsName, std::string const & _fsName)
 		hFragShader = sItr->second;
 	else {
 		hFragShader = ::loadShader(_fsName.c_str());
+		assert(isValid(hFragShader));
 		s_handles[fsID] = hFragShader;
 	}
 
 	auto hProgram = bgfx::createProgram(hVtxShader, hFragShader, false);
-	if (!isValid(hProgram))
+	if (!isValid(hProgram)) {
+		assert(false);
 		return nullptr;
+	}
 	Shader* ret = new Shader(_vsName, _fsName);
 	ret->hProgram = hProgram;
 	s_shaders[k] = ret;

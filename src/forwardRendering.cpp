@@ -32,7 +32,7 @@ namespace Ushuaia
 	}
 
 
-	void ForwardRendering::render()
+	void ForwardRendering::Render()
 	{
 		bgfx::setViewRect(0, 0, 0, g_viewState.width, g_viewState.height);
 		bgfx::setViewFrameBuffer(0, BGFX_INVALID_HANDLE);
