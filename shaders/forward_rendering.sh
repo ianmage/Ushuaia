@@ -96,17 +96,17 @@ vec4 CalcLighting(vec3 normal, vec3 view_dir, float shininess, vec3 pos_es)
 	lighting += CalcDirectional(normal, PV_lightDirColor, PV_lightDirDir.xyz, view_dir, shininess);
 	lighting *= PV_lightsCnt.y;
 
-	for (int i = 0; i < PV_lightsCnt.z; ++i)
-	{
-		lighting += CalcPoint(normal, PV_lightColor[i], view_dir, shininess, 
-			pos_es, PV_lightPos[i], PV_lightAttnRange[i]);
-	}
+	//for (int i = 0; i < PV_lightsCnt.z; ++i)
+	//{
+	//	lighting += CalcPoint(normal, PV_lightColor[i], view_dir, shininess, 
+	//		pos_es, PV_lightPos[i], PV_lightAttnRange[i]);
+	//}
 
-	for (int i = 0; i < PV_lightsCnt.w; ++i)
-	{
-		lighting += CalcSpot(normal, PV_lightColor[MAX_POINT_LIGHT + i], view_dir, shininess, 
-			pos_es, PV_lightPos[MAX_POINT_LIGHT + i], PV_lightAttnRange[MAX_POINT_LIGHT + i], PV_lightSpotDirInner[i]);
-	}
+	//for (int i = 0; i < PV_lightsCnt.w; ++i)
+	//{
+	//	lighting += CalcSpot(normal, PV_lightColor[MAX_POINT_LIGHT + i], view_dir, shininess, 
+	//		pos_es, PV_lightPos[MAX_POINT_LIGHT + i], PV_lightAttnRange[MAX_POINT_LIGHT + i], PV_lightSpotDirInner[i]);
+	//}
 
 	return lighting;
 }
@@ -123,5 +123,5 @@ vec3 ShadingFS(vec3 normal, vec3 pos_es, vec4 mtlAlbedoMetal, vec4 mtlNormalGlos
 	vec3 c_spec = SpecularColor(mtlAlbedoMetal.xyz, mtlAlbedoMetal.w);
 
 	vec3 shading = CalcShading(lighting, shininess, c_diff, c_spec, view_dir, normal);
-	return shading;
+	return vec3_splat(dot(view_dir, normal));
 }

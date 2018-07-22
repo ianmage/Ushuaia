@@ -94,13 +94,15 @@ std::vector<InstanceItem> DrawChannel::s_instance;
 
 void DrawChannel::Init()
 {
-	s_supportInstancing = false && (0 !=
+	s_supportInstancing = (0 !=
 		(BGFX_CAPS_INSTANCING & bgfx::getCaps()->supported));
 }
 
 
 void DrawChannel::Gather()
 {
+	ClearAll();
+
 	if (Scene::pActive) {
 		for (auto const & e : Scene::pActive->entities) {
 			e.second->pModel->Draw(e.second->transform);
@@ -162,9 +164,15 @@ void DrawChannel::DrawOpaque(bgfx::ViewId viewId, uint64_t override0, uint64_t o
 		m.Submit(viewId, override0, override1);
 	}
 
-	for (auto const & m : s_instance)
+	if ( ! s_instance.empty() )
 	{
-		m.Submit(viewId, override0, override1);
+		Matrix4x4 mtx;
+		mtx.SetIdentity();
+		bgfx::setTransform(mtx.v);
+		for (auto const & m : s_instance)
+		{
+			m.Submit(viewId, override0, override1);
+		}
 	}
 }
 

@@ -129,11 +129,11 @@ def proc(inFile, varyName, preDefs, srcModTime=None) :
 if __name__ == '__main__' :
 	numArg = len(sys.argv)
 	if numArg < 2 :
-		printErr('param1 : inPath, [param2 : preDef(A;B;C)]')
+		printErr('param1 : inPath, [param2 : macro(A;B;C)]')
 	else :
-		preDefs = None
+		macros = None
 		if numArg > 2 :
-			preDefs = sys.argv[2]
+			macros = sys.argv[2]
 		inPath = sys.argv[1].replace('\\', '/')
 		if inPath.endswith('.sc') :
 			inFile = chCurrDir(inPath)
@@ -142,7 +142,7 @@ if __name__ == '__main__' :
 			if scId not in vary :
 				printErr('%s not found in predef' % scId)
 			else :
-				proc(inFile, vary[scId], preDefs, None)
+				proc(inFile, vary[scId], macros, None)
 		else :
 			printErr('unknown file ext type')
 	press_any_key_exit()

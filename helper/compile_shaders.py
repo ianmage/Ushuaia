@@ -33,6 +33,10 @@ if __name__ == '__main__' :
 
 	vary = fxc.parseVaryDef('varying.predef')
 
+	macros = None
+	if len(sys.argv) > 1 :
+		macros = sys.argv[1]
+
 	force = force in ('y', 'Y', '1')
 	for f in fileList :
 		modTime = None
@@ -41,5 +45,5 @@ if __name__ == '__main__' :
 			modTime = max(lastModTime, modTime)
 		scId = f[3:-3]
 		if scId in vary :
-			fxc.proc(f, vary[scId], None, modTime)
+			fxc.proc(f, vary[scId], macros, modTime)
 	fxc.press_any_key_exit()

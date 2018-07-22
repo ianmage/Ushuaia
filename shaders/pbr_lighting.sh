@@ -73,7 +73,7 @@ vec3 CalcShading(vec3 diff_lighting, vec3 spec_lighting, float shininess,
 {
 	return vec3(max(diff_lighting * diffuse
 		+ SpecularNormalizeFactor(shininess) * spec_lighting
-			* FresnelTerm(normalize(view_dir), normal, specular), 0));
+			* FresnelTerm(view_dir, normal, specular), 0));
 }
 
 vec3 CalcShading(vec4 lighting, float shininess, vec3 diffuse, vec3 specular,
