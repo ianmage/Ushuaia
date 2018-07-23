@@ -2,12 +2,17 @@ $input v_texcoord0
 
 #include "../common/common.sh"
 
-SAMPLER2D(S_shadeTex, 0);
+SAMPLER2D(S_albedoTex, 0);
+SAMPLER2D(S_normalTex, 1);
 
 
 void main()
 {
-	vec4 shade = texture2D(S_shadeTex, v_texcoord0);
+	vec3 albedo = texture2D(S_albedoTex, v_texcoord0).xyz;
+	vec3 normG = texture2D(S_normalTex, v_texcoord0).xyz;
+	vec3 normal = decodeNormalSphereMap(normG.xy);
 
-	gl_FragColor = toGamma(shade);
+	vec3 final = toGamma(albedo);
+
+	gl_FragColor = vec4(final, 1.0);
 }

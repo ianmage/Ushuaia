@@ -13,6 +13,7 @@ namespace Ushuaia
 
 		static Vector2 texelHalf;
 		static bool flipV;
+		static bool originBottomLeft;
 	};
 
 

@@ -12,6 +12,7 @@ namespace Ushuaia
 
 	DEF_PROP(ViewState::texelHalf);
 	DEF_PROP(ViewState::flipV);
+	DEF_PROP(ViewState::originBottomLeft);
 
 	DEF_PROP(AppConf::mouseState);
 	DEF_PROP(AppConf::deltaTime);

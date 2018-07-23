@@ -29,6 +29,7 @@ void InitResData()
 	Entity * pEnt = nullptr;
 	Model * pModel = nullptr;
 	Material * pMtl = nullptr;
+	Color4F color;
 
 	PosNormTC0Vertex const hPlaneVert[] = {
 		{ { -1.0f, 0.0f,  1.0f }, ::encodeNormalRgba8(0.0f, 1.0f, 0.0f), { 5.f, 5.f } },
@@ -51,8 +52,9 @@ void InitResData()
 	pMtl = &pModel->materials.back();
 	pMtl->SetShader(Shader::Load("vs_tex", "fs_tex"));
 	pMtl->renderState = BGFX_STATE_CULL_CCW;
-	pMtl->SetParamVec4(CT_HASH("PM_albedoMetal"), 1, 1, 1, 0);
-	pMtl->SetParamVec4(CT_HASH("PM_normalGloss"), 0, 1, 0, 0);
+	color.Set(1, 1, 1, 0);
+	pMtl->SetParamColor(CT_HASH("PM_albedoMetal"), color);
+	pMtl->SetParamFloat4(CT_HASH("PM_normalGloss"), 0, 1, 0, 0);
 	TexState ts;
 	ts.hSampler = bgfx::createUniform("S_albedoTex", bgfx::UniformType::Int1);
 	ts.stage = 0;
@@ -74,8 +76,10 @@ void InitResData()
 	pMtl = &pModel->materials.back();
 	pMtl->SetShader(Shader::Load("vs_clay", "fs_clay"));
 	pMtl->renderState = BGFX_STATE_CULL_CCW;
-	pMtl->SetParamVec4(CT_HASH("PM_albedoMetal"), 1, 1, 1, 0);
-	pMtl->SetParamVec4(CT_HASH("PM_normalGloss"), 0, 0, 0, 1);
+	color.SetUint(208, 90, 110, 0);
+	ToLinear(color, color);
+	pMtl->SetParamColor(CT_HASH("PM_albedoMetal"), color);
+	pMtl->SetParamFloat4(CT_HASH("PM_normalGloss"), 0, 0, 0, 1);
 
 	JsonReader reader;
 	if (reader.Load("scene/dynamic")) {

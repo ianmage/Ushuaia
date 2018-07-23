@@ -123,5 +123,5 @@ vec3 ShadingFS(vec3 normal, vec3 pos_es, vec4 mtlAlbedoMetal, vec4 mtlNormalGlos
 	vec3 c_spec = SpecularColor(mtlAlbedoMetal.xyz, mtlAlbedoMetal.w);
 
 	vec3 shading = CalcShading(lighting, shininess, c_diff, c_spec, view_dir, normal);
-	return vec3_splat(dot(view_dir, normal));
+	return shading;
 }

@@ -4,9 +4,16 @@
 namespace Ushuaia
 {
 
-constexpr void Color3F::Set(float _v0, float _v1, float _v2)
+constexpr void Color3F::Set(float _r, float _g, float _b)
 {
-	v[0] = _v0; v[1] = _v1; v[2] = _v2;
+	r = _r; g = _g; b = _b;
+}
+
+constexpr void Color3F::SetUint(uint8_t _r, uint8_t _g, uint8_t _b)
+{
+	r = _r / 255.f;
+	g = _g / 255.f;
+	b = _b / 255.f;
 }
 
 constexpr bool Color3F::operator==(Color3F const & other) const
@@ -52,14 +59,14 @@ inline void Color3F::operator-=(Color3F const & other)
 	bx::vec3Sub(v, v, other.v);
 }
 
-inline void Color3F::operator*=(float m)
+inline void Color3F::operator*=(float s)
 {
-	bx::vec3Mul(v, v, m);
+	bx::vec3Mul(v, v, s);
 }
 
-inline void Color3F::operator/=(float d)
+inline void Color3F::operator/=(float s)
 {
-	bx::vec3Mul(v, v, 1.f/d);
+	bx::vec3Mul(v, v, 1.f/s);
 }
 
 
@@ -73,15 +80,51 @@ inline Color3F const & Color4F::Color3() const
 	return *reinterpret_cast<Color3F const *>(v);
 }
 
-constexpr void Color4F::Set(float _v0, float _v1, float _v2, float _v3)
+constexpr void Color4F::Set(float _r, float _g, float _b, float _a)
 {
-	v[0] = _v0; v[1] = _v1; v[2] = _v2; v[3] = _v3;
+	r = _r; g = _g; b = _b; a = _a;
+}
+
+constexpr void Color4F::SetUint(uint8_t _r, uint8_t _g, uint8_t _b, uint8_t _a)
+{
+	r = _r / 255.f;
+	g = _g / 255.f;
+	b = _b / 255.f;
+	a = _a / 255.f;
 }
 
 constexpr bool Color4F::operator==(Color4F const & other) const
 {
 	return v[0] == other.v[0] && v[1] == other.v[1]
 		&& v[2] == other.v[2] && v[3] == other.v[3];
+}
+
+inline Color4F Color4F::operator*(float s) const
+{
+	return {r * s, g * s, b * s, a * s};
+}
+
+inline Color4F Color4F::operator/(float s) const
+{
+	s = 1.f / s;
+	return {r * s, g * s, b * s, a * s};
+}
+
+inline void Color4F::operator*=(float s)
+{
+	r *= s;
+	g *= s;
+	b *= s;
+	a *= s;
+}
+
+inline void Color4F::operator/=(float s)
+{
+	s = 1.f / s;
+	r *= s;
+	g *= s;
+	b *= s;
+	a *= s;
 }
 
 

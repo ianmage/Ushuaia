@@ -26,9 +26,6 @@ void main()
 
 	vec3 v = v_pos;
 
-#if 0
-	gl_FragColor.xyz = PV_lightDirDir.xyz * 0.5 + 0.5;
-#else
 	vec3 final = ShadingFS(n, v, mtlAlbedoMetal, PM_normalGloss);
 
 	//Fog.
@@ -36,7 +33,7 @@ void main()
 	float fogFactor = CalcFogFactor(length(v));
 	
 	gl_FragColor.xyz = mix(fogColor, final, fogFactor);
-#endif
+
 	gl_FragColor.w = 1.0;
 
 #else	// DEFERRED

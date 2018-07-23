@@ -16,7 +16,8 @@ struct Color3F
 		};
 	};
 
-	constexpr void Set(float _v0, float _v1, float _v2);
+	constexpr void Set(float _r, float _g, float _b);
+	constexpr void SetUint(uint8_t _r, uint8_t _g, uint8_t _b);
 
 	constexpr bool operator==(Color3F const & other) const;
 
@@ -45,9 +46,20 @@ struct Color4F
 	inline Color3F & Color3();
 	inline Color3F const & Color3() const;
 
-	constexpr void Set(float _v0, float _v1, float _v2, float _v3);
+	constexpr void Set(float _r, float _g, float _b, float _a);
+	constexpr void SetUint(uint8_t _r, uint8_t _g, uint8_t _b, uint8_t _a);
 
 	constexpr bool operator==(Color4F const & other) const;
+
+	inline Color4F operator+(Color4F const & other) const;
+	inline Color4F operator-(Color4F const & other) const;
+	inline Color4F operator*(float s) const;
+	inline Color4F operator/(float s) const;
+
+	inline void operator+=(Color4F const & other);
+	inline void operator-=(Color4F const & other);
+	inline void operator*=(float s);
+	inline void operator/=(float s);
 };
 
 
