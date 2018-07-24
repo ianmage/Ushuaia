@@ -13,24 +13,25 @@
 namespace Ushuaia
 {
 
-void ScreenSpaceQuad(float texW, float texH, bool origBottomLeft, float w, float h)
+void ScreenSpaceQuad(float texW, float texH, float w, float h)
 {
-	if (3 == bgfx::getAvailTransientVertexBuffer(3, PosColorTC0Vertex::s_decl))
+	if (3 == bgfx::getAvailTransientVertexBuffer(3, PosTC0Vertex::s_decl))
 	{
 		bgfx::TransientVertexBuffer vb;
-		bgfx::allocTransientVertexBuffer(&vb, 3, PosColorTC0Vertex::s_decl);
-		PosColorTC0Vertex *pVert = (PosColorTC0Vertex*)vb.data;
+		bgfx::allocTransientVertexBuffer(&vb, 3, PosTC0Vertex::s_decl);
+		PosTC0Vertex *pVert = (PosTC0Vertex*)vb.data;
 
 		float const zz = 0.f;
 
-		TRect<float> xyRect{ { -w, 0.f }, { w*2.f, h*2.f } };
+		TRect<float> xyRect{ { -w, 0.f }, { w, h*2.f } };
 
-		Vector2 const texelHalf{ ViewState::texelHalf.x / texW,
-			ViewState::texelHalf.y / texH };
+		Vector2 const texelHalf{ ViewState::texelOffset / texW,
+			ViewState::texelOffset / texH };
 
-		TRect<float> uvRect{ { -1.f + ViewState::texelHalf.x, ViewState::texelHalf.y }, { 2.f, 2.f } };
+		TRect<float> uvRect{ { -1.f + texelHalf.x, texelHalf.y }
+			, { 1.f + texelHalf.x, 2.f + texelHalf.y } };
 
-		if (origBottomLeft)
+		if (bgfx::getCaps()->originBottomLeft)
 		{
 			std::swap(uvRect.rMin.y, uvRect.rMax.y);
 			uvRect.rMin.y -= 1.f;
@@ -38,16 +39,19 @@ void ScreenSpaceQuad(float texW, float texH, bool origBottomLeft, float w, float
 		}
 
 		pVert[0].pos.Set(xyRect.rMin.x, xyRect.rMin.y, zz);
-		pVert[0].rgba = 0xffffffff;
-		pVert[0].uv.Set(uvRect.rMin.x, uvRect.rMin.y);
+		//pVert[0].uv.Set(uvRect.rMin.x, uvRect.rMin.y);
+		pVert[0].tc[0] = FloatToUint16(uvRect.rMin.x);
+		pVert[0].tc[1] = FloatToUint16(uvRect.rMin.y);
 
 		pVert[1].pos.Set(xyRect.rMax.x, xyRect.rMin.y, zz);
-		pVert[1].rgba = 0xffffffff;
-		pVert[1].uv.Set(uvRect.rMax.x, uvRect.rMin.y);
+		//pVert[1].uv.Set(uvRect.rMax.x, uvRect.rMin.y);
+		pVert[1].tc[0] = FloatToUint16(uvRect.rMax.x);
+		pVert[1].tc[1] = FloatToUint16(uvRect.rMin.y);
 
 		pVert[2].pos.Set(xyRect.rMax.x, xyRect.rMax.y, zz);
-		pVert[2].rgba = 0xffffffff;
-		pVert[2].uv.Set(uvRect.rMax.x, uvRect.rMax.y);
+		//pVert[2].uv.Set(uvRect.rMax.x, uvRect.rMax.y);
+		pVert[2].tc[0] = FloatToUint16(xyRect.rMax.x);
+		pVert[2].tc[1] = FloatToUint16(xyRect.rMax.y);
 
 		bgfx::setVertexBuffer(0, &vb);
 	}
@@ -161,7 +165,8 @@ void CreateCuboid(std::vector<PosNormVertex> & vtxOut, std::vector<uint16_t> & i
 	} };
 
 	std::array<Vector3, 8> normals;
-	CalcMeshNormal(normals.data(), normals.size(), pos.data(), pos.size(), idx.data(), idx.size());
+	CalcMeshNormal(normals.data(), (uint16_t)normals.size(),
+		pos.data(), (uint16_t)pos.size(), idx.data(), (uint32_t)idx.size());
 
 	vtxOut.resize(8);
 	for (uint8_t i = 0; i < 8; ++i) {
@@ -260,13 +265,13 @@ static uint16_t SubdivideEdge(uint16_t i0, uint16_t i1, Vector3 const & v0, Vect
 
 
 static void SubdivSphere(
-	std::vector<Vector3> & vtxOut, std::vector<uint16_t> & idxOut
-	, std::vector<Vector3> const & vtxIn, std::vector<uint16_t> const & idxIn)
+	std::vector<Vector3> & vtxOut, std::vector<uint16_t> & idxOut,
+	std::vector<Vector3> const & vtxIn, std::vector<uint16_t> const & idxIn)
 {
 	vtxOut = vtxIn;
 	std::map<Edge, uint16_t> divisions;
 
-	uint32_t const triangleCnt = idxIn.size() / 3;
+	uint32_t const triangleCnt = (uint32_t)idxIn.size() / 3;
 	for (uint16_t f = 0; f < triangleCnt; ++f) {
 		uint16_t const i0 = idxIn[f * 3];
 		uint16_t const i1 = idxIn[f * 3 + 1];
@@ -307,7 +312,7 @@ void CreateSphere(std::vector<PosNormVertex> & vtxOut, std::vector<uint16_t> & i
 	std::swap(idxOut, indices[curr]);
 
 	auto const & vtxPos = vertices[curr];
-	uint16_t const vtxCnt = vtxPos.size();
+	uint16_t const vtxCnt = (uint16_t)vtxPos.size();
 	vtxOut.resize(vtxCnt);
 	for (uint16_t i = 0; i < vtxCnt; ++i) {
 		auto & vo = vtxOut[i];
@@ -315,6 +320,17 @@ void CreateSphere(std::vector<PosNormVertex> & vtxOut, std::vector<uint16_t> & i
 		vo.normal = ::encodeNormalRgba8(vo.pos.x, vo.pos.y, vo.pos.z);
 		vo.pos *= scale;
 	}
+}
+
+
+uint16_t FloatToUint16(float f)
+{
+	union {
+		int16_t i;
+		uint16_t ui;
+	} v;
+	v.i = static_cast<int16_t>(Clamp(f, -1.f, 1.f) * INT16_MAX);
+	return v.ui;
 }
 
 }

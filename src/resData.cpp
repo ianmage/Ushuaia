@@ -70,8 +70,8 @@ void InitResData()
 	std::vector<uint16_t> sphereIdx;
 	CreateSphere(sphereVtx, sphereIdx, 2, 5.f);
 	assert(!pModel->pMesh);
-	pModel->pMesh = Mesh::Create("sphere", sphereVtx.data(), sphereVtx.size(),
-		PosNormVertex::s_decl, sphereIdx.data(), sphereIdx.size());
+	pModel->pMesh = Mesh::Create("sphere", sphereVtx.data(), (uint32_t)sphereVtx.size(),
+		PosNormVertex::s_decl, sphereIdx.data(), (uint32_t)sphereIdx.size());
 	pModel->materials.emplace_back();
 	pMtl = &pModel->materials.back();
 	pMtl->SetShader(Shader::Load("vs_clay", "fs_clay"));

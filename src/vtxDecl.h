@@ -11,7 +11,7 @@ struct PosNormTC0Vertex
 {
 	Vector3 pos;
 	uint32_t normal;
-	Vector2 uv;
+	Vector2 tc;
 
 	static bgfx::VertexDecl s_decl;
 };
@@ -23,11 +23,10 @@ struct PosVertex
 	static bgfx::VertexDecl s_decl;
 };
 
-struct PosColorTC0Vertex
+struct PosTC0Vertex
 {
 	Vector3 pos;
-	uint32_t rgba;
-	Vector2 uv;
+	uint16_t tc[2];
 
 	static bgfx::VertexDecl s_decl;
 };

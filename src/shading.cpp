@@ -12,15 +12,17 @@
 namespace Ushuaia
 {
 
-bgfx::ViewId const RENDER_PASS_GEOMETRY_ID = 0;
-bgfx::ViewId const RENDER_PASS_SHADING_ID = 1;
-bgfx::ViewId const RENDER_PASS_COMBINE_ID = 2;
+static bgfx::ViewId const RENDER_PASS_GEOMETRY_ID = 0;
+static bgfx::ViewId const RENDER_PASS_SHADING_ID = 1;
+static bgfx::ViewId const RENDER_PASS_COMBINE_ID = 2;
 
-bgfx::TextureHandle h_gbufRT[3];
-bgfx::FrameBufferHandle h_gbufFB;
-bgfx::FrameBufferHandle h_shadeFB;
+static bgfx::TextureHandle h_gbufRT[3];
+static bgfx::FrameBufferHandle h_gbufFB;
+static bgfx::FrameBufferHandle h_shadeFB;
 
-bgfx::UniformHandle s_albedoSampler, s_normalSampler;
+static bgfx::UniformHandle s_albedoSampler, s_normalSampler;
+
+static Shader* pCombineTech;
 
 
 void Shading::Init()
@@ -37,6 +39,10 @@ void Shading::Init()
 
 	s_albedoSampler = bgfx::createUniform("S_albedoTex", bgfx::UniformType::Int1);
 	s_normalSampler = bgfx::createUniform("S_normalTex", bgfx::UniformType::Int1);
+
+	pCombineTech = Shader::Load("vs_screen_quad", "fs_combine");
+
+	Reset();
 }
 
 
@@ -127,8 +133,7 @@ void Shading::Render()
 	bgfx::setTexture(1, s_normalSampler, bgfx::getTexture(h_gbufFB, 1) );
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	ScreenSpaceQuad(g_viewState.width, g_viewState.height);
-	screenSpaceQuad( (float)m_width, (float)m_height, s_texelHalf, m_caps->originBottomLeft);
-	bgfx::submit(RENDER_PASS_COMBINE_ID, m_combineProgram);
+	bgfx::submit(RENDER_PASS_COMBINE_ID, pCombineTech->Tech());
 }
 
 }

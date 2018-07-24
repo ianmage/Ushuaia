@@ -8,7 +8,7 @@
 #include "camera.h"
 #include "vtxDecl.h"
 #include "drawItem.h"
-#define DEFERRED_RENDERING	0
+#define DEFERRED_RENDERING	1
 #if DEFERRED_RENDERING
 #include "shading.h"
 #else
@@ -26,7 +26,7 @@ namespace Ushuaia
 {
 #if TEST
 static Mesh mesh;
-static bgfx::ProgramHandle hProgram = BGFX_INVALID_HANDLE;
+static bgfx::ProgramHandle hTech = BGFX_INVALID_HANDLE;
 #endif
 
 bool Init()
@@ -42,7 +42,7 @@ bool Init()
 	//auto curDir = fs::current_path().c_str();
 	//DBG("curDir : %s", curDir);
 #if TEST
-	hProgram = loadProgram("vs_exam", "fs_exam");
+	hTech = loadProgram("vs_exam", "fs_exam");
 
 	mesh.Load("meshes/bunny.bin");
 #else
@@ -61,6 +61,9 @@ bool Init()
 	Vector3 const initCamPos{ 0.f, 60.f, -105.f };
 	Camera::pCurrent->SetPos(initCamPos);
 	Camera::pCurrent->SetVerticalAngle(-0.45f);
+
+	ViewState::texelOffset = bgfx::getRendererType() == bgfx::RendererType::Direct3D9
+		? 0.5f : 0.f;
 
 	Shader::Init();
 	Light::Init();
@@ -84,7 +87,7 @@ bool Fini()
 #if TEST
 	mesh.unLoad();
 
-	bgfx::destroy(hProgram);
+	bgfx::destroy(hTech);
 #else
 	FiniResData();
 #endif
@@ -143,7 +146,7 @@ bool Update()
 		;
 	bgfx::setTransform(mtxModel);
 	bgfx::setState(_state);
-	mesh.submit(0, hProgram);
+	mesh.submit(0, hTech);
 #else
 	Camera::pCurrent->Update();
 

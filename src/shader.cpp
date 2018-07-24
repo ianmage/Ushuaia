@@ -46,13 +46,13 @@ Shader* Shader::Load(std::string const & _vsName, std::string const & _fsName)
 		s_handles[fsID] = hFragShader;
 	}
 
-	auto hProgram = bgfx::createProgram(hVtxShader, hFragShader, false);
-	if (!isValid(hProgram)) {
+	auto hTech = bgfx::createProgram(hVtxShader, hFragShader, false);
+	if (!isValid(hTech)) {
 		assert(false);
 		return nullptr;
 	}
 	Shader* ret = new Shader(_vsName, _fsName);
-	ret->hProgram = hProgram;
+	ret->hTech = hTech;
 	s_shaders[k] = ret;
 #if USE_NEW_PARSE
 	ret->ParseUniform(hVtxShader);
@@ -84,14 +84,14 @@ void Shader::ClearAll()
 
 
 Shader::Shader(std::string const & _vsName, std::string const & _fsName)
-	: paramSize_(0), vsName_(_vsName), fsName_(_fsName), hProgram(BGFX_INVALID_HANDLE)
+	: paramSize_(0), vsName_(_vsName), fsName_(_fsName), hTech(BGFX_INVALID_HANDLE)
 {
 }
 
 
 Shader::~Shader()
 {
-	bgfx::destroy(hProgram);
+	bgfx::destroy(hTech);
 }
 
 

@@ -13,6 +13,6 @@ void main()
 	vec3 normal = decodeNormalSphereMap(normG.xy);
 
 	vec3 final = toGamma(albedo);
-
+final = vec3(v_texcoord0, 1);
 	gl_FragColor = vec4(final, 1.0);
 }
