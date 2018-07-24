@@ -5,7 +5,7 @@ namespace Ushuaia
 {
 
 Entity::Entity(std::string const & _name)
- : name_(_name), pModel(nullptr)
+ : pModel(nullptr), name_(_name)
 {
 }
 

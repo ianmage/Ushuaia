@@ -28,7 +28,7 @@ void DrawItem::Submit(bgfx::ViewId vId,
 
 	DrawUnit::Submit(overrideSt0, overrideSt1);
 
-	bgfx::submit(vId, pMtl->GetShader()->Get());
+	bgfx::submit(vId, pMtl->GetShader()->Tech());
 }
 
 
@@ -82,7 +82,7 @@ void InstanceItem::Submit(bgfx::ViewId vId,
 
 	DrawUnit::Submit(overrideSt0, overrideSt1);
 
-	bgfx::submit(vId, pInstShader->Get());
+	bgfx::submit(vId, pInstShader->Tech());
 }
 	
 
@@ -161,7 +161,8 @@ void DrawChannel::DrawOpaque(bgfx::ViewId viewId, uint64_t override0, uint64_t o
 {
 	for (auto const & m : s_opaque)
 	{
-		m.Submit(viewId, override0, override1);
+		if (m.isValid)
+			m.Submit(viewId, override0, override1);
 	}
 
 	if ( ! s_instance.empty() )

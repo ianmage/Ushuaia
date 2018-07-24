@@ -25,28 +25,28 @@ inline Color3F Color3F::operator+(Color3F const & other) const
 {
 	Color3F ret;
 	bx::vec3Add(ret.v, v, other.v);
-	return std::move(ret);
+	return ret;
 }
 
 inline Color3F Color3F::operator-(Color3F const & other) const
 {
 	Color3F ret;
 	bx::vec3Sub(ret.v, v, other.v);
-	return std::move(ret);
+	return ret;
 }
 
 inline Color3F Color3F::operator*(float s) const
 {
 	Color3F ret;
 	bx::vec3Mul(ret.v, v, s);
-	return std::move(ret);
+	return ret;
 }
 
 inline Color3F Color3F::operator/(float s) const
 {
 	Color3F ret;
 	bx::vec3Mul(ret.v, v, 1.f/s);
-	return std::move(ret);
+	return ret;
 }
 
 inline void Color3F::operator+=(Color3F const & other)
@@ -101,13 +101,13 @@ constexpr bool Color4F::operator==(Color4F const & other) const
 
 inline Color4F Color4F::operator*(float s) const
 {
-	return {r * s, g * s, b * s, a * s};
+	return {{r * s, g * s, b * s, a * s}};
 }
 
 inline Color4F Color4F::operator/(float s) const
 {
 	s = 1.f / s;
-	return {r * s, g * s, b * s, a * s};
+	return {{r * s, g * s, b * s, a * s}};
 }
 
 inline void Color4F::operator*=(float s)
@@ -139,7 +139,7 @@ constexpr Color4F ConvertToColorF(uint32_t const iVal)
 	c.g = static_cast<float>(iG);
 	c.b = static_cast<float>(iB);
 	c.a = static_cast<float>(iA);
-	return std::move(c);
+	return c;
 }
 
 

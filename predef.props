@@ -11,7 +11,7 @@
     <XML_INCLUDE_DIR>$(EXT_DIR)\tinyxml2</XML_INCLUDE_DIR>
 	<JSON_INCLUDE_DIR>$(EXT_DIR)\rapidjson\include</JSON_INCLUDE_DIR>
 	<BGFX_LIB_DIR>$(EXT_DIR)\bgfx\.build\win64_vs2017\bin</BGFX_LIB_DIR>
-    <BOOST_LIB_DIR>$(EXT_DIR)\boost_1_66_0\stage\lib\vc141</BOOST_LIB_DIR>
+    <BOOST_LIB_DIR>$(EXT_DIR)\boost_1_66_0\stage\lib</BOOST_LIB_DIR>
   </PropertyGroup>
   <PropertyGroup>
     <OutDir>$(SolutionDir)build\Bin\</OutDir>

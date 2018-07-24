@@ -14,7 +14,7 @@ struct Shader
 public:
 	~Shader();
 
-	bgfx::ProgramHandle Get() const { return hProgram; }
+	bgfx::ProgramHandle Tech() const { return hTech; }
 
 	std::string const & VsName() const { return vsName_; }
 	std::string const & FsName() const { return fsName_; }
@@ -41,7 +41,7 @@ private:
 
 	void ParseUniform(bgfx::ShaderHandle hShader);
 
-	bgfx::ProgramHandle hProgram;
+	bgfx::ProgramHandle hTech;
 	std::string vsName_, fsName_;
 
 	// PerDraw parameters

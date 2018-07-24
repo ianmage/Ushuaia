@@ -7,7 +7,7 @@ namespace Ushuaia
 {
 
 Model::Model(std::string const & _name)
-	: name_(_name), pMesh(nullptr), mtlIndices_(0)
+	: pMesh(nullptr), name_(_name), mtlIndices_(0)
 {
 }
 
@@ -117,7 +117,7 @@ std::shared_ptr<Model> Model::Load(std::string const & _name)
 
 	pModel->Deserialize();
 
-	return std::move(pModel);
+	return pModel;
 }
 
 

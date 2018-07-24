@@ -10,9 +10,7 @@ namespace Ushuaia
 
 	ViewState g_viewState;
 
-	DEF_PROP(ViewState::texelHalf);
-	DEF_PROP(ViewState::flipV);
-	DEF_PROP(ViewState::originBottomLeft);
+	DEF_PROP(ViewState::texelOffset);
 
 	DEF_PROP(AppConf::mouseState);
 	DEF_PROP(AppConf::deltaTime);

@@ -56,7 +56,7 @@ std::shared_ptr<Mesh> Mesh::Create(std::string const & _name,
 
 	pMesh->groups.emplace_back(std::move(group));
 
-	return std::move(pMesh);
+	return pMesh;
 }
 
 
@@ -75,7 +75,7 @@ std::shared_ptr<Mesh> Mesh::Load(std::string const & _name)
 
 	pMesh->Deserialize();
 
-	return std::move(pMesh);
+	return pMesh;
 }
 
 

@@ -55,7 +55,7 @@ std::shared_ptr<Texture> TexMgr::LoadFromFile(std::string const & name)
 	pTex->flag_ = Texture::FROM_FILE;
 	std::shared_ptr<Texture> ret(pTex);
 	s_texs[k] = ret;
-	return std::move(ret);
+	return ret;
 }
 
 

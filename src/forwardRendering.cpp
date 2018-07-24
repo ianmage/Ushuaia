@@ -11,9 +11,6 @@
 namespace Ushuaia
 {
 
-	bgfx::ViewId const RENDERVIEW_DRAWSCENE_0 = 0;
-
-
 	void ForwardRendering::Init()
 	{
 		

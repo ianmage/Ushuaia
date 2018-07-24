@@ -3,6 +3,7 @@
 /.vscode/
 /CMakeCache.txt
 /CMakeFiles/
+/CMakeScripts/
 /Makefile
 /cmake_install.cmake
 /proj.make
@@ -10,3 +11,4 @@
 /build/
 /res/
 /compile_commands.json
+*.xcodeproj

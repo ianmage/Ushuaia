@@ -8,8 +8,7 @@
 namespace Ushuaia
 {
 
-void ScreenSpaceQuad(float texW, float texH
-	, bool origBottmLeft = true, float w = 1.f, float h = 1.f);
+void ScreenSpaceQuad(float texW, float texH , float w = 1.f, float h = 1.f);
 
 typedef std::array<Vector3, 8>	FrustumCorners;
 
@@ -29,5 +28,7 @@ void CreateCuboid(std::vector<PosNormVertex> & vtxOut, std::vector<uint16_t> & i
 
 void CreateSphere(std::vector<PosNormVertex> & vtxOut, std::vector<uint16_t> & idxOut
 	, uint8_t lod, float scale);
+
+uint16_t FloatToUint16(float f);
 
 }
