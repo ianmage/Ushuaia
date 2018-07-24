@@ -8,7 +8,7 @@
 #include "camera.h"
 #include "vtxDecl.h"
 #include "drawItem.h"
-#define DEFERRED_RENDERING	0
+#define DEFERRED_RENDERING	1
 #if DEFERRED_RENDERING
 #include "shading.h"
 #else
