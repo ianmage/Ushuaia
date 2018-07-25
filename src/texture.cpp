@@ -72,4 +72,18 @@ std::shared_ptr<Texture> TexMgr::Get(size_t nameKey)
 	return nullptr;
 }
 
+
+void TexMgr::Fini()
+{
+	for (auto & m : s_texs) {
+		auto & tex = m.second;
+		if (!tex.expired()) {
+			auto pTex = tex.lock();
+			bgfx::destroy(pTex->handle_);
+			pTex->handle_ = BGFX_INVALID_HANDLE;
+		}
+	}
+	s_texs.clear();
+}
+
 }

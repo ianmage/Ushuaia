@@ -48,6 +48,8 @@ public:
 	static std::shared_ptr<Texture> LoadFromFile(std::string const & name);
 	static std::shared_ptr<Texture> Get(size_t nameKey);
 
+	static void Fini();
+
 private:
 	TexMgr();
 

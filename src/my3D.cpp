@@ -104,6 +104,8 @@ bool Fini()
 	Light::Fini();
 	Shader::ClearAll();
 
+	TexMgr::Fini();
+
 	Camera::FiniDefault();
 
 	return true;

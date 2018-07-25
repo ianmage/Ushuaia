@@ -39,7 +39,6 @@ void Shading::Init()
 
 	pCombineTech = Shader::Load("vs_screen_quad", "fs_combine");
 	pTex = TexMgr::LoadFromFile("figure-rgba");
-	assert(isValid(hTex));
 
 	Reset();
 }
