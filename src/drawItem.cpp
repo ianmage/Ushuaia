@@ -161,8 +161,9 @@ void DrawChannel::DrawOpaque(bgfx::ViewId viewId, uint64_t override0, uint64_t o
 {
 	for (auto const & m : s_opaque)
 	{
-		if (m.isValid)
+		if (m.isValid) {
 			m.Submit(viewId, override0, override1);
+		}
 	}
 
 	if ( ! s_instance.empty() )

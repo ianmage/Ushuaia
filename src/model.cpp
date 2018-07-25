@@ -151,7 +151,7 @@ void Model::Draw(Matrix4x4 const & transform)
 		}
 	}
 	else {
-		uint8_t mi = mtlIndices_;
+		uint32_t mi = mtlIndices_;
 		for (auto const & g : pMesh->groups) {
 			DrawItem & di = DrawChannel::Add();
 			di.primGroup = &g;

@@ -16,19 +16,16 @@ static bgfx::ViewId const RENDER_PASS_GEOMETRY_ID = 0;
 static bgfx::ViewId const RENDER_PASS_SHADING_ID = 1;
 static bgfx::ViewId const RENDER_PASS_COMBINE_ID = 2;
 
-static bgfx::TextureHandle h_gbufRT[3];
 static bgfx::FrameBufferHandle h_gbufFB;
 static bgfx::FrameBufferHandle h_shadeFB;
 
 static bgfx::UniformHandle s_albedoSampler, s_normalSampler;
 
 static Shader* pCombineTech;
-
+static std::shared_ptr<Texture> pTex;
 
 void Shading::Init()
 {
-	for (uint8_t i = 0; i < ArrayCount(h_gbufRT); ++i)
-		h_gbufRT[i] = BGFX_INVALID_HANDLE;
 	h_gbufFB = BGFX_INVALID_HANDLE;
 	h_shadeFB = BGFX_INVALID_HANDLE;
 
@@ -41,6 +38,8 @@ void Shading::Init()
 	s_normalSampler = bgfx::createUniform("S_normalTex", bgfx::UniformType::Int1);
 
 	pCombineTech = Shader::Load("vs_screen_quad", "fs_combine");
+	pTex = TexMgr::LoadFromFile("figure-rgba");
+	assert(isValid(hTex));
 
 	Reset();
 }
@@ -82,16 +81,19 @@ void Shading::Reset()
 		| BGFX_TEXTURE_V_CLAMP
 		;
 
-	h_gbufRT[0] = bgfx::createTexture2D(g_viewState.width, g_viewState.height,
-		false, 1, bgfx::TextureFormat::BGRA8, samplerFlags);
-	h_gbufRT[1] = bgfx::createTexture2D(g_viewState.width, g_viewState.height,
-		false, 1, bgfx::TextureFormat::BGRA8, samplerFlags);
-	h_gbufRT[2] = bgfx::createTexture2D(g_viewState.width, g_viewState.height,
-		false, 1, bgfx::TextureFormat::D24, samplerFlags);
-	h_gbufFB = bgfx::createFrameBuffer(ArrayCount(h_gbufRT), h_gbufRT, true);
+	bgfx::TextureHandle gbufRT[3] = {
+		bgfx::createTexture2D(g_viewState.width, g_viewState.height,
+			false, 1, bgfx::TextureFormat::BGRA8, samplerFlags),
+		bgfx::createTexture2D(g_viewState.width, g_viewState.height,
+			false, 1, bgfx::TextureFormat::BGRA8, samplerFlags),
+		bgfx::createTexture2D(g_viewState.width, g_viewState.height,
+			false, 1, bgfx::TextureFormat::D24, samplerFlags),
+	};
+	assert(ArrayCount(gbufRT) == 3);
+	h_gbufFB = bgfx::createFrameBuffer(ArrayCount(gbufRT), gbufRT, true);
 	h_shadeFB = bgfx::createFrameBuffer(g_viewState.width, g_viewState.height,
 		bgfx::TextureFormat::BGRA8, samplerFlags);
-
+	assert(isValid(h_gbufFB));
 	bgfx::setViewRect(RENDER_PASS_GEOMETRY_ID, 0, 0, g_viewState.width, g_viewState.height);
 	bgfx::setViewRect(RENDER_PASS_SHADING_ID, 0, 0, g_viewState.width, g_viewState.height);
 	bgfx::setViewRect(RENDER_PASS_COMBINE_ID, 0, 0, g_viewState.width, g_viewState.height);
@@ -100,8 +102,6 @@ void Shading::Reset()
 	bgfx::setViewFrameBuffer(RENDER_PASS_SHADING_ID, h_shadeFB);
 	bgfx::setViewFrameBuffer(RENDER_PASS_COMBINE_ID, BGFX_INVALID_HANDLE);
 
-	auto pCam = Camera::pCurrent;
-	bgfx::setViewTransform(RENDER_PASS_GEOMETRY_ID, pCam->mtxView.v, pCam->mtxProj.v);
 	bgfx::Caps const * caps = bgfx::getCaps();
 	Matrix4x4 mtxOrtho;
 	bx::mtxOrtho(mtxOrtho.v, 0.f, 1.f, 1.f, 0.f, 0.f, 100.f, 0.f, caps->homogeneousDepth);
@@ -112,6 +112,9 @@ void Shading::Reset()
 
 void Shading::Render()
 {
+	auto pCam = Camera::pCurrent;
+	bgfx::setViewTransform(RENDER_PASS_GEOMETRY_ID, pCam->mtxView.v, pCam->mtxProj.v);
+
 	Light::Submit();
 
 	uint64_t overrideSt0 = RenderState::s_val[0];
@@ -129,8 +132,13 @@ void Shading::Render()
 
 	DrawChannel::ClearAll();
 
-	bgfx::setTexture(0, s_albedoSampler, bgfx::getTexture(h_gbufFB, 0) );
-	bgfx::setTexture(1, s_normalSampler, bgfx::getTexture(h_gbufFB, 1) );
+	assert(isValid(h_gbufFB));
+	assert(isValid(bgfx::getTexture(h_gbufFB, 0)));
+	assert(isValid(bgfx::getTexture(h_gbufFB, 1)));
+	assert(isValid(bgfx::getTexture(h_gbufFB, 2)));
+
+	bgfx::setTexture( 0, s_albedoSampler, bgfx::getTexture(h_gbufFB, 0) );
+	bgfx::setTexture( 1, s_normalSampler, bgfx::getTexture(h_gbufFB, 1) );
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	ScreenSpaceQuad(g_viewState.width, g_viewState.height);
 	bgfx::submit(RENDER_PASS_COMBINE_ID, pCombineTech->Tech());

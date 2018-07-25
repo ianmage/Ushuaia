@@ -209,8 +209,7 @@ void Material::SubmitParams(Shader const * pOverrideShader) const
 		if (ts.pTex)
 			bgfx::setTexture(ts.stage, ts.hSampler, ts.pTex->Get(), ts.flags);
 		else {
-			bgfx::TextureHandle hNull = BGFX_INVALID_HANDLE;
-			bgfx::setTexture(ts.stage, ts.hSampler, hNull, ts.flags);
+			bgfx::setTexture(ts.stage, ts.hSampler, BGFX_INVALID_HANDLE, ts.flags);
 		}
 	}
 }

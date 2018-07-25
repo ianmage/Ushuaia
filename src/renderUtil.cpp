@@ -39,19 +39,13 @@ void ScreenSpaceQuad(float texW, float texH, float w, float h)
 		}
 
 		pVert[0].pos.Set(xyRect.rMin.x, xyRect.rMin.y, zz);
-		//pVert[0].uv.Set(uvRect.rMin.x, uvRect.rMin.y);
-		pVert[0].tc[0] = FloatToUint16(uvRect.rMin.x);
-		pVert[0].tc[1] = FloatToUint16(uvRect.rMin.y);
+		pVert[0].tc.Set(uvRect.rMin.x, uvRect.rMin.y);
 
 		pVert[1].pos.Set(xyRect.rMax.x, xyRect.rMin.y, zz);
-		//pVert[1].uv.Set(uvRect.rMax.x, uvRect.rMin.y);
-		pVert[1].tc[0] = FloatToUint16(uvRect.rMax.x);
-		pVert[1].tc[1] = FloatToUint16(uvRect.rMin.y);
+		pVert[1].tc.Set(uvRect.rMax.x, uvRect.rMin.y);
 
 		pVert[2].pos.Set(xyRect.rMax.x, xyRect.rMax.y, zz);
-		//pVert[2].uv.Set(uvRect.rMax.x, uvRect.rMax.y);
-		pVert[2].tc[0] = FloatToUint16(xyRect.rMax.x);
-		pVert[2].tc[1] = FloatToUint16(xyRect.rMax.y);
+		pVert[2].tc.Set(uvRect.rMax.x, uvRect.rMax.y);
 
 		bgfx::setVertexBuffer(0, &vb);
 	}
