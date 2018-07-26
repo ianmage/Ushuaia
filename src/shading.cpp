@@ -1,6 +1,6 @@
 #include "shading.h"
 #include "viewState.h"
-#include "resData.h"
+#include "script.h"
 #include "camera.h"
 #include "bx/math.h"
 #include "drawItem.h"
@@ -12,29 +12,34 @@
 namespace Ushuaia
 {
 
+decltype(Shading::hDepthTex) Shading::hDepthTex = BGFX_INVALID_HANDLE;
+
 static bgfx::ViewId const RENDER_PASS_GEOMETRY_ID = 0;
 static bgfx::ViewId const RENDER_PASS_SHADING_ID = 1;
-static bgfx::ViewId const RENDER_PASS_COMBINE_ID = 2;
+static bgfx::ViewId const RENDER_PASS_PP_ID = 2;
 
 static bgfx::FrameBufferHandle h_gbufFB;
 static bgfx::FrameBufferHandle h_shadeFB;
+static bgfx::FrameBufferHandle h_depthFB;
 
-static bgfx::UniformHandle s_albedoSampler, s_normalSampler;
+static bgfx::UniformHandle s_Sampler[3];
 
-static Shader* pCombineTech;
+static Shader *pDepthTech;
+static Shader *pCombineTech;
+
 
 void Shading::Init()
 {
 	h_gbufFB = BGFX_INVALID_HANDLE;
 	h_shadeFB = BGFX_INVALID_HANDLE;
 
-	bgfx::setViewClear(RENDER_PASS_GEOMETRY_ID,
-		BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 1.f, 0, 1);
-	bgfx::setViewClear(RENDER_PASS_SHADING_ID,
-		BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 1.f, 0, 0);
+	std::string const smpl = "s_tex";
+	for (uint8_t i = 0; i < ArrayCount(s_Sampler); ++i) {
+		s_Sampler[i] = bgfx::createUniform((smpl+std::to_string(i)).c_str()
+			, bgfx::UniformType::Int1);
+	}
 
-	s_albedoSampler = bgfx::createUniform("S_albedoTex", bgfx::UniformType::Int1);
-	s_normalSampler = bgfx::createUniform("S_normalTex", bgfx::UniformType::Int1);
+	pDepthTech = Shader::Load("vs_screen_quad", "fs_linear_depth");
 
 	pCombineTech = Shader::Load("vs_screen_quad", "fs_combine");
 
@@ -60,10 +65,14 @@ void Shading::Lost()
 		bgfx::destroy(h_shadeFB);
 	if (isValid(h_gbufFB))
 		bgfx::destroy(h_gbufFB);
-	if (isValid(s_albedoSampler))
-		bgfx::destroy(s_albedoSampler);
-	if (isValid(s_normalSampler))
-		bgfx::destroy(s_normalSampler);
+	for (uint8_t i = 0; i < ArrayCount(s_Sampler); ++i) {
+		if (isValid(s_Sampler[i]))
+			bgfx::destroy(s_Sampler[i]);
+	}
+	if (isValid(h_depthFB))
+		bgfx::destroy(h_depthFB);
+	if (isValid(hDepthTex))
+		bgfx::destroy(hDepthTex);
 }
 
 
@@ -80,28 +89,44 @@ void Shading::Reset()
 
 	bgfx::TextureHandle gbufRT[3] = {
 		bgfx::createTexture2D(g_viewState.width, g_viewState.height,
-			false, 1, bgfx::TextureFormat::BGRA8, samplerFlags),
+			false, 1, bgfx::TextureFormat::RGBA16F, samplerFlags),
 		bgfx::createTexture2D(g_viewState.width, g_viewState.height,
-			false, 1, bgfx::TextureFormat::BGRA8, samplerFlags),
+			false, 1, bgfx::TextureFormat::RGBA16F, samplerFlags),
 		bgfx::createTexture2D(g_viewState.width, g_viewState.height,
 			false, 1, bgfx::TextureFormat::D24, samplerFlags),
 	};
 
 	h_gbufFB = bgfx::createFrameBuffer(ArrayCount(gbufRT), gbufRT, true);
-	h_shadeFB = bgfx::createFrameBuffer(g_viewState.width, g_viewState.height,
-		bgfx::TextureFormat::BGRA8, samplerFlags);
+	h_shadeFB = bgfx::createFrameBuffer(g_viewState.width, g_viewState.height
+		, bgfx::TextureFormat::BGRA8, samplerFlags);
 	assert(isValid(h_gbufFB));
+
+	h_depthFB = bgfx::createFrameBuffer(g_viewState.width, g_viewState.height
+		, bgfx::TextureFormat::R32F, samplerFlags);
+	hDepthTex = bgfx::getTexture(h_depthFB);
+
 #if 1	// may this part move to update (per-frame) ?
 	bgfx::setViewRect(RENDER_PASS_GEOMETRY_ID, 0, 0, g_viewState.width, g_viewState.height);
 	bgfx::setViewRect(RENDER_PASS_SHADING_ID, 0, 0, g_viewState.width, g_viewState.height);
-	bgfx::setViewRect(RENDER_PASS_COMBINE_ID, 0, 0, g_viewState.width, g_viewState.height);
+	bgfx::setViewRect(RENDER_PASS_PP_ID, 0, 0, g_viewState.width, g_viewState.height);
+
+	bgfx::setViewFrameBuffer(RENDER_PASS_GEOMETRY_ID, h_gbufFB);
+	bgfx::setViewFrameBuffer(RENDER_PASS_SHADING_ID, h_shadeFB);
+	bgfx::setViewFrameBuffer(RENDER_PASS_PP_ID, h_depthFB);
 
 	bgfx::Caps const * caps = bgfx::getCaps();
 	Matrix4x4 mtxOrtho;
 	bx::mtxOrtho(mtxOrtho.v, 0.f, 1.f, 1.f, 0.f, 0.f, 100.f, 0.f, caps->homogeneousDepth);
 	bgfx::setViewTransform(RENDER_PASS_SHADING_ID, nullptr, mtxOrtho.v);
-	bgfx::setViewTransform(RENDER_PASS_COMBINE_ID, nullptr, mtxOrtho.v);
+	bgfx::setViewTransform(RENDER_PASS_PP_ID, nullptr, mtxOrtho.v);
 #endif
+
+	bgfx::setViewClear(RENDER_PASS_GEOMETRY_ID,
+		BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 1.f, 0, 1);
+	bgfx::setViewClear(RENDER_PASS_SHADING_ID,
+		BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 1.f, 0, 0);
+	bgfx::setViewClear(RENDER_PASS_PP_ID,
+		BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 1.f, 0, 0);
 }
 
 
@@ -110,7 +135,8 @@ void Shading::Render()
 #if 1
 	bgfx::setViewFrameBuffer(RENDER_PASS_GEOMETRY_ID, h_gbufFB);
 	bgfx::setViewFrameBuffer(RENDER_PASS_SHADING_ID, h_shadeFB);
-	bgfx::setViewFrameBuffer(RENDER_PASS_COMBINE_ID, BGFX_INVALID_HANDLE);
+
+	bgfx::setViewMode(RENDER_PASS_PP_ID, bgfx::ViewMode::Sequential);
 #endif
 
 	auto pCam = Camera::pCurrent;
@@ -133,11 +159,19 @@ void Shading::Render()
 
 	DrawChannel::ClearAll();
 
-	bgfx::setTexture( 0, s_albedoSampler, bgfx::getTexture(h_gbufFB, 0) );
-	bgfx::setTexture( 1, s_normalSampler, bgfx::getTexture(h_gbufFB, 1) );
+	bgfx::setViewFrameBuffer(RENDER_PASS_PP_ID, h_depthFB);
+	bgfx::setTexture( 0, s_Sampler[0], bgfx::getTexture(h_gbufFB, 2) );
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	ScreenSpaceQuad(g_viewState.width, g_viewState.height);
-	bgfx::submit(RENDER_PASS_COMBINE_ID, pCombineTech->Tech());
+	bgfx::submit(RENDER_PASS_PP_ID, pDepthTech->Tech());
+
+	bgfx::setViewFrameBuffer(RENDER_PASS_PP_ID, BGFX_INVALID_HANDLE);
+	bgfx::setTexture( 0, s_Sampler[0], bgfx::getTexture(h_gbufFB, 0) );
+	bgfx::setTexture( 1, s_Sampler[1], bgfx::getTexture(h_gbufFB, 1) );
+	bgfx::setTexture( 2, s_Sampler[2], hDepthTex );
+	bgfx::setState(BGFX_STATE_WRITE_RGB);
+	ScreenSpaceQuad(g_viewState.width, g_viewState.height);
+	bgfx::submit(RENDER_PASS_PP_ID, pCombineTech->Tech());
 }
 
 }

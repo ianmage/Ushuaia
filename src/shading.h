@@ -1,5 +1,7 @@
 #pragma once
 
+#include <bgfx/bgfx.h>
+
 
 namespace Ushuaia
 {
@@ -16,6 +18,8 @@ struct Shading
 
 	static void Lost();
 	static void Reset();
+
+	static bgfx::TextureHandle hDepthTex;
 };
 
 }

@@ -6,6 +6,6 @@
 		"tex"
 	],
 	"screen_quad": [
-		"screen_quad", "combine"
+		"screen_quad", "linear_depth", "combine"
 	]
 }

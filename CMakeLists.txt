@@ -90,16 +90,16 @@ add_executable(my3D
 	src/material.cpp
 	src/mesh.cpp
 	src/model.cpp
-	src/my3D.cpp
 	src/renderState.cpp
 	src/renderUtil.cpp
-	src/resData.cpp
+	src/script.cpp
 	src/scene.cpp
 	src/serialize.cpp
 	src/shader.cpp
 	src/shading.cpp
 	src/texture.cpp
 	src/vtxDecl.cpp
+	src/workFlow.cpp
 )
 
 if (WIN32)

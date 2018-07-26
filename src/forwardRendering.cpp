@@ -1,6 +1,6 @@
 #include "forwardRendering.h"
 #include "viewState.h"
-#include "resData.h"
+#include "script.h"
 #include "camera.h"
 #include "bx/math.h"
 #include "drawItem.h"
