@@ -22,7 +22,6 @@ static bgfx::FrameBufferHandle h_shadeFB;
 static bgfx::UniformHandle s_albedoSampler, s_normalSampler;
 
 static Shader* pCombineTech;
-static std::shared_ptr<Texture> pTex;
 
 void Shading::Init()
 {
@@ -38,7 +37,6 @@ void Shading::Init()
 	s_normalSampler = bgfx::createUniform("S_normalTex", bgfx::UniformType::Int1);
 
 	pCombineTech = Shader::Load("vs_screen_quad", "fs_combine");
-	pTex = TexMgr::LoadFromFile("figure-rgba");
 
 	Reset();
 }
@@ -88,29 +86,33 @@ void Shading::Reset()
 		bgfx::createTexture2D(g_viewState.width, g_viewState.height,
 			false, 1, bgfx::TextureFormat::D24, samplerFlags),
 	};
-	assert(ArrayCount(gbufRT) == 3);
+
 	h_gbufFB = bgfx::createFrameBuffer(ArrayCount(gbufRT), gbufRT, true);
 	h_shadeFB = bgfx::createFrameBuffer(g_viewState.width, g_viewState.height,
 		bgfx::TextureFormat::BGRA8, samplerFlags);
 	assert(isValid(h_gbufFB));
+#if 1	// may this part move to update (per-frame) ?
 	bgfx::setViewRect(RENDER_PASS_GEOMETRY_ID, 0, 0, g_viewState.width, g_viewState.height);
 	bgfx::setViewRect(RENDER_PASS_SHADING_ID, 0, 0, g_viewState.width, g_viewState.height);
 	bgfx::setViewRect(RENDER_PASS_COMBINE_ID, 0, 0, g_viewState.width, g_viewState.height);
-
-	bgfx::setViewFrameBuffer(RENDER_PASS_GEOMETRY_ID, h_gbufFB);
-	bgfx::setViewFrameBuffer(RENDER_PASS_SHADING_ID, h_shadeFB);
-	bgfx::setViewFrameBuffer(RENDER_PASS_COMBINE_ID, BGFX_INVALID_HANDLE);
 
 	bgfx::Caps const * caps = bgfx::getCaps();
 	Matrix4x4 mtxOrtho;
 	bx::mtxOrtho(mtxOrtho.v, 0.f, 1.f, 1.f, 0.f, 0.f, 100.f, 0.f, caps->homogeneousDepth);
 	bgfx::setViewTransform(RENDER_PASS_SHADING_ID, nullptr, mtxOrtho.v);
 	bgfx::setViewTransform(RENDER_PASS_COMBINE_ID, nullptr, mtxOrtho.v);
+#endif
 }
 
 
 void Shading::Render()
 {
+#if 1
+	bgfx::setViewFrameBuffer(RENDER_PASS_GEOMETRY_ID, h_gbufFB);
+	bgfx::setViewFrameBuffer(RENDER_PASS_SHADING_ID, h_shadeFB);
+	bgfx::setViewFrameBuffer(RENDER_PASS_COMBINE_ID, BGFX_INVALID_HANDLE);
+#endif
+
 	auto pCam = Camera::pCurrent;
 	bgfx::setViewTransform(RENDER_PASS_GEOMETRY_ID, pCam->mtxView.v, pCam->mtxProj.v);
 
@@ -130,11 +132,6 @@ void Shading::Render()
 	DrawChannel::DrawOpaque(RENDER_PASS_GEOMETRY_ID, overrideSt0, overrideSt1);
 
 	DrawChannel::ClearAll();
-
-	assert(isValid(h_gbufFB));
-	assert(isValid(bgfx::getTexture(h_gbufFB, 0)));
-	assert(isValid(bgfx::getTexture(h_gbufFB, 1)));
-	assert(isValid(bgfx::getTexture(h_gbufFB, 2)));
 
 	bgfx::setTexture( 0, s_albedoSampler, bgfx::getTexture(h_gbufFB, 0) );
 	bgfx::setTexture( 1, s_normalSampler, bgfx::getTexture(h_gbufFB, 1) );
