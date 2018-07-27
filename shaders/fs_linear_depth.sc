@@ -15,5 +15,7 @@ void main()
 
 	float far = 1000, near = 0;
 	float q = far / (far - near);
-	gl_FragColor.x = near * q / (q - deviceZ);
+	float lz = near * q / (q - deviceZ);
+	lz = deviceZ * 100 - 99;
+	gl_FragColor = vec4(lz, lz, lz, 1.0);
 }
