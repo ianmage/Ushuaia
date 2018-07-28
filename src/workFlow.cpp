@@ -15,6 +15,7 @@
 #include "forwardRendering.h"
 #endif
 #include "script.h"
+#include "../../cpp_common/strUtil.h"
 
 //#pragma optimize("", off)
 #define TEST	0
@@ -35,12 +36,14 @@ bool Init()
 	//bool fExist = bx::open(entry::getFileReader(), "res/shaders/glsl/vs_mesh.bin");
 	//auto curDir = entry::getCurrentDir();
 #ifdef _WIN32
-	fs::current_path("../res");
 #elif defined(__APPLE__) && defined(__MACH__)
-	fs::current_path("../res");
 #endif
 	//auto curDir = fs::current_path().c_str();
 	//DBG("curDir : %s", curDir);
+	if (strEndsWith(fs::current_path().c_str(), "bin"))
+		fs::current_path("../res");
+	else
+		fs::current_path("../../res");
 #if TEST
 	hTech = loadProgram("vs_exam", "fs_exam");
 

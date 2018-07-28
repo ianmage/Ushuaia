@@ -98,6 +98,7 @@ add_executable(my3D
 	src/shader.cpp
 	src/shading.cpp
 	src/texture.cpp
+	src/viewState.cpp
 	src/vtxDecl.cpp
 	src/workFlow.cpp
 )

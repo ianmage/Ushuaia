@@ -35,6 +35,12 @@ public:
 		init.resolution.width  = _width;
 		init.resolution.height = _height;
 		init.resolution.reset  = m_reset;
+	#ifdef _DEBUG
+		init.debug = true;
+	#else
+		init.debug = false;
+	#endif
+		init.profile = true;
 		bgfx::init(init);
 
 		// Enable debug text.

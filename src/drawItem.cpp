@@ -168,9 +168,9 @@ void DrawChannel::DrawOpaque(bgfx::ViewId viewId, uint64_t override0, uint64_t o
 
 	if ( ! s_instance.empty() )
 	{
-		Matrix4x4 mtx;
-		mtx.SetIdentity();
-		bgfx::setTransform(mtx.v);
+		//Matrix4x4 mtx;
+		//mtx.SetIdentity();
+		//bgfx::setTransform(mtx.v);
 		for (auto const & m : s_instance)
 		{
 			m.Submit(viewId, override0, override1);

@@ -15,40 +15,38 @@ namespace Ushuaia
 
 void ScreenSpaceQuad(float texW, float texH, float w, float h)
 {
-	if (3 == bgfx::getAvailTransientVertexBuffer(3, PosTC0Vertex::s_decl))
+	assert(3 == bgfx::getAvailTransientVertexBuffer(3, PosTC0Vertex::s_decl));
+	bgfx::TransientVertexBuffer vb;
+	bgfx::allocTransientVertexBuffer(&vb, 3, PosTC0Vertex::s_decl);
+	PosTC0Vertex *pVert = (PosTC0Vertex*)vb.data;
+
+	float const zz = 0.f;
+
+	TRect<float> xyRect{ { -w, 0.f }, { w, h*2.f } };
+
+	Vector2 const texelHalf{ ViewState::texelOffset / texW,
+		ViewState::texelOffset / texH };
+
+	TRect<float> uvRect{ { -1.f + texelHalf.x, texelHalf.y }
+		, { 1.f + texelHalf.x, 2.f + texelHalf.y } };
+
+	if (bgfx::getCaps()->originBottomLeft)
 	{
-		bgfx::TransientVertexBuffer vb;
-		bgfx::allocTransientVertexBuffer(&vb, 3, PosTC0Vertex::s_decl);
-		PosTC0Vertex *pVert = (PosTC0Vertex*)vb.data;
-
-		float const zz = 0.f;
-
-		TRect<float> xyRect{ { -w, 0.f }, { w, h*2.f } };
-
-		Vector2 const texelHalf{ ViewState::texelOffset / texW,
-			ViewState::texelOffset / texH };
-
-		TRect<float> uvRect{ { -1.f + texelHalf.x, texelHalf.y }
-			, { 1.f + texelHalf.x, 2.f + texelHalf.y } };
-
-		if (bgfx::getCaps()->originBottomLeft)
-		{
-			std::swap(uvRect.rMin.y, uvRect.rMax.y);
-			uvRect.rMin.y -= 1.f;
-			uvRect.rMax.y -= 1.f;
-		}
-
-		pVert[0].pos.Set(xyRect.rMin.x, xyRect.rMin.y, zz);
-		pVert[0].tc.Set(uvRect.rMin.x, uvRect.rMin.y);
-
-		pVert[1].pos.Set(xyRect.rMax.x, xyRect.rMin.y, zz);
-		pVert[1].tc.Set(uvRect.rMax.x, uvRect.rMin.y);
-
-		pVert[2].pos.Set(xyRect.rMax.x, xyRect.rMax.y, zz);
-		pVert[2].tc.Set(uvRect.rMax.x, uvRect.rMax.y);
-
-		bgfx::setVertexBuffer(0, &vb);
+		std::swap(uvRect.rMin.y, uvRect.rMax.y);
+		uvRect.rMin.y -= 1.f;
+		uvRect.rMax.y -= 1.f;
 	}
+
+	pVert[0].pos.Set(xyRect.rMin.x, xyRect.rMin.y, zz);
+	pVert[0].tc.Set(uvRect.rMin.x, uvRect.rMin.y);
+
+	pVert[1].pos.Set(xyRect.rMax.x, xyRect.rMin.y, zz);
+	pVert[1].tc.Set(uvRect.rMax.x, uvRect.rMin.y);
+
+	pVert[2].pos.Set(xyRect.rMax.x, xyRect.rMax.y, zz);
+	pVert[2].tc.Set(uvRect.rMax.x, uvRect.rMax.y);
+
+	bgfx::setVertexBuffer(0, &vb);
 }
 
 

@@ -16,9 +16,9 @@ void main()
 
 	float depth = texture2D(s_tex2, v_texcoord0).x;
 
-	//vec3 final = vec3_splat(depth);
-	vec3 final = normal * 0.5 + 0.5;
+	//vec3 final = normal * 0.5 + 0.5;
 	//vec3 final = toGamma(albedo);
+	vec3 final = vec3_splat(depth / 300);
 
 	gl_FragColor = vec4(final, 1.0);
 }
