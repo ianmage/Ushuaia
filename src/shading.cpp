@@ -5,6 +5,7 @@
 #include "bx/math.h"
 #include "drawItem.h"
 #include "renderUtil.h"
+#include "postProcess.h"
 
 //#pragma optimize("", off)
 
@@ -105,23 +106,23 @@ void Shading::Reset()
 
 #if 1	// may this part move to update (per-frame) ?
 	bgfx::setViewRect(RENDER_PASS::GEOMETRY_ID, 0, 0, g_viewState.width, g_viewState.height);
-	bgfx::setViewRect(RENDER_PASS::PP_ID, 0, 0, g_viewState.width, g_viewState.height);
-	bgfx::setViewRect(RENDER_PASS::NextPP(), 0, 0, g_viewState.width, g_viewState.height);
+	bgfx::setViewRect(PostProcess::PASS_ID, 0, 0, g_viewState.width, g_viewState.height);
+	bgfx::setViewRect(PostProcess::Next(), 0, 0, g_viewState.width, g_viewState.height);
 
 	bgfx::setViewFrameBuffer(RENDER_PASS::GEOMETRY_ID, h_gbufFB);
 
 	bgfx::Caps const * caps = bgfx::getCaps();
 	Matrix4x4 mtxOrtho;
 	bx::mtxOrtho(mtxOrtho.v, 0.f, 1.f, 1.f, 0.f, 0.f, 100.f, 0.f, caps->homogeneousDepth);
-	bgfx::setViewTransform(RENDER_PASS::PP_ID, nullptr, mtxOrtho.v);
-	bgfx::setViewTransform(RENDER_PASS::NextPP(), nullptr, mtxOrtho.v);
+	bgfx::setViewTransform(PostProcess::PASS_ID, nullptr, mtxOrtho.v);
+	bgfx::setViewTransform(PostProcess::Next(), nullptr, mtxOrtho.v);
 #endif
 
 	bgfx::setViewClear(RENDER_PASS::GEOMETRY_ID,
 		BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 1.f, 0, 1);
-	bgfx::setViewClear(RENDER_PASS::PP_ID,
+	bgfx::setViewClear(PostProcess::PASS_ID,
 		BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 1.f, 0, 0);
-	bgfx::setViewClear(RENDER_PASS::NextPP(),
+	bgfx::setViewClear(PostProcess::Next(),
 		BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 1.f, 0, 0);
 }
 
@@ -131,8 +132,8 @@ void Shading::Render()
 #if 1
 	bgfx::setViewFrameBuffer(RENDER_PASS::GEOMETRY_ID, h_gbufFB);
 
-	bgfx::setViewMode(RENDER_PASS::PP_ID, bgfx::ViewMode::Sequential);
-	bgfx::setViewMode(RENDER_PASS::NextPP(), bgfx::ViewMode::Sequential);
+	bgfx::setViewMode(PostProcess::PASS_ID, bgfx::ViewMode::Sequential);
+	bgfx::setViewMode(PostProcess::Next(), bgfx::ViewMode::Sequential);
 #endif
 
 	auto pCam = Camera::pCurrent;
@@ -155,22 +156,22 @@ void Shading::Render()
 
 	DrawChannel::ClearAll();
 
-	bgfx::setViewFrameBuffer(RENDER_PASS::PP_ID, h_depthFB);
+	bgfx::setViewFrameBuffer(PostProcess::Next(), h_depthFB);
 	bgfx::setTexture( 0, s_Sampler[0], bgfx::getTexture(h_gbufFB, 2) );
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	float q = pCam->far / (pCam->far - pCam->near);
 	Vector4 v4Param{pCam->near, pCam->far, q, pCam->near * q};
 	bgfx::setUniform(uParam, v4Param.v);
-	ScreenSpaceQuad(g_viewState.width, g_viewState.height);
-	bgfx::submit(RENDER_PASS::NextPP(), pDepthTech->Tech());
+	PostProcess::DrawFullScreen(PostProcess::PASS_ID, pDepthTech);
 
-	bgfx::setViewFrameBuffer(RENDER_PASS::PP_ID, BGFX_INVALID_HANDLE);
+	bgfx::setViewFrameBuffer(PostProcess::Next(), BGFX_INVALID_HANDLE);
 	bgfx::setTexture( 0, s_Sampler[0], bgfx::getTexture(h_gbufFB, 0) );
 	bgfx::setTexture( 1, s_Sampler[1], bgfx::getTexture(h_gbufFB, 1) );
 	bgfx::setTexture( 2, s_Sampler[2], bgfx::getTexture(h_depthFB, 0) );
-	bgfx::setState(BGFX_STATE_WRITE_RGB);
-	ScreenSpaceQuad(g_viewState.width, g_viewState.height);
-	bgfx::submit(RENDER_PASS::NextPP(), pCombineTech->Tech());
+	//bgfx::setState(BGFX_STATE_WRITE_RGB);
+	//PostProcess::DrawFullScreen(PostProcess::PASS_ID, pCombineTech);
+	DrawScreenQuad(PostProcess::PASS_ID, pCombineTech, BGFX_STATE_WRITE_RGB
+		, 0.f, 0.f, 0.5f, 0.5f);
 }
 
 }

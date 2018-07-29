@@ -91,7 +91,8 @@ void Material::Serialize(JsonWriter & writer) const
 	writer.Key("Parameters");
 	writer.StartObject();
 #if 1
-	pShader_->SaveMtlParams(writer, paramData_.data());
+	if (pShader_)
+		pShader_->SaveMtlParams(writer, paramData_.data());
 #else
 	if (!Shader::s_vec4NameMap.empty()) {
 		writer.Key("Vec4");

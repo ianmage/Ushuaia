@@ -90,7 +90,9 @@ add_executable(my3D
 	src/material.cpp
 	src/mesh.cpp
 	src/model.cpp
+	src/postProcess.cpp
 	src/renderState.cpp
+	src/renderTarget.cpp
 	src/renderUtil.cpp
 	src/script.cpp
 	src/scene.cpp
@@ -98,7 +100,6 @@ add_executable(my3D
 	src/shader.cpp
 	src/shading.cpp
 	src/texture.cpp
-	src/viewState.cpp
 	src/vtxDecl.cpp
 	src/workFlow.cpp
 )

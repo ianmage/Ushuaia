@@ -8,6 +8,7 @@
 #include "camera.h"
 #include "vtxDecl.h"
 #include "drawItem.h"
+#include "postProcess.h"
 #define DEFERRED_RENDERING	1
 #if DEFERRED_RENDERING
 #include "shading.h"
@@ -72,6 +73,7 @@ bool Init()
 	Light::Init();
 
 	DrawChannel::Init();
+	PostProcess::Init();
 #if DEFERRED_RENDERING
 	Shading::Init();
 #else
@@ -104,6 +106,7 @@ bool Fini()
 #else
 	ForwardRendering::Fini();
 #endif
+	PostProcess::Fini();
 	Light::Fini();
 	Shader::ClearAll();
 

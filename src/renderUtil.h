@@ -3,12 +3,14 @@
 #include <array>
 #include <vector>
 #include "vtxDecl.h"
+#include "shader.h"
 
 
 namespace Ushuaia
 {
 
-void ScreenSpaceQuad(float texW, float texH , float w = 1.f, float h = 1.f);
+void DrawScreenQuad(bgfx::ViewId viewId, Shader const *pShader
+	, uint64_t state, float x, float y, float w, float h);
 
 typedef std::array<Vector3, 8>	FrustumCorners;
 

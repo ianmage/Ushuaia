@@ -47,11 +47,11 @@ std::shared_ptr<Mesh> Mesh::Create(std::string const & _name,
 	bgfx::Memory const * mem;
 
 	mem = bgfx::alloc(_numVertices * _decl.getStride());
-	memcpy(mem->data, _vertices, mem->size);
+	::memcpy(mem->data, _vertices, mem->size);
 	group.hVB = bgfx::createVertexBuffer(mem, _decl);
 
 	mem = bgfx::alloc(_numIndices * 2);
-	memcpy(mem->data, _indices, mem->size);
+	::memcpy(mem->data, _indices, mem->size);
 	group.hIB = bgfx::createIndexBuffer(mem);
 
 	pMesh->groups.emplace_back(std::move(group));

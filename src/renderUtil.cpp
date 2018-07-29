@@ -13,40 +13,60 @@
 namespace Ushuaia
 {
 
-void ScreenSpaceQuad(float texW, float texH, float w, float h)
+static void MakeScreenQuad(void * pVerts,
+	float x, float y, float w, float h)
 {
-	assert(3 == bgfx::getAvailTransientVertexBuffer(3, PosTC0Vertex::s_decl));
-	bgfx::TransientVertexBuffer vb;
-	bgfx::allocTransientVertexBuffer(&vb, 3, PosTC0Vertex::s_decl);
-	PosTC0Vertex *pVert = (PosTC0Vertex*)vb.data;
-
 	float const zz = 0.f;
 
-	TRect<float> xyRect{ { -w, 0.f }, { w, h*2.f } };
+	TRect<float> xyRect { { x, y }, { x+w, y+h } };
 
-	Vector2 const texelHalf{ ViewState::texelOffset / texW,
-		ViewState::texelOffset / texH };
+	Vector2 const texelHalf {
+		ViewState::texelOffset / (g_viewState.width * w),
+		ViewState::texelOffset / (g_viewState.height * h)
+	};
 
-	TRect<float> uvRect{ { -1.f + texelHalf.x, texelHalf.y }
-		, { 1.f + texelHalf.x, 2.f + texelHalf.y } };
+	TRect<float> uvRect {
+		{ texelHalf.x, texelHalf.y },
+		{ 1.f + texelHalf.x, 1.f + texelHalf.y }
+	};
 
-	if (bgfx::getCaps()->originBottomLeft)
-	{
+	if (bgfx::getCaps()->originBottomLeft) {
 		std::swap(uvRect.rMin.y, uvRect.rMax.y);
 		uvRect.rMin.y -= 1.f;
 		uvRect.rMax.y -= 1.f;
 	}
 
-	pVert[0].pos.Set(xyRect.rMin.x, xyRect.rMin.y, zz);
-	pVert[0].tc.Set(uvRect.rMin.x, uvRect.rMin.y);
+	PosTC0Vertex * pVtx = reinterpret_cast<PosTC0Vertex*>(pVerts);
 
-	pVert[1].pos.Set(xyRect.rMax.x, xyRect.rMin.y, zz);
-	pVert[1].tc.Set(uvRect.rMax.x, uvRect.rMin.y);
+	pVtx[0].pos.Set(xyRect.rMin.x, xyRect.rMax.y, zz);
+	pVtx[0].tc.Set(uvRect.rMin.x, uvRect.rMax.y);
 
-	pVert[2].pos.Set(xyRect.rMax.x, xyRect.rMax.y, zz);
-	pVert[2].tc.Set(uvRect.rMax.x, uvRect.rMax.y);
+	pVtx[1].pos.Set(xyRect.rMax.x, xyRect.rMax.y, zz);
+	pVtx[1].tc.Set(uvRect.rMax.x, uvRect.rMax.y);
+
+	pVtx[2].pos.Set(xyRect.rMin.x, xyRect.rMin.y, zz);
+	pVtx[2].tc.Set(uvRect.rMin.x, uvRect.rMin.y);
+
+	pVtx[3].pos.Set(xyRect.rMax.x, xyRect.rMin.y, zz);
+	pVtx[3].tc.Set(uvRect.rMax.x, uvRect.rMin.y);
+}
+
+
+void DrawScreenQuad(bgfx::ViewId viewId, Shader const *pShader
+	, uint64_t state, float x, float y, float w, float h)
+{
+	assert(4 == bgfx::getAvailTransientVertexBuffer(4, PosTC0Vertex::s_decl));
+	bgfx::TransientVertexBuffer vb;
+	bgfx::allocTransientVertexBuffer(&vb, 4, PosTC0Vertex::s_decl);
+
+	MakeScreenQuad(vb.data, x, y, w, h);
 
 	bgfx::setVertexBuffer(0, &vb);
+
+	state |= BGFX_STATE_PT_TRISTRIP;
+	bgfx::setState(state);
+
+	bgfx::submit(viewId, pShader->Tech());
 }
 
 
