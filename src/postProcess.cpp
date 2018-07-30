@@ -31,7 +31,9 @@ void PostProcess::Fini()
 		bgfx::destroy(hVB_);
 }
 
+#ifdef __APPLE__
 static uint8_t vData[3 * sizeof(PosTC0Vertex)];
+#endif
 void PostProcess::Reset()
 {
 	if (isValid(hVB_))
@@ -68,15 +70,16 @@ void PostProcess::Reset()
 
 	pVtx[2].pos.Set(xyRect.rMax.x, xyRect.rMax.y, zz);
 	pVtx[2].tc.Set(uvRect.rMax.x, uvRect.rMax.y);
-
+#ifdef __APPLE__
 	::memcpy(vData, mem->data, mem->size);
+#endif
 	hVB_ = bgfx::createVertexBuffer(mem, PosTC0Vertex::s_decl);
 }
 
 
 void PostProcess::DrawFullScreen(bgfx::ViewId viewId, Shader const *pShader)
 {
-#if 1
+#if 0
 	assert(3 == bgfx::getAvailTransientVertexBuffer(3, PosTC0Vertex::s_decl));
 	bgfx::TransientVertexBuffer vb;
 	bgfx::allocTransientVertexBuffer(&vb, 3, PosTC0Vertex::s_decl);
@@ -111,11 +114,12 @@ void PostProcess::DrawFullScreen(bgfx::ViewId viewId, Shader const *pShader)
 
 	pVtx[2].pos.Set(xyRect.rMax.x, xyRect.rMax.y, zz);
 	pVtx[2].tc.Set(uvRect.rMax.x, uvRect.rMax.y);
-
+#ifdef __APPLE__
 	assert(sizeof(vData) == vb.size);
 	for (uint8_t ii = 0; ii < vb.size; ++ii) {
 		assert(vb.data[ii] == vData[ii]);
 	}
+#endif
 	bgfx::setVertexBuffer(0, &vb);
 #else
 	assert(isValid(hVB_));

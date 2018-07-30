@@ -23,6 +23,7 @@ static bgfx::UniformHandle s_Sampler[3];
 static bgfx::UniformHandle uParam;
 
 static Shader *pDepthTech;
+static Shader *pLightTech;
 static Shader *pCombineTech;
 
 
@@ -168,10 +169,13 @@ void Shading::Render()
 	bgfx::setTexture( 0, s_Sampler[0], bgfx::getTexture(h_gbufFB, 0) );
 	bgfx::setTexture( 1, s_Sampler[1], bgfx::getTexture(h_gbufFB, 1) );
 	bgfx::setTexture( 2, s_Sampler[2], bgfx::getTexture(h_depthFB, 0) );
-	//bgfx::setState(BGFX_STATE_WRITE_RGB);
-	//PostProcess::DrawFullScreen(PostProcess::PASS_ID, pCombineTech);
-	DrawScreenQuad(PostProcess::PASS_ID, pCombineTech, BGFX_STATE_WRITE_RGB
-		, 0.f, 0.f, 0.5f, 0.5f);
+#if 0
+	bgfx::setState(BGFX_STATE_WRITE_RGB);
+	PostProcess::DrawFullScreen(PostProcess::PASS_ID, pCombineTech);
+#else
+	DrawScreenQuad(PostProcess::PASS_ID, pCombineTech,
+		BGFX_STATE_WRITE_RGB , 0.f, 0.f, 0.5f, 0.5f);
+#endif
 }
 
 }
