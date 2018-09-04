@@ -107,7 +107,32 @@ def projProc(fLn) :
 		ret.append(l)
 
 	return ret
-		
+
+
+def mfProc(fLn) :
+	ret = []
+	nouseSect = False
+
+	for l in fLn :
+		if l == '\n' :
+			if nouseSect :
+				nouseSect = False
+				continue
+
+		if l.startswith('PROJECTS := ') :
+			l = 'PROJECTS := bgfx bimg bimg_decode bimg_encode bx example-common example-glue fcpp geometryc glsl-optimizer glslang shaderc spirv-opt texturec texturev'
+
+		elif g_namePattern.match(l) :
+			nouseSect = True
+			continue
+
+		projBeg = l.find(' example-') + 1
+		if projBeg > 0 and g_namePattern.match(l[projBeg:]) :
+			continue
+
+		ret.append(l)
+
+	return ret
 
 
 def fileProc(fPath, func) :
@@ -122,18 +147,26 @@ def fileProc(fPath, func) :
 	outFile.close()
 
 
+def fileEntry(fPath) :
+	if fPath.endswith('.sln') :
+		fileProc(fPath, slnProc)
+	elif fPath.endswith('.vcxproj') :
+		fileProc(fPath, projProc)
+	elif fPath.endswith('Makefile') :
+		fileProc(fPath, mfProc)
+
+
 def entry(dirPath) :
-	if not os.path.exists(dirPath) or os.path.isfile(dirPath) :
+	if not os.path.exists(dirPath) :
 		print 'target not exists !'
 		return
-	# walkDir
-	ld = os.listdir(dirPath)
-	for d in ld :
-		fPath = '%s/%s' % (dirPath, d)
-		if d.endswith('.sln') :
-			fileProc(fPath, slnProc)
-		elif d.endswith('.vcxproj') :
-			fileProc(fPath, projProc)
+	if os.path.isfile(dirPath) :
+		fileEntry(dirPath)
+	else :	# walkDir
+		ld = os.listdir(dirPath)
+		for d in ld :
+			fPath = '%s/%s' % (dirPath, d)
+			fileEntry(fPath)
 
 
 if __name__ == '__main__' :
