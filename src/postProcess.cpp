@@ -79,7 +79,7 @@ void PostProcess::Reset()
 
 void PostProcess::DrawFullScreen(bgfx::ViewId viewId, Shader const *pShader)
 {
-#if 0
+#if 1
 	assert(3 == bgfx::getAvailTransientVertexBuffer(3, PosTC0Vertex::s_decl));
 	bgfx::TransientVertexBuffer vb;
 	bgfx::allocTransientVertexBuffer(&vb, 3, PosTC0Vertex::s_decl);
@@ -94,13 +94,12 @@ void PostProcess::DrawFullScreen(bgfx::ViewId viewId, Shader const *pShader)
 		ViewState::texelOffset / g_viewState.height
 	};
 
-	TRect<float> uvRect{
+	TRect<float> uvRect {
 		{ -1.f + texelHalf.x, texelHalf.y },
 		{ 1.f + texelHalf.x, 2.f + texelHalf.y }
 	};
 
-	if (bgfx::getCaps()->originBottomLeft)
-	{
+	if (bgfx::getCaps()->originBottomLeft) {
 		std::swap(uvRect.rMin.y, uvRect.rMax.y);
 		uvRect.rMin.y -= 1.f;
 		uvRect.rMax.y -= 1.f;
@@ -115,9 +114,11 @@ void PostProcess::DrawFullScreen(bgfx::ViewId viewId, Shader const *pShader)
 	pVtx[2].pos.Set(xyRect.rMax.x, xyRect.rMax.y, zz);
 	pVtx[2].tc.Set(uvRect.rMax.x, uvRect.rMax.y);
 #ifdef __APPLE__
-	assert(sizeof(vData) == vb.size);
+	//assert(sizeof(vData) == vb.size);
 	for (uint8_t ii = 0; ii < vb.size; ++ii) {
-		assert(vb.data[ii] == vData[ii]);
+		uint8_t l = vb.data[ii];
+		uint8_t r = vData[ii];
+		assert(l == r);	// halt on Mac, alignment problem ?
 	}
 #endif
 	bgfx::setVertexBuffer(0, &vb);
