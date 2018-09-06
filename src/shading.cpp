@@ -40,7 +40,7 @@ void Shading::Init()
 	uParam = bgfx::createUniform("uParam", bgfx::UniformType::Vec4);
 
 	pDepthTech = Shader::Load("vs_screen_quad", "fs_linear_depth");
-
+	pLightTech = Shader::Load("vs_screen_quad", "fs_lighting");
 	pCombineTech = Shader::Load("vs_screen_quad", "fs_combine");
 
 	Reset();
@@ -103,7 +103,7 @@ void Shading::Reset()
 	h_depthFB = bgfx::createFrameBuffer(1, &hDepthTex, true);
 
 	h_shadeFB = bgfx::createFrameBuffer(g_viewState.width, g_viewState.height
-		, bgfx::TextureFormat::BGRA8, samplerFlags);
+		, bgfx::TextureFormat::RGBA16F, samplerFlags);
 
 #if 1	// may this part move to update (per-frame) ?
 	bgfx::setViewRect(RENDER_PASS::GEOMETRY_ID, 0, 0, g_viewState.width, g_viewState.height);
@@ -159,22 +159,23 @@ void Shading::Render()
 
 	bgfx::setViewFrameBuffer(PostProcess::Next(), h_depthFB);
 	bgfx::setTexture( 0, s_Sampler[0], bgfx::getTexture(h_gbufFB, 2) );
-	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	float q = pCam->far / (pCam->far - pCam->near);
 	Vector4 v4Param{pCam->near, pCam->far, q, pCam->near * q};
 	bgfx::setUniform(uParam, v4Param.v);
+	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	PostProcess::DrawFullScreen(PostProcess::PASS_ID, pDepthTech);
 
-	bgfx::setViewFrameBuffer(PostProcess::Next(), BGFX_INVALID_HANDLE);
+	bgfx::setViewFrameBuffer(PostProcess::Next(), h_shadeFB);
 	bgfx::setTexture( 0, s_Sampler[0], bgfx::getTexture(h_gbufFB, 0) );
 	bgfx::setTexture( 1, s_Sampler[1], bgfx::getTexture(h_gbufFB, 1) );
 	bgfx::setTexture( 2, s_Sampler[2], bgfx::getTexture(h_depthFB, 0) );
-#if 0
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
-	PostProcess::DrawFullScreen(PostProcess::PASS_ID, pCombineTech);
-#else
+	PostProcess::DrawFullScreen(PostProcess::PASS_ID, pLightTech);
+#if 1
+	bgfx::setViewFrameBuffer(PostProcess::Next(), BGFX_INVALID_HANDLE);
+	bgfx::setTexture( 0, s_Sampler[0], bgfx::getTexture(h_shadeFB, 0) );
 	DrawScreenQuad(PostProcess::PASS_ID, pCombineTech,
-		BGFX_STATE_WRITE_RGB , 0.f, 0.f, 0.5f, 0.5f);
+		BGFX_STATE_WRITE_RGB , 0.f, 0.f, 1.f, 1.f);
 #endif
 }
 

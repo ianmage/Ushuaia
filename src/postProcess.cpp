@@ -31,49 +31,10 @@ void PostProcess::Fini()
 		bgfx::destroy(hVB_);
 }
 
-#ifdef __APPLE__
-static uint8_t vData[3 * sizeof(PosTC0Vertex)];
-#endif
+
 void PostProcess::Reset()
 {
-	if (isValid(hVB_))
-		bgfx::destroy(hVB_);
 
-	bgfx::Memory const * mem = bgfx::alloc(3 * PosTC0Vertex::s_decl.getStride());
-	PosTC0Vertex *pVtx = (PosTC0Vertex*)mem->data;
-
-	float const zz = 0.f;
-
-	TRect<float> xyRect { { -1.f, 0.f }, { 1.f, 2.f } };
-
-	Vector2 const texelHalf {
-		ViewState::texelOffset / g_viewState.width,
-		ViewState::texelOffset / g_viewState.height
-	};
-
-	TRect<float> uvRect {
-		{ -1.f + texelHalf.x, texelHalf.y },
-		{ 1.f + texelHalf.x, 2.f + texelHalf.y }
-	};
-
-	if (bgfx::getCaps()->originBottomLeft) {
-		std::swap(uvRect.rMin.y, uvRect.rMax.y);
-		uvRect.rMin.y -= 1.f;
-		uvRect.rMax.y -= 1.f;
-	}
-
-	pVtx[0].pos.Set(xyRect.rMin.x, xyRect.rMin.y, zz);
-	pVtx[0].tc.Set(uvRect.rMin.x, uvRect.rMin.y);
-
-	pVtx[1].pos.Set(xyRect.rMax.x, xyRect.rMin.y, zz);
-	pVtx[1].tc.Set(uvRect.rMax.x, uvRect.rMin.y);
-
-	pVtx[2].pos.Set(xyRect.rMax.x, xyRect.rMax.y, zz);
-	pVtx[2].tc.Set(uvRect.rMax.x, uvRect.rMax.y);
-#ifdef __APPLE__
-	::memcpy(vData, mem->data, mem->size);
-#endif
-	hVB_ = bgfx::createVertexBuffer(mem, PosTC0Vertex::s_decl);
 }
 
 
@@ -113,14 +74,7 @@ void PostProcess::DrawFullScreen(bgfx::ViewId viewId, Shader const *pShader)
 
 	pVtx[2].pos.Set(xyRect.rMax.x, xyRect.rMax.y, zz);
 	pVtx[2].tc.Set(uvRect.rMax.x, uvRect.rMax.y);
-#ifdef __APPLE__
-	//assert(sizeof(vData) == vb.size);
-	for (uint8_t ii = 0; ii < vb.size; ++ii) {
-		uint8_t l = vb.data[ii];
-		uint8_t r = vData[ii];
-		assert(l == r);	// halt on Mac, alignment problem ?
-	}
-#endif
+
 	bgfx::setVertexBuffer(0, &vb);
 #else
 	assert(isValid(hVB_));
