@@ -7,21 +7,16 @@
 namespace Ushuaia
 {
 
-uint16_t PostProcess::PASS_ID_ = RENDER_PASS::GEO_NUM;
-uint16_t const & PostProcess::PASS_ID = PostProcess::PASS_ID_;
+uint16_t PostProcess::viewID_;
+Matrix4x4 PostProcess::mtxOrtho_;
 bgfx::VertexBufferHandle PostProcess::hVB_;
-
-uint16_t PostProcess::Next()
-{
-	PASS_ID_ = ((PASS_ID_ - RENDER_PASS::GEO_NUM) + 1) % 2 + RENDER_PASS::GEO_NUM;
-	return PASS_ID_;
-}
 
 
 void PostProcess::Init()
 {
+	bgfx::Caps const * caps = bgfx::getCaps();
+	bx::mtxOrtho(mtxOrtho_.v, 0.f, 1.f, 1.f, 0.f, 0.f, 100.f, 0.f, caps->homogeneousDepth);
 	hVB_ = BGFX_INVALID_HANDLE;
-	Reset();
 }
 
 
@@ -32,13 +27,26 @@ void PostProcess::Fini()
 }
 
 
-void PostProcess::Reset()
+void PostProcess::Update()
 {
-
+	viewID_ = RENDER_PASS::GEO_NUM;
 }
 
 
-void PostProcess::DrawFullScreen(bgfx::ViewId viewId, Shader const *pShader)
+void PostProcess::NewFrameBuf(bgfx::FrameBufferHandle hFB, bool doClear)
+{
+	++viewID_;
+	bgfx::setViewRect(viewID_, 0, 0, g_viewState.width, g_viewState.height);
+	bgfx::setViewFrameBuffer(viewID_, hFB);
+	bgfx::setViewMode(viewID_, bgfx::ViewMode::Sequential);
+	bgfx::setViewTransform(viewID_, nullptr, mtxOrtho_.v);
+	if (doClear)
+		bgfx::setViewClear(viewID_,
+			BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 1.f, 0, 0);
+}
+
+
+void PostProcess::DrawFullScreen(Shader const *pShader)
 {
 #if 1
 	assert(3 == bgfx::getAvailTransientVertexBuffer(3, PosTC0Vertex::s_decl));
@@ -80,7 +88,7 @@ void PostProcess::DrawFullScreen(bgfx::ViewId viewId, Shader const *pShader)
 	assert(isValid(hVB_));
 	bgfx::setVertexBuffer(0, hVB_);
 #endif
-	bgfx::submit(viewId, pShader->Tech());
+	bgfx::submit(viewID_, pShader->Tech());
 }
 
 }

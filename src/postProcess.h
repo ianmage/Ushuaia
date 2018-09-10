@@ -10,20 +10,21 @@ namespace Ushuaia
 struct PostProcess
 {
 public:
-	static uint16_t Next();
-
 	static void Init();
-	static void Reset();
 	static void Fini();
 
-	static void DrawFullScreen(bgfx::ViewId viewId, Shader const *pShader);
+	static void Update();
+	static void NewFrameBuf(bgfx::FrameBufferHandle hFB, bool doClear);
+
+	static void DrawFullScreen(Shader const *pShader);
+
+	static uint16_t ViewID() { return viewID_; };
 
 private:
-	static uint16_t PASS_ID_;
-	static bgfx::VertexBufferHandle hVB_;
+	static uint16_t viewID_;
+	static Matrix4x4 mtxOrtho_;
 
-public:
-	static uint16_t const & PASS_ID;
+	static bgfx::VertexBufferHandle hVB_;
 };
 
 }
