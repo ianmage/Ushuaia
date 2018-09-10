@@ -104,6 +104,11 @@ def projProc(fLn) :
 		elif l.find(' Condition="\'$(Configuration)|$(Platform)\'==\'Debug') != -1 :
 			debugItemEndStr = itemEndRecord(l)
 
+		if l.find('<RuntimeLibrary>MultiThreaded') != -1 :
+			rtLibStr = 'DLL</RuntimeLibrary>'
+			if l.find(rtLibStr) == -1 :
+				l = l.replace('</RuntimeLibrary>', rtLibStr)
+
 		ret.append(l)
 
 	return ret

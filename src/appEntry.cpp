@@ -40,7 +40,7 @@ public:
 	#else
 		init.debug = false;
 	#endif
-		init.profile = true;
+		init.profile = false;
 		bgfx::init(init);
 
 		// Enable debug text.

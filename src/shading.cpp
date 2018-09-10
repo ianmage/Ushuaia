@@ -157,7 +157,12 @@ void Shading::Render()
 
 	DrawChannel::ClearAll();
 
-	bgfx::setViewFrameBuffer(PostProcess::Next(), h_depthFB);
+	Matrix4x4 mtxOrtho;
+	bgfx::Caps const * caps = bgfx::getCaps();
+	bx::mtxOrtho(mtxOrtho.v, 0.f, 1.f, 1.f, 0.f, 0.f, 100.f, 0.f, caps->homogeneousDepth);
+
+	bgfx::setViewFrameBuffer(PostProcess::PASS_ID, h_depthFB);
+	bgfx::setViewTransform(PostProcess::PASS_ID, nullptr, mtxOrtho.v);
 	bgfx::setTexture( 0, s_Sampler[0], bgfx::getTexture(h_gbufFB, 2) );
 	float q = pCam->far / (pCam->far - pCam->near);
 	Vector4 v4Param{pCam->near, pCam->far, q, pCam->near * q};
@@ -165,14 +170,16 @@ void Shading::Render()
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	PostProcess::DrawFullScreen(PostProcess::PASS_ID, pDepthTech);
 
-	bgfx::setViewFrameBuffer(PostProcess::Next(), h_shadeFB);
+	bgfx::setViewFrameBuffer(PostProcess::PASS_ID, h_shadeFB);
+	bgfx::setViewTransform(PostProcess::PASS_ID, nullptr, mtxOrtho.v);
 	bgfx::setTexture( 0, s_Sampler[0], bgfx::getTexture(h_gbufFB, 0) );
 	bgfx::setTexture( 1, s_Sampler[1], bgfx::getTexture(h_gbufFB, 1) );
 	bgfx::setTexture( 2, s_Sampler[2], bgfx::getTexture(h_depthFB, 0) );
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	PostProcess::DrawFullScreen(PostProcess::PASS_ID, pLightTech);
 #if 1
-	bgfx::setViewFrameBuffer(PostProcess::Next(), BGFX_INVALID_HANDLE);
+	bgfx::setViewFrameBuffer(PostProcess::PASS_ID, BGFX_INVALID_HANDLE);
+	bgfx::setViewTransform(PostProcess::PASS_ID, nullptr, mtxOrtho.v);
 	bgfx::setTexture( 0, s_Sampler[0], bgfx::getTexture(h_shadeFB, 0) );
 	DrawScreenQuad(PostProcess::PASS_ID, pCombineTech,
 		BGFX_STATE_WRITE_RGB , 0.f, 0.f, 1.f, 1.f);
