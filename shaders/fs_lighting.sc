@@ -9,12 +9,13 @@ SAMPLER2D(s_tex2, 2);
 
 void main()
 {
-	vec3 normG = texture2D(s_tex0, v_texcoord0).xyz;
+	vec3 normG = texture2D(s_tex0, v_texcoord0.xy).xyz;
 	vec3 normal = decodeNormalSphereMap(normG.xy);
 
-	vec3 albedo = texture2D(s_tex1, v_texcoord0).xyz;
+	vec3 albedo = texture2D(s_tex1, v_texcoord0.xy).xyz;
 
-	float depth = texture2D(s_tex2, v_texcoord0).x;
+	float depth = texture2D(s_tex2, v_texcoord0.xy).x;
+	vec3 vPos = vec3(depth * v_texcoord0.zw, depth);
 
 	vec3 final = normal * 0.5 + 0.5;
 	//vec3 final = toGamma(albedo);

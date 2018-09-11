@@ -26,7 +26,7 @@ struct PosVertex
 struct PosTC0Vertex
 {
 	Vector3 pos;
-	Vector2 tc;
+	Vector4 tc;
 
 	static bgfx::VertexDecl s_decl;
 };

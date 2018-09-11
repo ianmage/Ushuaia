@@ -6,6 +6,9 @@
 namespace Ushuaia
 {
 
+#define MATH_PI	3.1415926535898
+
+
 struct Matrix4x4;
 struct Matrix3x3;
 

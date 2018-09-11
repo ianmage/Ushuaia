@@ -6,6 +6,8 @@
 #include "drawItem.h"
 #include "renderUtil.h"
 #include "postProcess.h"
+#include "frameBuffer.h"
+#include "../../cpp_common/commUtil.h"
 
 //#pragma optimize("", off)
 
@@ -14,24 +16,26 @@ namespace Ushuaia
 {
 
 decltype(Shading::hDepthTex) Shading::hDepthTex = BGFX_INVALID_HANDLE;
-
+#if 0
 static bgfx::FrameBufferHandle h_gbufFB;
 static bgfx::FrameBufferHandle h_shadeFB;
 static bgfx::FrameBufferHandle h_depthFB;
+#else
+static FrameBuffer *pFbGBuf = nullptr;
+static FrameBuffer *pFbShade = nullptr;
+static FrameBuffer *pFbDepth = nullptr;
+#endif
 
 static bgfx::UniformHandle s_Sampler[3];
 static bgfx::UniformHandle uParam;
 
-static Shader *pDepthTech;
-static Shader *pLightTech;
-static Shader *pCombineTech;
+static Shader *pDepthTech = nullptr;
+static Shader *pLightTech = nullptr;
+static Shader *pCombineTech = nullptr;
 
 
 void Shading::Init()
 {
-	h_gbufFB = BGFX_INVALID_HANDLE;
-	h_shadeFB = BGFX_INVALID_HANDLE;
-
 	std::string const smpl = "s_tex";
 	for (uint8_t i = 0; i < ArrayCount(s_Sampler); ++i) {
 		s_Sampler[i] = bgfx::createUniform((smpl+std::to_string(i)).c_str()
@@ -43,6 +47,15 @@ void Shading::Init()
 	pLightTech = Shader::Load("vs_screen_quad", "fs_lighting");
 	pCombineTech = Shader::Load("vs_screen_quad", "fs_combine");
 
+	bgfx::TextureFormat::Enum gbufFmt[3] = {
+		bgfx::TextureFormat::RGBA16F,
+		bgfx::TextureFormat::RGBA16F,
+		bgfx::TextureFormat::D24S8
+	};
+	pFbGBuf = new FrameBuffer(g_viewState.width, g_viewState.height, 3, gbufFmt);
+	pFbDepth = new FrameBuffer(g_viewState.width, g_viewState.height, bgfx::TextureFormat::R32F);
+	pFbShade = new FrameBuffer(g_viewState.width, g_viewState.height, bgfx::TextureFormat::RGBA16F);
+
 	Reset();
 }
 
@@ -50,6 +63,10 @@ void Shading::Init()
 void Shading::Fini()
 {
 	Lost();
+
+	SafeDelete(pFbShade);
+	SafeDelete(pFbGBuf);
+	SafeDelete(pFbDepth);
 
 	for (uint8_t i = 0; i < ArrayCount(s_Sampler); ++i) {
 		if (isValid(s_Sampler[i]))
@@ -68,17 +85,15 @@ void Shading::Update()
 
 void Shading::Lost()
 {
-	if (isValid(h_shadeFB))
-		bgfx::destroy(h_shadeFB);
-	if (isValid(h_gbufFB))
-		bgfx::destroy(h_gbufFB);
-	if (isValid(h_depthFB))
-		bgfx::destroy(h_depthFB);
+	pFbDepth->Lost();
+	pFbGBuf->Lost();
+	pFbShade->Lost();
 }
 
 
 void Shading::Reset()
 {
+#if 0
 	uint64_t const samplerFlags = 0
 		| BGFX_TEXTURE_RT
 		| BGFX_SAMPLER_MIN_POINT
@@ -104,10 +119,16 @@ void Shading::Reset()
 
 	h_shadeFB = bgfx::createFrameBuffer(g_viewState.width, g_viewState.height
 		, bgfx::TextureFormat::RGBA16F, samplerFlags);
+#else
+	pFbDepth->Reset();
+	pFbGBuf->Reset();
+	pFbShade->Reset();
 
+	hDepthTex = pFbDepth->TexHandle(0);
+#endif
 #if 1	// may this part move to update (per-frame) ?
 	bgfx::setViewRect(RENDER_PASS::GEOMETRY_ID, 0, 0, g_viewState.width, g_viewState.height);
-	bgfx::setViewFrameBuffer(RENDER_PASS::GEOMETRY_ID, h_gbufFB);
+	bgfx::setViewFrameBuffer(RENDER_PASS::GEOMETRY_ID, pFbGBuf->Handle());
 #endif
 
 	bgfx::setViewClear(RENDER_PASS::GEOMETRY_ID,
@@ -117,7 +138,7 @@ void Shading::Reset()
 
 void Shading::Render()
 {
-	bgfx::setViewFrameBuffer(RENDER_PASS::GEOMETRY_ID, h_gbufFB);
+	bgfx::setViewFrameBuffer(RENDER_PASS::GEOMETRY_ID, pFbGBuf->Handle());
 
 	auto pCam = Camera::pCurrent;
 	bgfx::setViewTransform(RENDER_PASS::GEOMETRY_ID, pCam->mtxView.v, pCam->mtxProj.v);
@@ -139,23 +160,23 @@ void Shading::Render()
 
 	DrawChannel::ClearAll();
 
-	PostProcess::NewFrameBuf(h_depthFB, true);
-	bgfx::setTexture( 0, s_Sampler[0], bgfx::getTexture(h_gbufFB, 2) );
+	PostProcess::NewFrameBuf(pFbDepth, true);
+	bgfx::setTexture( 0, s_Sampler[0], pFbGBuf->TexHandle(2) );
 	float q = pCam->far / (pCam->far - pCam->near);
 	Vector4 v4Param{pCam->near, pCam->far, q, pCam->near * q};
 	bgfx::setUniform(uParam, v4Param.v);
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	PostProcess::DrawFullScreen(pDepthTech);
 
-	PostProcess::NewFrameBuf(h_shadeFB, true);
-	bgfx::setTexture( 0, s_Sampler[0], bgfx::getTexture(h_gbufFB, 0) );
-	bgfx::setTexture( 1, s_Sampler[1], bgfx::getTexture(h_gbufFB, 1) );
-	bgfx::setTexture( 2, s_Sampler[2], bgfx::getTexture(h_depthFB, 0) );
+	PostProcess::NewFrameBuf(pFbShade, true);
+	bgfx::setTexture( 0, s_Sampler[0], pFbGBuf->TexHandle(0) );
+	bgfx::setTexture( 1, s_Sampler[1], pFbGBuf->TexHandle(1) );
+	bgfx::setTexture( 2, s_Sampler[2], pFbDepth->TexHandle(0) );
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	PostProcess::DrawFullScreen(pLightTech);
 
-	PostProcess::NewFrameBuf(BGFX_INVALID_HANDLE, false);
-	bgfx::setTexture( 0, s_Sampler[0], bgfx::getTexture(h_shadeFB, 0) );
+	PostProcess::NewFrameBuf(nullptr, false);
+	bgfx::setTexture( 0, s_Sampler[0], pFbShade->TexHandle(0) );
 	DrawScreenQuad(PostProcess::ViewID(), pCombineTech,
 		BGFX_STATE_WRITE_RGB , 0.f, 0.f, 1.f, 1.f);
 }

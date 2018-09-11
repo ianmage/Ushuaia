@@ -7,7 +7,7 @@ uniform vec4 uParam;	// near, far, q, near*q, while q = far/(far-near)
 
 void main()
 {
-	float deviceZ = texture2D(s_tex0, v_texcoord0).x;
+	float deviceZ = texture2D(s_tex0, v_texcoord0.xy).x;
 
 #if BGFX_SHADER_LANGUAGE_HLSL || BGFX_SHADER_LANGUAGE_PSSL || BGFX_SHADER_LANGUAGE_METAL
 #else

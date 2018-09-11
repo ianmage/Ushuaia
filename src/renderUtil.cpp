@@ -39,16 +39,16 @@ static void MakeScreenQuad(void * pVerts,
 	PosTC0Vertex * pVtx = reinterpret_cast<PosTC0Vertex*>(pVerts);
 
 	pVtx[0].pos.Set(xyRect.rMin.x, xyRect.rMax.y, zz);
-	pVtx[0].tc.Set(uvRect.rMin.x, uvRect.rMax.y);
+	pVtx[0].tc.Set(uvRect.rMin.x, uvRect.rMax.y, 0.f, 0.f);
 
 	pVtx[1].pos.Set(xyRect.rMax.x, xyRect.rMax.y, zz);
-	pVtx[1].tc.Set(uvRect.rMax.x, uvRect.rMax.y);
+	pVtx[1].tc.Set(uvRect.rMax.x, uvRect.rMax.y, 0.f, 0.f);
 
 	pVtx[2].pos.Set(xyRect.rMin.x, xyRect.rMin.y, zz);
-	pVtx[2].tc.Set(uvRect.rMin.x, uvRect.rMin.y);
+	pVtx[2].tc.Set(uvRect.rMin.x, uvRect.rMin.y, 0.f, 0.f);
 
 	pVtx[3].pos.Set(xyRect.rMax.x, xyRect.rMin.y, zz);
-	pVtx[3].tc.Set(uvRect.rMax.x, uvRect.rMin.y);
+	pVtx[3].tc.Set(uvRect.rMax.x, uvRect.rMin.y, 0.f, 0.f);
 }
 
 
@@ -67,6 +67,18 @@ void DrawScreenQuad(bgfx::ViewId viewId, Shader const *pShader
 	bgfx::setState(state);
 
 	bgfx::submit(viewId, pShader->Tech());
+}
+
+
+void ViewVecForReconstructPos(Vector2 & viewVec, Vector2 const & st, Camera const *pCam)
+{
+	Vector2 homoCoord{
+		(st.x - 0.5f) * 2.f, (0.5f - st.y) * 2.f
+	};
+	float D = pCam->far * ::tanf(pCam->fovY / 360.f * (float)MATH_PI);
+	Vector2 corner{ D * pCam->aspect, D };
+	viewVec.x = corner.x * homoCoord.x / pCam->far;
+	viewVec.y = corner.y * homoCoord.y / pCam->far;
 }
 
 
