@@ -8,68 +8,67 @@
 
 namespace Ushuaia
 {
-	struct AmbientLight
+
+struct AmbientLight
+{
+	Color4F color;
+};
+
+
+struct DirLight
+{
+	Color4F color;
+	Vector4 dir;
+};
+
+
+struct PointLight
+{
+	Color4F color;
+	Vector4 pos;
+	Vector4 attn;
+};
+
+
+struct SpotLight
+{
+	Color4F color;
+	Vector4 pos;
+	Vector4 attnOuter;
+	Vector4 dirInner;
+};
+
+
+struct Light
+{
+	enum Type
 	{
-		Color4F color;
+		Ambient,
+		Directional,
+		Point,
+		Spot,
+
+		Count
 	};
 
+	static void Init();
+	static void Fini();
+	static void Clear();
 
-	struct DirLight
-	{
-		Color4F color;
-		Vector4 dir;
-	};
+	static void Serialize(JsonWriter & _writer);
+	static void Deserialize(JsonValue const & _jsObj);
 
+	static void UpdateAll(Matrix4x4 const & mtxView);
 
-	struct PointLight
-	{
-		Color4F color;
-		Vector4 pos;
-		Vector4 attn;
-	};
+	static void Submit();
 
+	static AmbientLight ambLight;
+	static DirLight dirLight;
 
-	struct SpotLight
-	{
-		Color4F color;
-		Vector4 pos;
-		Vector4 attnOuter;
-		Vector4 dirInner;
-	};
+	static uint16_t AddPointLight(bool isSpot);
 
-
-	struct Light
-	{
-		enum Type
-		{
-			Ambient,
-			Directional,
-			Point,
-			Spot,
-
-			Count
-		};
-
-		static void Init();
-		static void Fini();
-		static void Clear();
-
-		static void Serialize(JsonWriter & _writer);
-		static void Deserialize(JsonValue const & _jsObj);
-
-		static void UpdateAll(Matrix4x4 const & mtxView);
-
-		static void Submit();
-
-		static AmbientLight ambLight;
-		static DirLight dirLight;
-
-		static uint16_t AddPointLight(bool isSpot);
-
-	protected:
-
-		static std::vector<PointLight> s_pointLights;
-		static std::vector<SpotLight> s_spotLights;
-	};
+	static std::vector<PointLight> s_pointLights;
+	static std::vector<SpotLight> s_spotLights;
+};
 
 }
