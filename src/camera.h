@@ -5,33 +5,37 @@
 namespace Ushuaia
 {
 
-	struct Camera
-	{
-		float fovY;
-		float aspect;
-		float near;
-		float far;
+struct Camera
+{
+	float fovY;
+	float aspect;
+	float near;
+	float far;
 
-		Matrix4x4 mtxView;
-		Matrix4x4 mtxProj;
-		Matrix4x4 mtxInvView;
-		Matrix4x4 mtxInvProj;
+	Matrix4x4 mtxView;
+	Matrix4x4 mtxProj;
+	Matrix4x4 mtxInvView;
+	Matrix4x4 mtxInvProj;
 
-		Camera();
-		virtual ~Camera();
+	Vector4 frustum[6];	// near, far, left, right, top, bottom
 
-		void Init(float _fovY, float _aspect, float _near, float _far);
-		void RecalcProj();
-		void SetPos(Vector3 const & pos);
-		void SetHorizontalAngle(float ha);
-		void SetVerticalAngle(float va);
+	Camera();
+	virtual ~Camera();
 
-		void Update();
+	void Init(float _fovY, float _aspect, float _near, float _far);
+	void RecalcProj();
+	void SetPos(Vector3 const & pos);
+	void SetHorizontalAngle(float ha);
+	void SetVerticalAngle(float va);
 
-		static Camera* pCurrent;
+	void Update();
 
-		static bool InitDefault();
-		static bool FiniDefault();
-	};
+	bool IsVisible(Vector4 const & boundSphere);
+
+	static Camera* pCurrent;
+
+	static bool InitDefault();
+	static bool FiniDefault();
+};
 
 }

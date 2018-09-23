@@ -4,6 +4,7 @@
 #include "bgfx/bgfx.h"
 #include <vector>
 #include "serialize.h"
+#include "camera.h"
 
 
 namespace Ushuaia
@@ -58,7 +59,7 @@ struct Light
 	static void Serialize(JsonWriter & _writer);
 	static void Deserialize(JsonValue const & _jsObj);
 
-	static void UpdateAll(Matrix4x4 const & mtxView);
+	static void UpdateAll(Camera *pCam);
 
 	static void Submit();
 
@@ -69,6 +70,8 @@ struct Light
 
 	static std::vector<PointLight> s_pointLights;
 	static std::vector<SpotLight> s_spotLights;
+	static std::vector<PointLight> s_pointLightsInView;
+	static std::vector<SpotLight> s_spotLightsInView;
 };
 
 }

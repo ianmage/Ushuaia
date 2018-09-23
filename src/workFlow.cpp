@@ -160,7 +160,7 @@ bool Update()
 
 	UpdateScript();
 
-	Light::UpdateAll(Camera::pCurrent->mtxView);
+	Light::UpdateAll(Camera::pCurrent);
 
 #if DEFERRED_RENDERING
 	Shading::Update();

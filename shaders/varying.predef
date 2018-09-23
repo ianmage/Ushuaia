@@ -6,6 +6,9 @@
 		"tex"
 	],
 	"screen_quad": [
-		"screen_quad", "linear_depth", "lighting", "combine"
+		"screen_quad", "linear_depth",
+		"dir_light",
+		"shading",
+		"combine"
 	]
 }

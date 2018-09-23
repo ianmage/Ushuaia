@@ -59,28 +59,28 @@ void ForwardRendering::Update()
 
 	s_lightsCnt.x = s_lightsCnt.y = 1.f;
 
-	uint8_t const plCnt = std::min(MAX_POINT_LIGHT, (uint8_t)Light::s_pointLights.size());
-	uint8_t const spCnt = std::min(MAX_SPOT_LIGHT, (uint8_t)Light::s_spotLights.size());
-	uint8_t const lightBufSize = (spCnt > 0) ? MAX_POINT_LIGHT + spCnt : plCnt;
+	uint8_t const plCnt = std::min(MAX_POINT_LIGHT, (uint8_t)Light::s_pointLightsInView.size());
+	uint8_t const slCnt = std::min(MAX_SPOT_LIGHT, (uint8_t)Light::s_spotLightsInView.size());
+	uint8_t const lightBufSize = (slCnt > 0) ? MAX_POINT_LIGHT + slCnt : plCnt;
 	s_lightColorBuf.resize(lightBufSize);
 	s_lightPosBuf.resize(lightBufSize);
 	s_lightAttnRangeBuf.resize(lightBufSize);
-	s_spotDirInnerBuf.resize(spCnt);
+	s_spotDirInnerBuf.resize(slCnt);
 
 	Matrix4x4 const & mtxView = Camera::pCurrent->mtxView;
 
 	for (uint8_t i = 0; i < plCnt; ++i)
 	{
-		auto & pl = Light::s_pointLights[i];
+		auto & pl = Light::s_pointLightsInView[i];
 		ToLinearAccurate(s_lightColorBuf[i], pl.color);
 		mtxView.TransformVec3(s_lightPosBuf[i], pl.pos);
 		s_lightAttnRangeBuf[i] = pl.attn;
 	}
 	s_lightsCnt.z = plCnt;
 
-	for (uint8_t i = 0; i < spCnt; ++i)
+	for (uint8_t i = 0; i < slCnt; ++i)
 	{
-		auto & sl = Light::s_spotLights[i];
+		auto & sl = Light::s_spotLightsInView[i];
 		uint8_t const bufIdx = MAX_POINT_LIGHT + i;
 		ToLinearAccurate(s_lightColorBuf[bufIdx], sl.color);
 		mtxView.TransformVec3(s_lightPosBuf[bufIdx], sl.pos);
@@ -88,7 +88,24 @@ void ForwardRendering::Update()
 		mtxView.TransformVec3(s_spotDirInnerBuf[i], sl.dirInner);
 		s_spotDirInnerBuf[i].Vec3().Normalize();
 	}
-	s_lightsCnt.w = spCnt;
+	s_lightsCnt.w = slCnt;
+}
+
+
+static void RenderLight()
+{
+	Light::Submit();
+
+	bgfx::setUniform(uhLightsCnt, &s_lightsCnt);
+
+	uint8_t const plCnt = std::min(MAX_POINT_LIGHT, (uint8_t)Light::s_pointLightsInView.size());
+	uint8_t const slCnt = std::min(MAX_SPOT_LIGHT, (uint8_t)Light::s_pointLightsInView.size());
+	uint8_t const lightBufSize = (slCnt > 0) ? MAX_POINT_LIGHT + slCnt : plCnt;
+
+	bgfx::setUniform(uhPointColor, s_lightColorBuf.data(), lightBufSize);
+	bgfx::setUniform(uhPointPos, s_lightPosBuf.data(), lightBufSize);
+	bgfx::setUniform(uhPointAttnRange, s_lightAttnRangeBuf.data(), lightBufSize);
+	bgfx::setUniform(uhSpotDirInner, s_spotDirInnerBuf.data(), slCnt);
 }
 
 
@@ -117,18 +134,7 @@ void ForwardRendering::Render()
 	bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH
 		, 0x30303000, 1.f, 0);
 
-	Light::Submit();
-
-	bgfx::setUniform(uhLightsCnt, &s_lightsCnt);
-
-	uint8_t const plCnt = std::min(MAX_POINT_LIGHT, (uint8_t)Light::s_pointLights.size());
-	uint8_t const spCnt = std::min(MAX_SPOT_LIGHT, (uint8_t)Light::s_spotLights.size());
-	uint8_t const lightBufSize = (spCnt > 0) ? MAX_POINT_LIGHT + spCnt : plCnt;
-
-	bgfx::setUniform(uhPointColor, s_lightColorBuf.data(), lightBufSize);
-	bgfx::setUniform(uhPointPos, s_lightPosBuf.data(), lightBufSize);
-	bgfx::setUniform(uhPointAttnRange, s_lightAttnRangeBuf.data(), lightBufSize);
-	bgfx::setUniform(uhSpotDirInner, s_spotDirInnerBuf.data(), spCnt);
+	RenderLight();
 
 #if TEST
 	uint64_t state = 0

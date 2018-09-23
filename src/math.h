@@ -148,6 +148,8 @@ struct Matrix4x4
 	constexpr void Transpose();
 };
 
+inline void MtxMultiply(Matrix4x4 & out, Matrix4x4 const & lhs, Matrix4x4 const & rhs);
+
 
 struct Matrix3x3
 {

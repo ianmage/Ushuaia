@@ -22,15 +22,20 @@ static bgfx::FrameBufferHandle h_shadeFB;
 static bgfx::FrameBufferHandle h_depthFB;
 #else
 static FrameBuffer *pFbGBuf = nullptr;
-static FrameBuffer *pFbShade = nullptr;
 static FrameBuffer *pFbDepth = nullptr;
+static FrameBuffer *pFbLight = nullptr;
+static FrameBuffer *pFbShade = nullptr;
 #endif
 
 static bgfx::UniformHandle s_Sampler[3];
 static bgfx::UniformHandle uParam;
 
 static Shader *pDepthTech = nullptr;
-static Shader *pLightTech = nullptr;
+static Shader *pPointLightTech = nullptr;
+static Shader *pSpotLightTech = nullptr;
+static Shader *pDirLightTech = nullptr;
+static Shader *pAmbLightTech = nullptr;
+static Shader *pShadeTech = nullptr;
 static Shader *pCombineTech = nullptr;
 
 
@@ -44,7 +49,8 @@ void Shading::Init()
 	uParam = bgfx::createUniform("uParam", bgfx::UniformType::Vec4);
 
 	pDepthTech = Shader::Load("vs_screen_quad", "fs_linear_depth");
-	pLightTech = Shader::Load("vs_screen_quad", "fs_lighting");
+	pDirLightTech = Shader::Load("vs_screen_quad", "fs_dir_light");
+	pShadeTech = Shader::Load("vs_screen_quad", "fs_shading");
 	pCombineTech = Shader::Load("vs_screen_quad", "fs_combine");
 
 	bgfx::TextureFormat::Enum gbufFmt[3] = {
@@ -54,6 +60,7 @@ void Shading::Init()
 	};
 	pFbGBuf = new FrameBuffer(g_viewState.width, g_viewState.height, 3, gbufFmt);
 	pFbDepth = new FrameBuffer(g_viewState.width, g_viewState.height, bgfx::TextureFormat::R32F);
+	pFbLight = new FrameBuffer(g_viewState.width, g_viewState.height, bgfx::TextureFormat::RGBA16F);
 	pFbShade = new FrameBuffer(g_viewState.width, g_viewState.height, bgfx::TextureFormat::RGBA16F);
 
 	Reset();
@@ -65,8 +72,9 @@ void Shading::Fini()
 	Lost();
 
 	SafeDelete(pFbShade);
-	SafeDelete(pFbGBuf);
+	SafeDelete(pFbLight);
 	SafeDelete(pFbDepth);
+	SafeDelete(pFbGBuf);
 
 	for (uint8_t i = 0; i < ArrayCount(s_Sampler); ++i) {
 		if (isValid(s_Sampler[i]))
@@ -77,17 +85,12 @@ void Shading::Fini()
 }
 
 
-void Shading::Update()
-{
-	PostProcess::Update();
-}
-
-
 void Shading::Lost()
 {
+	pFbShade->Lost();
+	pFbLight->Lost();
 	pFbDepth->Lost();
 	pFbGBuf->Lost();
-	pFbShade->Lost();
 }
 
 
@@ -120,8 +123,9 @@ void Shading::Reset()
 	h_shadeFB = bgfx::createFrameBuffer(g_viewState.width, g_viewState.height
 		, bgfx::TextureFormat::RGBA16F, samplerFlags);
 #else
-	pFbDepth->Reset();
 	pFbGBuf->Reset();
+	pFbDepth->Reset();
+	pFbLight->Reset();
 	pFbShade->Reset();
 
 	hDepthTex = pFbDepth->TexHandle(0);
@@ -133,6 +137,27 @@ void Shading::Reset()
 
 	bgfx::setViewClear(RENDER_PASS::GEOMETRY_ID,
 		BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 1.f, 0, 1);
+}
+
+
+void Shading::Update()
+{
+	PostProcess::Update();
+}
+
+
+static void RenderLight()
+{
+	Light::Submit();
+
+	PostProcess::NewFrameBuf(pFbLight, true);
+	// Point
+
+	// Directional
+	bgfx::setTexture( 0, s_Sampler[0], pFbGBuf->TexHandle(0) );
+	bgfx::setTexture( 1, s_Sampler[1], pFbDepth->TexHandle(0) );
+	bgfx::setState(BGFX_STATE_WRITE_RGB);
+	PostProcess::DrawFullScreen(pDirLightTech);
 }
 
 
@@ -168,12 +193,14 @@ void Shading::Render()
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	PostProcess::DrawFullScreen(pDepthTech);
 
+	RenderLight();
+
 	PostProcess::NewFrameBuf(pFbShade, true);
 	bgfx::setTexture( 0, s_Sampler[0], pFbGBuf->TexHandle(0) );
-	bgfx::setTexture( 1, s_Sampler[1], pFbGBuf->TexHandle(1) );
-	bgfx::setTexture( 2, s_Sampler[2], pFbDepth->TexHandle(0) );
+	bgfx::setTexture( 1, s_Sampler[1], pFbDepth->TexHandle(0) );
+	bgfx::setTexture( 2, s_Sampler[2], pFbLight->TexHandle(0) );
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
-	PostProcess::DrawFullScreen(pLightTech);
+	PostProcess::DrawFullScreen(pShadeTech);
 
 	PostProcess::NewFrameBuf(nullptr, false);
 	bgfx::setTexture( 0, s_Sampler[0], pFbShade->TexHandle(0) );

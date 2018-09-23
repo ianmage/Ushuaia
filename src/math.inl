@@ -357,6 +357,11 @@ constexpr void Matrix4x4::Transpose()
 	}
 }
 
+void MtxMultiply(Matrix4x4 & out, Matrix4x4 const & lhs, Matrix4x4 const & rhs)
+{
+	bx::mtxMul(out.v, lhs.v, rhs.v);
+}
+
 
 constexpr float& Matrix3x3::operator[](int i)
 {
