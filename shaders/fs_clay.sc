@@ -38,7 +38,7 @@ void main()
 #else	// DEFERRED
 
 	gl_FragData[0].xy = encodeNormalSphereMap(n);
-	gl_FragData[0].z = PM_normalGloss.w;
+	gl_FragData[0].w = PM_normalGloss.w;
 
 	gl_FragData[1] = PM_albedoMetal;
 

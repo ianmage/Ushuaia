@@ -182,7 +182,7 @@ void Light::UpdateAll(Camera *pCam)
 
 	ToLinearAccurate(s_dirLightColor, dirLight.color);
 
-	mtxView.TransformVec3(s_dirLightDir, dirLight.dir);
+	mtxView.TransformDir(s_dirLightDir, dirLight.dir);
 	s_dirLightDir.Vec3().Normalize();
 
 	s_pointLightsInView.clear();

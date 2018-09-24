@@ -151,13 +151,14 @@ static void RenderLight()
 	Light::Submit();
 
 	PostProcess::NewFrameBuf(pFbLight, true);
-	// Point
 
 	// Directional
 	bgfx::setTexture( 0, s_Sampler[0], pFbGBuf->TexHandle(0) );
 	bgfx::setTexture( 1, s_Sampler[1], pFbDepth->TexHandle(0) );
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	PostProcess::DrawFullScreen(pDirLightTech);
+	
+	// Point
 }
 
 

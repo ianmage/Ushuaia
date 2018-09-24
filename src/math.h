@@ -140,8 +140,10 @@ struct Matrix4x4
 	inline void SetSRT(Vector3 const & s, Vector3 const & r, Vector3 const & t);
 
 	inline void Transform(Vector4 & out, Vector4 const & in) const;
-	inline void TransformVec3(Vector4 & out, Vector4 const & in) const;
-	inline void Transform(Vector3 & out, Vector3 const & in) const;
+	inline void TransformPos(Vector3 & out, Vector3 const & in) const;
+	inline void TransformDir(Vector3 & out, Vector3 const & in) const;
+	inline void TransformPos(Vector4 & out, Vector4 const & in) const;
+	inline void TransformDir(Vector4 & out, Vector4 const & in) const;
 
 	constexpr void Mtx4x3(float * out) const;
 

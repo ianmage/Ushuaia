@@ -73,7 +73,7 @@ void ForwardRendering::Update()
 	{
 		auto & pl = Light::s_pointLightsInView[i];
 		ToLinearAccurate(s_lightColorBuf[i], pl.color);
-		mtxView.TransformVec3(s_lightPosBuf[i], pl.pos);
+		mtxView.TransformPos(s_lightPosBuf[i], pl.pos);
 		s_lightAttnRangeBuf[i] = pl.attn;
 	}
 	s_lightsCnt.z = plCnt;
@@ -83,9 +83,9 @@ void ForwardRendering::Update()
 		auto & sl = Light::s_spotLightsInView[i];
 		uint8_t const bufIdx = MAX_POINT_LIGHT + i;
 		ToLinearAccurate(s_lightColorBuf[bufIdx], sl.color);
-		mtxView.TransformVec3(s_lightPosBuf[bufIdx], sl.pos);
+		mtxView.TransformPos(s_lightPosBuf[bufIdx], sl.pos);
 		s_lightAttnRangeBuf[bufIdx] = sl.attnOuter;
-		mtxView.TransformVec3(s_spotDirInnerBuf[i], sl.dirInner);
+		mtxView.TransformPos(s_spotDirInnerBuf[i], sl.dirInner);
 		s_spotDirInnerBuf[i].Vec3().Normalize();
 	}
 	s_lightsCnt.w = slCnt;

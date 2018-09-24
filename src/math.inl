@@ -327,15 +327,26 @@ inline void Matrix4x4::Transform(Vector4 & out, Vector4 const & in) const
 	bx::vec4MulMtx(out.v, in.v, v);
 }
 
-inline void Matrix4x4::TransformVec3(Vector4 & out, Vector4 const & in) const
+inline void Matrix4x4::TransformPos(Vector3 & out, Vector3 const & in) const
 {
 	bx::vec3MulMtx(out.v, in.v, v);
-	out[4] = in[4];
 }
 
-inline void Matrix4x4::Transform(Vector3 & out, Vector3 const & in) const
+inline void Matrix4x4::TransformDir(Vector3 & out, Vector3 const & in) const
 {
-	bx::vec3MulMtx(out.v, in.v, v);
+	bx::vec3MulMtxXyz0(out.v, in.v, v);
+}
+
+inline void Matrix4x4::TransformPos(Vector4 & out, Vector4 const & in) const
+{
+	bx::vec3MulMtx(out.Vec3().v, in.Vec3().v, v);
+	out.w = in.w;
+}
+
+inline void Matrix4x4::TransformDir(Vector4 & out, Vector4 const & in) const
+{
+	bx::vec3MulMtxXyz0(out.Vec3().v, in.Vec3().v, v);
+	out.w = in.w;
 }
 
 constexpr void Matrix4x4::Mtx4x3(float * out) const

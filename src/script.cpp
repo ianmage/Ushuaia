@@ -111,7 +111,6 @@ static void PlaceObj(Vector3 & t, float ratio, float radius, float height)
 
 void UpdateScript()
 {
-	timeAccuLight += AppConf::deltaTime;
 	timeAccuScene += AppConf::deltaTime;
 
 	Vector3 vS, vR, vT;
@@ -128,6 +127,13 @@ void UpdateScript()
 	vR.Set(0.f, 1.56f - timeAccuScene, 0.f);
 	PlaceObj(vT, 1.f, 30.f, 5.f);
 	Entity::Get(CT_HASH("cube"))->transform.SetSRT(vS, vR, vT);
+
+	Vector3 & dirLightDir = Light::dirLight.dir.Vec3();
+	static float daySpeed = 1.f;
+	timeAccuLight += AppConf::deltaTime * daySpeed;
+	dirLightDir.x = bx::sin(timeAccuLight);
+	dirLightDir.y = bx::cos(timeAccuLight);
+	daySpeed = 1.1f + dirLightDir.y;
 }
 
 }
