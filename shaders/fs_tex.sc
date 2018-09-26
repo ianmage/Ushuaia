@@ -1,7 +1,7 @@
 #ifndef DEFERRED
-$input v_normal, v_pos, v_texcoord0
+$input v_normal, v_pos, v_tc0
 #else
-$input v_normal, v_texcoord0
+$input v_normal, v_tc0
 #endif
 
 #include "../common/common.sh"
@@ -19,7 +19,7 @@ void main()
 {
 	vec3 n = normalize(v_normal);
 
-	vec3 albedo = texture2D(S_albedoTex, v_texcoord0).xyz;
+	vec3 albedo = texture2D(S_albedoTex, v_tc0).xyz;
 	vec4 mtlAlbedoMetal = vec4(albedo, PM_albedoMetal.w);
 
 #ifndef DEFERRED

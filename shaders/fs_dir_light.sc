@@ -1,4 +1,4 @@
-$input v_texcoord0
+$input v_tc0
 
 #include "../common/common.sh"
 #include "pbr_lighting.sh"
@@ -20,12 +20,12 @@ vec4 CalcColor(float n_dot_l, float spec, float atten, vec3 shadow, vec4 light_c
 
 void main()
 {
-	vec4 normG = texture2D(s_tex0, v_texcoord0.xy);
+	vec4 normG = texture2D(s_tex0, v_tc0.xy);
 	vec3 normal = decodeNormalSphereMap(normG.xy);
 	float shininess = Glossiness2Shininess(normG.w);
 
-	float depth = texture2D(s_tex1, v_texcoord0.xy).x;
-	vec3 vPos = vec3(depth * v_texcoord0.zw, depth);
+	float depth = texture2D(s_tex1, v_tc0.xy).x;
+	vec3 vPos = vec3(depth * v_tc0.zw, depth);
 
 	vec3 viewDir = normalize(vPos);
 

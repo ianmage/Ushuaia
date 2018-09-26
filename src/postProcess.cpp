@@ -59,7 +59,7 @@ void PostProcess::NewFrameBuf(FrameBuffer const *pFB, bool doClear)
 	bgfx::setViewTransform(viewID_, nullptr, mtxOrtho_.v);
 	if (doClear)
 		bgfx::setViewClear(viewID_,
-			BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 1.f, 0, 0);
+			BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0, 1.f, 0);
 }
 
 

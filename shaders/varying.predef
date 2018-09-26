@@ -5,9 +5,10 @@
 	"tex": [
 		"tex"
 	],
-	"screen_quad": [
+	"pos_tc0": [
 		"screen_quad", "linear_depth",
 		"dir_light",
+		"screen_geo", "point_light",
 		"shading",
 		"combine"
 	]

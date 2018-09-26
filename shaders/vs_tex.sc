@@ -1,8 +1,8 @@
 $input a_position, a_normal, a_texcoord0
 #ifndef DEFERRED
-$output v_normal, v_pos, v_texcoord0
+$output v_normal, v_pos, v_tc0
 #else
-$output v_normal, v_texcoord0
+$output v_normal, v_tc0
 #endif
 
 #include "../common/common.sh"
@@ -16,5 +16,5 @@ void main()
 #ifndef DEFERRED
 	v_pos = mul(u_modelView, vec4(a_position, 1.0)).xyz;
 #endif
-	v_texcoord0 = a_texcoord0;
+	v_tc0 = a_texcoord0;
 }
