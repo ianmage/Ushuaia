@@ -5,7 +5,7 @@ $input v_tc0
 
 uniform vec4 PV_lightColor;
 uniform vec4 PV_lightPos;
-uniform vec4 PV_lightAttnRange;
+uniform vec4 PV_lightAttnOuter;
 //uniform vec4 PV_lightSpotDirInner;
 
 SAMPLER2D(s_tex0, 0);
@@ -48,7 +48,7 @@ void main()
 
 	vec3 viewDir = normalize(vPos);
 
-	vec4 lighting = CalcPoint(normal, PV_lightColor, viewDir, shininess, vPos, PV_lightPos, PV_lightAttnRange);
+	vec4 lighting = CalcPoint(normal, PV_lightColor, viewDir, shininess, vPos, PV_lightPos, PV_lightAttnOuter);
 
 	gl_FragColor = lighting;
 }

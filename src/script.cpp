@@ -19,7 +19,7 @@ static float timeAccuLight = 0.f;
 static float timeAccuScene = 0.f;
 
 
-static std::vector<PosNormVertex> MergeVertex(
+static std::vector<PosNormVertex> MakeVertice(
 	std::vector<Vector3> const & vPos, std::vector<uint32_t> const & vNorm)
 {
 	uint16_t const vtxCnt = (uint16_t)vPos.size();
@@ -88,7 +88,7 @@ void InitScriptData()
 	std::vector<uint32_t> sphereNorm;
 	std::vector<uint16_t> sphereIdx;
 	CreateSphere(spherePos, sphereIdx, &sphereNorm, 2, 5.f);
-	auto sphereVtx = MergeVertex(spherePos, sphereNorm);
+	auto sphereVtx = MakeVertice(spherePos, sphereNorm);
 	assert(!pModel->pMesh);
 	pModel->pMesh = Mesh::Create("sphere", sphereVtx.data(), (uint32_t)sphereVtx.size(),
 		PosNormVertex::s_decl, sphereIdx.data(), (uint32_t)sphereIdx.size());

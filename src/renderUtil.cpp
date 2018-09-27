@@ -340,10 +340,6 @@ void CreateSphere(std::vector<Vector3> & vtxOut, std::vector<uint16_t> & idxOut
 
 	auto const & vtxPos = vertices[curr];
 
-	vtxOut.clear();
-	for (auto const & vp : vtxPos)
-		vtxOut.emplace_back(vp * scale);
-
 	if (normOut) {
 		uint16_t const vtxCnt = (uint16_t)vtxPos.size();
 		normOut->resize(vtxCnt);
@@ -351,6 +347,15 @@ void CreateSphere(std::vector<Vector3> & vtxOut, std::vector<uint16_t> & idxOut
 			auto const & vp = vtxPos[i];
 			(*normOut)[i] = ::encodeNormalRgba8(vp.x, vp.y, vp.z);
 		}
+	}
+
+	if (scale != 1.f) {
+		vtxOut.clear();
+		for (auto const & vp : vtxPos)
+			vtxOut.emplace_back(vp * scale);
+	}
+	else {
+		std::swap(vtxOut, vertices[curr]);
 	}
 }
 

@@ -14,7 +14,7 @@ namespace Ushuaia
 static bgfx::UniformHandle uhLightsCnt;
 static bgfx::UniformHandle uhPointColor;
 static bgfx::UniformHandle uhPointPos;	// w for spot Outer
-static bgfx::UniformHandle uhPointAttnRange;
+static bgfx::UniformHandle uhPointAttnOuter;
 static bgfx::UniformHandle uhSpotDirInner;
 
 
@@ -24,7 +24,7 @@ uint8_t const MAX_SPOT_LIGHT = 2;
 
 static std::vector<Color4F> s_lightColorBuf;
 static std::vector<Vector4> s_lightPosBuf;
-static std::vector<Vector4> s_lightAttnRangeBuf;
+static std::vector<Vector4> s_lightAttnOuterBuf;
 static std::vector<Vector4> s_spotDirInnerBuf;
 static Vector4 s_lightsCnt;
 
@@ -34,7 +34,7 @@ void ForwardRendering::Init()
 	uhLightsCnt = bgfx::createUniform("PV_lightsCnt", bgfx::UniformType::Vec4);
 	uhPointColor = bgfx::createUniform("PV_lightColor", bgfx::UniformType::Vec4, MAX_POINT_LIGHT + MAX_SPOT_LIGHT);
 	uhPointPos = bgfx::createUniform("PV_lightPos", bgfx::UniformType::Vec4, MAX_POINT_LIGHT + MAX_SPOT_LIGHT);
-	uhPointAttnRange = bgfx::createUniform("PV_lightAttnRange", bgfx::UniformType::Vec4, MAX_POINT_LIGHT + MAX_SPOT_LIGHT);
+	uhPointAttnOuter = bgfx::createUniform("PV_lightAttnOuter", bgfx::UniformType::Vec4, MAX_POINT_LIGHT + MAX_SPOT_LIGHT);
 	uhSpotDirInner = bgfx::createUniform("PV_lightSpotDirInner", bgfx::UniformType::Vec4, MAX_SPOT_LIGHT);
 }
 
@@ -44,7 +44,7 @@ void ForwardRendering::Fini()
 	bgfx::destroy(uhLightsCnt);
 	bgfx::destroy(uhPointColor);
 	bgfx::destroy(uhPointPos);
-	bgfx::destroy(uhPointAttnRange);
+	bgfx::destroy(uhPointAttnOuter);
 	bgfx::destroy(uhSpotDirInner);
 }
 
@@ -54,7 +54,7 @@ void ForwardRendering::Update()
 	s_lightsCnt.Set(0, 0, 0, 0);
 	s_lightColorBuf.clear();
 	s_lightPosBuf.clear();
-	s_lightAttnRangeBuf.clear();
+	s_lightAttnOuterBuf.clear();
 	s_spotDirInnerBuf.clear();
 
 	s_lightsCnt.x = s_lightsCnt.y = 1.f;
@@ -64,7 +64,7 @@ void ForwardRendering::Update()
 	uint8_t const lightBufSize = (slCnt > 0) ? MAX_POINT_LIGHT + slCnt : plCnt;
 	s_lightColorBuf.resize(lightBufSize);
 	s_lightPosBuf.resize(lightBufSize);
-	s_lightAttnRangeBuf.resize(lightBufSize);
+	s_lightAttnOuterBuf.resize(lightBufSize);
 	s_spotDirInnerBuf.resize(slCnt);
 
 	Matrix4x4 const & mtxView = Camera::pCurrent->mtxView;
@@ -74,7 +74,7 @@ void ForwardRendering::Update()
 		auto & pl = Light::s_pointLightsInView[i];
 		ToLinearAccurate(s_lightColorBuf[i], pl.color);
 		mtxView.TransformPos(s_lightPosBuf[i], pl.pos);
-		s_lightAttnRangeBuf[i] = pl.attn;
+		s_lightAttnOuterBuf[i] = pl.attn;
 	}
 	s_lightsCnt.z = plCnt;
 
@@ -84,7 +84,7 @@ void ForwardRendering::Update()
 		uint8_t const bufIdx = MAX_POINT_LIGHT + i;
 		ToLinearAccurate(s_lightColorBuf[bufIdx], sl.color);
 		mtxView.TransformPos(s_lightPosBuf[bufIdx], sl.pos);
-		s_lightAttnRangeBuf[bufIdx] = sl.attnOuter;
+		s_lightAttnOuterBuf[bufIdx] = sl.attnOuter;
 		mtxView.TransformPos(s_spotDirInnerBuf[i], sl.dirInner);
 		s_spotDirInnerBuf[i].Vec3().Normalize();
 	}
@@ -104,7 +104,7 @@ static void RenderLight()
 
 	bgfx::setUniform(uhPointColor, s_lightColorBuf.data(), lightBufSize);
 	bgfx::setUniform(uhPointPos, s_lightPosBuf.data(), lightBufSize);
-	bgfx::setUniform(uhPointAttnRange, s_lightAttnRangeBuf.data(), lightBufSize);
+	bgfx::setUniform(uhPointAttnOuter, s_lightAttnOuterBuf.data(), lightBufSize);
 	bgfx::setUniform(uhSpotDirInner, s_spotDirInnerBuf.data(), slCnt);
 }
 

@@ -9,7 +9,7 @@ uniform vec4 PV_lightDirColor;
 uniform vec4 PV_lightDirDir;
 uniform vec4 PV_lightColor[MAX_POINT_LIGHT + MAX_SPOT_LIGHT];
 uniform vec4 PV_lightPos[MAX_POINT_LIGHT + MAX_SPOT_LIGHT];	// w for spot Outer
-uniform vec4 PV_lightAttnRange[MAX_POINT_LIGHT + MAX_SPOT_LIGHT];
+uniform vec4 PV_lightAttnOuter[MAX_POINT_LIGHT + MAX_SPOT_LIGHT];
 uniform vec4 PV_lightSpotDirInner[MAX_SPOT_LIGHT];
 
 
@@ -99,13 +99,13 @@ vec4 CalcLighting(vec3 normal, vec3 view_dir, float shininess, vec3 pos_es)
 	//for (int i = 0; i < PV_lightsCnt.z; ++i)
 	//{
 	//	lighting += CalcPoint(normal, PV_lightColor[i], view_dir, shininess, 
-	//		pos_es, PV_lightPos[i], PV_lightAttnRange[i]);
+	//		pos_es, PV_lightPos[i], PV_lightAttnOuter[i]);
 	//}
 
 	//for (int i = 0; i < PV_lightsCnt.w; ++i)
 	//{
 	//	lighting += CalcSpot(normal, PV_lightColor[MAX_POINT_LIGHT + i], view_dir, shininess, 
-	//		pos_es, PV_lightPos[MAX_POINT_LIGHT + i], PV_lightAttnRange[MAX_POINT_LIGHT + i], PV_lightSpotDirInner[i]);
+	//		pos_es, PV_lightPos[MAX_POINT_LIGHT + i], PV_lightAttnOuter[MAX_POINT_LIGHT + i], PV_lightSpotDirInner[i]);
 	//}
 
 	return lighting;

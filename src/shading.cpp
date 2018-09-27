@@ -39,14 +39,16 @@ static Shader *pShadeTech = nullptr;
 static Shader *pCombineTech = nullptr;
 
 static bgfx::UniformHandle uhPointColor;
-static bgfx::UniformHandle uhPointPos;	// w for spot Outer
-static bgfx::UniformHandle uhPointAttnRange;
+static bgfx::UniformHandle uhPointPos;	// w for range
+static bgfx::UniformHandle uhPointAttnOuter;
 static bgfx::UniformHandle uhSpotDirInner;
 
 static std::vector<Color4F> s_lightColorBuf;
 static std::vector<Vector4> s_lightPosBuf;
-static std::vector<Vector4> s_lightAttnRangeBuf;
+static std::vector<Vector4> s_lightAttnOuterBuf;
 static std::vector<Vector4> s_spotDirInnerBuf;
+
+static std::shared_ptr<Mesh> s_pPointLightMesh = nullptr;
 
 
 void Shading::Init()
@@ -60,7 +62,7 @@ void Shading::Init()
 
 	pDepthTech = Shader::Load("vs_screen_quad", "fs_linear_depth");
 	pDirLightTech = Shader::Load("vs_screen_quad", "fs_dir_light");
-	pPointLightTech = Shader::Load("vs_screen_geo", "fs_point_light");
+	pPointLightTech = Shader::Load("vs_point_light", "fs_point_light");
 	pShadeTech = Shader::Load("vs_screen_quad", "fs_shading");
 	pCombineTech = Shader::Load("vs_screen_quad", "fs_combine");
 
@@ -76,8 +78,14 @@ void Shading::Init()
 
 	uhPointColor = bgfx::createUniform("PV_lightColor", bgfx::UniformType::Vec4);
 	uhPointPos = bgfx::createUniform("PV_lightPos", bgfx::UniformType::Vec4);
-	uhPointAttnRange = bgfx::createUniform("PV_lightAttnRange", bgfx::UniformType::Vec4);
+	uhPointAttnOuter = bgfx::createUniform("PV_lightAttnOuter", bgfx::UniformType::Vec4);
 	uhSpotDirInner = bgfx::createUniform("PV_lightSpotDirInner", bgfx::UniformType::Vec4);
+
+	std::vector<Vector3> sphereVtx;
+	std::vector<uint16_t> sphereIdx;
+	CreateSphere(sphereVtx, sphereIdx, nullptr, 2, 1.f);
+	s_pPointLightMesh = Mesh::Create("plSphere", sphereVtx.data(), (uint32_t)sphereVtx.size(),
+		PosVertex::s_decl, sphereIdx.data(), (uint32_t)sphereIdx.size());	// exception on exit
 
 	Reset();
 }
@@ -101,7 +109,7 @@ void Shading::Fini()
 
 	bgfx::destroy(uhPointColor);
 	bgfx::destroy(uhPointPos);
-	bgfx::destroy(uhPointAttnRange);
+	bgfx::destroy(uhPointAttnOuter);
 	bgfx::destroy(uhSpotDirInner);
 }
 
@@ -160,14 +168,14 @@ void Shading::Update()
 
 	s_lightColorBuf.clear();
 	s_lightPosBuf.clear();
-	s_lightAttnRangeBuf.clear();
+	s_lightAttnOuterBuf.clear();
 	s_spotDirInnerBuf.clear();
 
 	size_t const plCnt = Light::s_pointLightsInView.size();
 	size_t const slCnt = Light::s_spotLightsInView.size();
 	s_lightColorBuf.resize(plCnt + slCnt);
 	s_lightPosBuf.resize(plCnt + slCnt);
-	s_lightAttnRangeBuf.resize(plCnt + slCnt);
+	s_lightAttnOuterBuf.resize(plCnt + slCnt);
 	s_spotDirInnerBuf.resize(slCnt);
 
 	Matrix4x4 const & mtxView = Camera::pCurrent->mtxView;
@@ -177,7 +185,7 @@ void Shading::Update()
 		auto & pl = Light::s_pointLightsInView[i];
 		ToLinearAccurate(s_lightColorBuf[i], pl.color);
 		mtxView.TransformPos(s_lightPosBuf[i], pl.pos);
-		s_lightAttnRangeBuf[i] = pl.attn;
+		s_lightAttnOuterBuf[i] = pl.attn;
 	}
 
 	for (size_t i = 0; i < slCnt; ++i)
@@ -186,7 +194,7 @@ void Shading::Update()
 		size_t const bufIdx = plCnt + i;
 		ToLinearAccurate(s_lightColorBuf[bufIdx], sl.color);
 		mtxView.TransformPos(s_lightPosBuf[bufIdx], sl.pos);
-		s_lightAttnRangeBuf[bufIdx] = sl.attnOuter;
+		s_lightAttnOuterBuf[bufIdx] = sl.attnOuter;
 		mtxView.TransformPos(s_spotDirInnerBuf[i], sl.dirInner);
 		s_spotDirInnerBuf[i].Vec3().Normalize();
 	}
@@ -214,17 +222,23 @@ static void RenderLight()
 	size_t const slCnt = Light::s_spotLightsInView.size();
 	
 	// Point
+	auto const & plPG = s_pPointLightMesh->groups[0];
 	for (size_t i = 0; i < plCnt; ++i) {
 		bgfx::setUniform(uhPointColor, &s_lightColorBuf[i]);
 		bgfx::setUniform(uhPointPos, &s_lightPosBuf[i]);
-		bgfx::setUniform(uhPointAttnRange, &s_lightAttnRangeBuf[i]);
-		bgfx::setUniform(uhSpotDirInner, &s_spotDirInnerBuf[i]);
+		bgfx::setUniform(uhPointAttnOuter, &s_lightAttnOuterBuf[i]);
+		//bgfx::setUniform(uhSpotDirInner, &s_spotDirInnerBuf[i]);
 
 		bgfx::setTexture( 0, s_Sampler[0], pFbGBuf->TexHandle(0) );
 		bgfx::setTexture( 1, s_Sampler[1], pFbDepth->TexHandle(0) );
 		
 		bgfx::setState(st_lightAdd);
+
+		bgfx::setIndexBuffer(plPG.hIB);
+		bgfx::setVertexBuffer(0, plPG.hVB);
+
 		PostProcess::DrawFullScreen(pPointLightTech);
+		bgfx::submit(PostProcess::ViewID(), pPointLightTech->Tech());
 	}
 }
 
