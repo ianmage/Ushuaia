@@ -19,6 +19,24 @@ static float timeAccuLight = 0.f;
 static float timeAccuScene = 0.f;
 
 
+static std::vector<PosNormVertex> MergeVertex(
+	std::vector<Vector3> const & vPos, std::vector<uint32_t> const & vNorm)
+{
+	uint16_t const vtxCnt = (uint16_t)vPos.size();
+	assert(vPos.size() == vNorm.size());
+
+	std::vector<PosNormVertex> vtxOut(vtxCnt);
+
+	for (uint16_t i = 0; i < vtxCnt; ++i) {
+		auto & vo = vtxOut[i];
+		vo.pos = vPos[i];
+		vo.normal = vNorm[i];
+	}
+
+	return std::move(vtxOut);
+}
+
+
 void InitScriptData()
 {
 	Scene *pScene = new Scene("test");
@@ -66,9 +84,11 @@ void InitScriptData()
 	pEnt->transform.SetSRT({1,1,1}, {0,0,0}, {0,10,0});
 	pEnt->pModel = Model::Load("sphere");
 	pModel = pEnt->pModel.get();
-	std::vector<PosNormVertex> sphereVtx;
+	std::vector<Vector3> spherePos;
+	std::vector<uint32_t> sphereNorm;
 	std::vector<uint16_t> sphereIdx;
-	CreateSphere(sphereVtx, sphereIdx, 2, 5.f);
+	CreateSphere(spherePos, sphereIdx, &sphereNorm, 2, 5.f);
+	auto sphereVtx = MergeVertex(spherePos, sphereNorm);
 	assert(!pModel->pMesh);
 	pModel->pMesh = Mesh::Create("sphere", sphereVtx.data(), (uint32_t)sphereVtx.size(),
 		PosNormVertex::s_decl, sphereIdx.data(), (uint32_t)sphereIdx.size());

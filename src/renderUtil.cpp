@@ -159,8 +159,8 @@ void CalcMeshNormal(Vector3 * normals, uint16_t numNorm
 }
 
 
-void CreateCuboid(std::vector<PosNormVertex> & vtxOut, std::vector<uint16_t> & idxOut
-	, Vector3 const & length)
+void CreateCuboid(std::vector<Vector3> & vtxOut, std::vector<uint16_t> & idxOut
+	, std::vector<uint32_t> * normOut, Vector3 const & length)
 {
 	std::array<Vector3, 8> const pos{ {
 		{ -length.x,  length.y,  length.z },
@@ -188,18 +188,21 @@ void CreateCuboid(std::vector<PosNormVertex> & vtxOut, std::vector<uint16_t> & i
 		6, 3, 7,
 	} };
 
-	std::array<Vector3, 8> normals;
-	CalcMeshNormal(normals.data(), (uint16_t)normals.size(),
-		pos.data(), (uint16_t)pos.size(), idx.data(), (uint32_t)idx.size());
-
-	vtxOut.resize(8);
-	for (uint8_t i = 0; i < 8; ++i) {
-		vtxOut[i].pos = pos[i];
-		auto const & n = normals[i];
-		vtxOut[i].normal = encodeNormalRgba8(n.x, n.y, n.z);
-	}
+	vtxOut.assign(pos.begin(), pos.end());
 
 	idxOut.assign(idx.begin(), idx.end());
+
+	if (normOut) {
+		std::array<Vector3, 8> normals;
+		CalcMeshNormal(normals.data(), (uint16_t)normals.size(),
+			pos.data(), (uint16_t)pos.size(), idx.data(), (uint32_t)idx.size());
+
+		normOut->resize(8);
+		for (uint8_t i = 0; i < 8; ++i) {
+			auto const & n = normals[i];
+			(*normOut)[i] = ::encodeNormalRgba8(n.x, n.y, n.z);
+		}
+	}
 }
 
 
@@ -317,8 +320,8 @@ static void SubdivSphere(
 }
 
 
-void CreateSphere(std::vector<PosNormVertex> & vtxOut, std::vector<uint16_t> & idxOut
-	, uint8_t lod, float scale)
+void CreateSphere(std::vector<Vector3> & vtxOut, std::vector<uint16_t> & idxOut
+	, std::vector<uint32_t> * normOut, uint8_t lod, float scale)
 {
 	std::vector<Vector3> vertices[2];
 	std::vector<uint16_t> indices[2];
@@ -336,13 +339,18 @@ void CreateSphere(std::vector<PosNormVertex> & vtxOut, std::vector<uint16_t> & i
 	std::swap(idxOut, indices[curr]);
 
 	auto const & vtxPos = vertices[curr];
-	uint16_t const vtxCnt = (uint16_t)vtxPos.size();
-	vtxOut.resize(vtxCnt);
-	for (uint16_t i = 0; i < vtxCnt; ++i) {
-		auto & vo = vtxOut[i];
-		vo.pos = vtxPos[i];
-		vo.normal = ::encodeNormalRgba8(vo.pos.x, vo.pos.y, vo.pos.z);
-		vo.pos *= scale;
+
+	vtxOut.clear();
+	for (auto const & vp : vtxPos)
+		vtxOut.emplace_back(vp * scale);
+
+	if (normOut) {
+		uint16_t const vtxCnt = (uint16_t)vtxPos.size();
+		normOut->resize(vtxCnt);
+		for (uint16_t i = 0; i < vtxCnt; ++i) {
+			auto const & vp = vtxPos[i];
+			(*normOut)[i] = ::encodeNormalRgba8(vp.x, vp.y, vp.z);
+		}
 	}
 }
 
