@@ -73,7 +73,7 @@ void Light::Serialize(JsonWriter & _writer)
 		_writer.Key("Pos");
 		WriteFloatArray(_writer, pl.pos.v, 4);
 		_writer.Key("Attenuation");
-		WriteFloatArray(_writer, pl.attn.v, 4);
+		WriteFloatArray(_writer, pl.attn.v, 3);
 		_writer.EndObject();
 	}
 	_writer.EndArray();
@@ -122,39 +122,43 @@ void Light::Deserialize(JsonValue const & _jsObj)
 	itr = _jsObj.FindMember("Point");
 	if (itr != _jsObj.MemberEnd()) {
 		int i = 0;
-		for (auto const & ptObj : itr->value.GetArray()) {
-			JsonValue::ConstMemberIterator ptItr;
+		auto const & plArr = itr->value.GetArray();
+		s_pointLights.resize(plArr.Size());
+		for (auto const & plObj : plArr) {
+			JsonValue::ConstMemberIterator plItr;
 			auto & pl = s_pointLights[i++];
-			ptItr = ptObj.FindMember("Color");
-			if (ptItr != ptObj.MemberEnd())
-				ReadFloatArray(ptItr->value, pl.color.v);
-			ptItr = ptObj.FindMember("Pos");
-			if (ptItr != ptObj.MemberEnd())
-				ReadFloatArray(ptItr->value, pl.pos.v);
-			ptItr = ptObj.FindMember("Attenuation");
-			if (ptItr != ptObj.MemberEnd())
-				ReadFloatArray(ptItr->value, pl.attn.v);
+			plItr = plObj.FindMember("Color");
+			if (plItr != plObj.MemberEnd())
+				ReadFloatArray(plItr->value, pl.color.v);
+			plItr = plObj.FindMember("Pos");
+			if (plItr != plObj.MemberEnd())
+				ReadFloatArray(plItr->value, pl.pos.v);
+			plItr = plObj.FindMember("Attn");
+			if (plItr != plObj.MemberEnd())
+				ReadFloatArray(plItr->value, pl.attn.v);
 		}
 	}
 
 	itr = _jsObj.FindMember("Spot");
 	if (itr != _jsObj.MemberEnd()) {
 		int i = 0;
-		for (auto const & spObj : itr->value.GetArray()) {
-			JsonValue::ConstMemberIterator spItr;
+		auto const & slArr = itr->value.GetArray();
+		s_spotLights.resize(slArr.Size());
+		for (auto const & slObj : itr->value.GetArray()) {
+			JsonValue::ConstMemberIterator slItr;
 			auto & sl = s_spotLights[i++];
-			spItr = spObj.FindMember("Color");
-			if (spItr != spObj.MemberEnd())
-				ReadFloatArray(spItr->value, sl.color.v);
-			spItr = spObj.FindMember("Pos");
-			if (spItr != spObj.MemberEnd())
-				ReadFloatArray(spItr->value, sl.pos.v);
-			spItr = spObj.FindMember("AttnOuter");
-			if (spItr != spObj.MemberEnd())
-				ReadFloatArray(spItr->value, sl.attnOuter.v);
-			spItr = spObj.FindMember("DirInner");
-			if (spItr != spObj.MemberEnd())
-				ReadFloatArray(spItr->value, sl.dirInner.v);
+			slItr = slObj.FindMember("Color");
+			if (slItr != slObj.MemberEnd())
+				ReadFloatArray(slItr->value, sl.color.v);
+			slItr = slObj.FindMember("Pos");
+			if (slItr != slObj.MemberEnd())
+				ReadFloatArray(slItr->value, sl.pos.v);
+			slItr = slObj.FindMember("AttnOuter");
+			if (slItr != slObj.MemberEnd())
+				ReadFloatArray(slItr->value, sl.attnOuter.v);
+			slItr = slObj.FindMember("DirInner");
+			if (slItr != slObj.MemberEnd())
+				ReadFloatArray(slItr->value, sl.dirInner.v);
 		}
 	}
 

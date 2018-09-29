@@ -96,7 +96,7 @@ bool Camera::IsVisible(Vector4 const & boundSphere)
 	for (uint8_t i = 0; i < 6; ++i) {
 		Vector4 const & plane = frustum[i];
 		float dist = center.Dot(plane.Vec3()) + plane.w;
-		if (dist > radius) {	// depend on plane normal, otherwise < -radius
+		if (dist < -radius) {	// depend on plane normal, otherwise < -radius
 			ret = false;
 			break;
 		}

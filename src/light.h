@@ -26,7 +26,7 @@ struct DirLight
 struct PointLight
 {
 	Color4F color;
-	Vector4 pos;	// xyz, r
+	Vector4 pos;	// xyz, range
 	Vector4 attn;	// d0,d1,d2
 };
 
@@ -34,7 +34,7 @@ struct PointLight
 struct SpotLight
 {
 	Color4F color;
-	Vector4 pos;
+	Vector4 pos;	// xyz, range
 	Vector4 attnOuter;
 	Vector4 dirInner;
 };

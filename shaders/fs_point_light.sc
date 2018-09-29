@@ -4,7 +4,7 @@ $input v_tc0
 #include "pbr_lighting.sh"
 
 uniform vec4 PV_lightColor;
-uniform vec4 PV_lightPos;
+uniform vec4 PV_lightPos;	// w is range
 uniform vec4 PV_lightAttnOuter;
 //uniform vec4 PV_lightSpotDirInner;
 

@@ -39,8 +39,7 @@ std::shared_ptr<Mesh> Mesh::Create(std::string const & _name,
 	std::shared_ptr<Mesh> pMesh(new Mesh(_name));
 
 	std::vector<uint16_t> idx(_numIndices);
-	for (uint32_t i = 0; i < _numIndices; ++i)
-	{
+	for (uint32_t i = 0; i < _numIndices; ++i) {
 		idx[i] =  _indices[i];
 	}
 	PrimitiveGroup group;
@@ -100,11 +99,8 @@ bool Mesh::Deserialize()
 
 	uint32_t chunk;
 	bx::Error err;
-	while (4 == bx::read(pReader, chunk, &err)
-		&& err.isOk())
-	{
-		switch (chunk)
-		{
+	while (4 == bx::read(pReader, chunk, &err) && err.isOk()) {
+		switch (chunk) {
 		case BGFX_CHUNK_MAGIC_VB:
 		{
 			bx::read(pReader, group.sphere);
@@ -169,8 +165,7 @@ bool Mesh::Deserialize()
 			uint16_t num;
 			bx::read(pReader, num);
 
-			for (uint32_t ii = 0; ii < num; ++ii)
-			{
+			for (uint32_t ii = 0; ii < num; ++ii) {
 				bx::read(pReader, len);
 
 				std::string name;
@@ -206,12 +201,10 @@ bool Mesh::Deserialize()
 
 void Mesh::Release()
 {
-	for (auto const & group : groups)
-	{
+	for (auto const & group : groups) {
 		bgfx::destroy(group.hVB);
 
-		if (bgfx::isValid(group.hIB))
-		{
+		if (bgfx::isValid(group.hIB)) {
 			bgfx::destroy(group.hIB);
 		}
 	}

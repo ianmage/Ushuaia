@@ -95,6 +95,8 @@ void Shading::Fini()
 {
 	Lost();
 
+	s_pPointLightMesh = nullptr;
+
 	SafeDelete(pFbShade);
 	SafeDelete(pFbLight);
 	SafeDelete(pFbDepth);
