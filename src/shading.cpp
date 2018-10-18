@@ -187,7 +187,6 @@ void Shading::Update()
 		auto & pl = Light::s_pointLightsInView[i];
 		ToLinearAccurate(s_lightColorBuf[i], pl.color);
 		mtxView.TransformPos(s_lightPosBuf[i], pl.pos);
-		s_lightAttnOuterBuf[i] = pl.attn;
 	}
 
 	for (size_t i = 0; i < slCnt; ++i)
@@ -196,7 +195,7 @@ void Shading::Update()
 		size_t const bufIdx = plCnt + i;
 		ToLinearAccurate(s_lightColorBuf[bufIdx], sl.color);
 		mtxView.TransformPos(s_lightPosBuf[bufIdx], sl.pos);
-		s_lightAttnOuterBuf[bufIdx] = sl.attnOuter;
+		s_lightAttnOuterBuf[i] = sl.attnOuter;
 		mtxView.TransformPos(s_spotDirInnerBuf[i], sl.dirInner);
 		s_spotDirInnerBuf[i].Vec3().Normalize();
 	}
@@ -205,6 +204,7 @@ void Shading::Update()
 
 static void RenderLight()
 {
+	bgfx::setMarker("Lighting");
 	uint64_t st_lightAdd = 
 		BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_ONE, BGFX_STATE_BLEND_ONE)
 		|| BGFX_STATE_BLEND_EQUATION(BGFX_STATE_BLEND_EQUATION_ADD)
@@ -225,10 +225,17 @@ static void RenderLight()
 	
 	// Point
 	auto const & plPG = s_pPointLightMesh->groups[0];
+	Matrix4x4 mtxLight;
 	for (size_t i = 0; i < plCnt; ++i) {
+		auto const & litPos = s_lightPosBuf[i];
+
+		mtxLight.SetSRT({ litPos.w, litPos.w, litPos.w },
+			{ 0,0,0 }, {litPos.x, litPos.y, litPos.z});
+		bgfx::setTransform(mtxLight.v);
+
 		bgfx::setUniform(uhPointColor, &s_lightColorBuf[i]);
 		bgfx::setUniform(uhPointPos, &s_lightPosBuf[i]);
-		bgfx::setUniform(uhPointAttnOuter, &s_lightAttnOuterBuf[i]);
+		//bgfx::setUniform(uhPointAttnOuter, &s_lightAttnOuterBuf[i]);
 		//bgfx::setUniform(uhSpotDirInner, &s_spotDirInnerBuf[i]);
 
 		bgfx::setTexture( 0, s_Sampler[0], pFbGBuf->TexHandle(0) );
@@ -239,7 +246,7 @@ static void RenderLight()
 		bgfx::setIndexBuffer(plPG.hIB);
 		bgfx::setVertexBuffer(0, plPG.hVB);
 
-		PostProcess::DrawFullScreen(pPointLightTech);
+		//PostProcess::DrawFullScreen(pPointLightTech);
 		bgfx::submit(PostProcess::ViewID(), pPointLightTech->Tech());
 	}
 }
@@ -247,6 +254,7 @@ static void RenderLight()
 
 void Shading::Render()
 {
+	bgfx::setMarker("GeoBuffer");
 	bgfx::setViewRect(RENDER_PASS::GEOMETRY_ID, 0, 0, g_viewState.width, g_viewState.height);
 	bgfx::setViewFrameBuffer(RENDER_PASS::GEOMETRY_ID, pFbGBuf->Handle());
 	bgfx::setViewClear(RENDER_PASS::GEOMETRY_ID,
@@ -272,6 +280,7 @@ void Shading::Render()
 
 	DrawChannel::ClearAll();
 
+	bgfx::setMarker("Linear Depth");
 	PostProcess::NewFrameBuf(pFbDepth, true);
 	bgfx::setTexture( 0, s_Sampler[0], pFbGBuf->TexHandle(2) );
 	float q = pCam->far / (pCam->far - pCam->near);
@@ -282,6 +291,7 @@ void Shading::Render()
 
 	RenderLight();
 
+	bgfx::setMarker("Shading");
 	PostProcess::NewFrameBuf(pFbShade, true);
 	bgfx::setTexture( 0, s_Sampler[0], pFbGBuf->TexHandle(0) );
 	bgfx::setTexture( 1, s_Sampler[1], pFbDepth->TexHandle(0) );
@@ -289,6 +299,7 @@ void Shading::Render()
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	PostProcess::DrawFullScreen(pShadeTech);
 
+	bgfx::setMarker("Final Combine");
 	PostProcess::NewFrameBuf(nullptr, false);
 	bgfx::setTexture( 0, s_Sampler[0], pFbShade->TexHandle(0) );
 	DrawScreenQuad(PostProcess::ViewID(), pCombineTech,

@@ -36,7 +36,7 @@ public:
 		init.resolution.height = _height;
 		init.resolution.reset  = m_reset;
 	#ifdef _DEBUG
-		init.debug = true;
+		init.debug = false;
 	#else
 		init.debug = false;
 	#endif

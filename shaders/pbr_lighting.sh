@@ -60,6 +60,7 @@ vec3 CalcBRDFShading(vec3 c_diff, vec3 c_spec, float shininess, vec3 l, vec3 h, 
 }
 
 
+#if 0
 float AttenuationTerm(vec3 light_pos, vec3 pos, vec3 atten)
 {
 	vec3 v = light_pos - pos;
@@ -67,6 +68,18 @@ float AttenuationTerm(vec3 light_pos, vec3 pos, vec3 atten)
 	float d = sqrt(d2);
 	return 1 / dot(atten, vec3(1, d, d2));
 }
+#else
+float AttenuationTerm(vec3 light_pos, vec3 pos, float range, float attn)
+{
+	vec3 v = light_pos - pos;
+	float d2 = dot(v, v);
+	//float inv_d = inversesqrt(d2);
+	float dr2 = d2 / (range * range);
+	float num = clamp(1 - dr2*dr2, 0, 1);
+	float ret = num * num / (d2 + 1);
+	return ret;
+}
+#endif
 
 vec3 CalcShading(vec3 diff_lighting, vec3 spec_lighting, float shininess,
 				vec3 diffuse, vec3 specular, vec3 view_dir, vec3 normal)

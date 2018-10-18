@@ -72,8 +72,6 @@ void Light::Serialize(JsonWriter & _writer)
 		WriteFloatArray(_writer, pl.color.v, 4);
 		_writer.Key("Pos");
 		WriteFloatArray(_writer, pl.pos.v, 4);
-		_writer.Key("Attenuation");
-		WriteFloatArray(_writer, pl.attn.v, 3);
 		_writer.EndObject();
 	}
 	_writer.EndArray();
@@ -133,9 +131,6 @@ void Light::Deserialize(JsonValue const & _jsObj)
 			plItr = plObj.FindMember("Pos");
 			if (plItr != plObj.MemberEnd())
 				ReadFloatArray(plItr->value, pl.pos.v);
-			plItr = plObj.FindMember("Attn");
-			if (plItr != plObj.MemberEnd())
-				ReadFloatArray(plItr->value, pl.attn.v);
 		}
 	}
 

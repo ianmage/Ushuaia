@@ -74,7 +74,6 @@ void ForwardRendering::Update()
 		auto & pl = Light::s_pointLightsInView[i];
 		ToLinearAccurate(s_lightColorBuf[i], pl.color);
 		mtxView.TransformPos(s_lightPosBuf[i], pl.pos);
-		s_lightAttnOuterBuf[i] = pl.attn;
 	}
 	s_lightsCnt.z = plCnt;
 

@@ -7,7 +7,7 @@ uniform vec4 PV_lightsCnt;
 uniform vec4 PV_lightAmbColor;
 uniform vec4 PV_lightDirColor;
 uniform vec4 PV_lightDirDir;
-uniform vec4 PV_lightColor[MAX_POINT_LIGHT + MAX_SPOT_LIGHT];
+uniform vec4 PV_lightColor[MAX_POINT_LIGHT + MAX_SPOT_LIGHT];	// w for attn
 uniform vec4 PV_lightPos[MAX_POINT_LIGHT + MAX_SPOT_LIGHT];	// w for spot Outer
 uniform vec4 PV_lightAttnOuter[MAX_POINT_LIGHT + MAX_SPOT_LIGHT];
 uniform vec4 PV_lightSpotDirInner[MAX_SPOT_LIGHT];
