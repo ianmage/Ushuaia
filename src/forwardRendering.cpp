@@ -59,8 +59,8 @@ void ForwardRendering::Update()
 
 	s_lightsCnt.x = s_lightsCnt.y = 1.f;
 
-	uint8_t const plCnt = std::min(MAX_POINT_LIGHT, (uint8_t)Light::s_pointLightsInView.size());
-	uint8_t const slCnt = std::min(MAX_SPOT_LIGHT, (uint8_t)Light::s_spotLightsInView.size());
+	uint8_t const plCnt = std::min(MAX_POINT_LIGHT, (uint8_t)Light::s_visiblePointLights.size());
+	uint8_t const slCnt = std::min(MAX_SPOT_LIGHT, (uint8_t)Light::s_visibleSpotLights.size());
 	uint8_t const lightBufSize = (slCnt > 0) ? MAX_POINT_LIGHT + slCnt : plCnt;
 	s_lightColorBuf.resize(lightBufSize);
 	s_lightPosBuf.resize(lightBufSize);
@@ -71,7 +71,7 @@ void ForwardRendering::Update()
 
 	for (uint8_t i = 0; i < plCnt; ++i)
 	{
-		auto & pl = Light::s_pointLightsInView[i];
+		auto & pl = Light::s_visiblePointLights[i];
 		ToLinearAccurate(s_lightColorBuf[i], pl.color);
 		mtxView.TransformPos(s_lightPosBuf[i], pl.pos);
 	}
@@ -79,7 +79,7 @@ void ForwardRendering::Update()
 
 	for (uint8_t i = 0; i < slCnt; ++i)
 	{
-		auto & sl = Light::s_spotLightsInView[i];
+		auto & sl = Light::s_visibleSpotLights[i];
 		uint8_t const bufIdx = MAX_POINT_LIGHT + i;
 		ToLinearAccurate(s_lightColorBuf[bufIdx], sl.color);
 		mtxView.TransformPos(s_lightPosBuf[bufIdx], sl.pos);
@@ -97,8 +97,8 @@ static void RenderLight()
 
 	bgfx::setUniform(uhLightsCnt, &s_lightsCnt);
 
-	uint8_t const plCnt = std::min(MAX_POINT_LIGHT, (uint8_t)Light::s_pointLightsInView.size());
-	uint8_t const slCnt = std::min(MAX_SPOT_LIGHT, (uint8_t)Light::s_pointLightsInView.size());
+	uint8_t const plCnt = std::min(MAX_POINT_LIGHT, (uint8_t)Light::s_visiblePointLights.size());
+	uint8_t const slCnt = std::min(MAX_SPOT_LIGHT, (uint8_t)Light::s_visiblePointLights.size());
 	uint8_t const lightBufSize = (slCnt > 0) ? MAX_POINT_LIGHT + slCnt : plCnt;
 
 	bgfx::setUniform(uhPointColor, s_lightColorBuf.data(), lightBufSize);

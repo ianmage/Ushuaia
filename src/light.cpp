@@ -14,8 +14,8 @@ decltype(Light::ambLight) Light::ambLight;
 decltype(Light::dirLight) Light::dirLight;
 decltype(Light::s_pointLights) Light::s_pointLights;
 decltype(Light::s_spotLights) Light::s_spotLights;
-decltype(Light::s_pointLights) Light::s_pointLightsInView;
-decltype(Light::s_spotLights) Light::s_spotLightsInView;
+decltype(Light::s_pointLights) Light::s_visiblePointLights;
+decltype(Light::s_spotLights) Light::s_visibleSpotLights;
 
 
 static Color4F s_ambLightColor;
@@ -184,16 +184,16 @@ void Light::UpdateAll(Camera *pCam)
 	mtxView.TransformDir(s_dirLightDir, dirLight.dir);
 	s_dirLightDir.Vec3().Normalize();
 
-	s_pointLightsInView.clear();
-	s_spotLightsInView.clear();
+	s_visiblePointLights.clear();
+	s_visibleSpotLights.clear();
 	// culling
 	for (auto const & pl : s_pointLights) {
 		if (pCam->IsVisible(pl.pos))
-			s_pointLightsInView.push_back(pl);
+			s_visiblePointLights.push_back(pl);
 	}
 	for (auto const & pl : s_spotLights) {
 		if (pCam->IsVisible(pl.pos))
-			s_spotLightsInView.push_back(pl);
+			s_visibleSpotLights.push_back(pl);
 	}
 }
 

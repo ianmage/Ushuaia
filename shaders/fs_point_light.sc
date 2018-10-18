@@ -25,14 +25,13 @@ vec4 CalcPoint(vec3 normal, vec4 light_color, vec3 view_dir, float shininess, ve
 	vec4 lighting = vec4_splat(0);
 	vec3 dir = light_pos.xyz - pos_es;
 	float dist = length(dir);
-	if (dist < light_pos.w)
-	{
-		dir /= dist;
-		float n_dot_l = dot(normal, dir);
-		float spec = DistributionTerm(normalize(dir - view_dir), normal, shininess);
-		float attn = AttenuationTerm(light_pos.xyz, pos_es, light_pos.w, light_color.w);
-		lighting = CalcColor(n_dot_l, spec, attn, vec3_splat(1), light_color.xyz);
-	}
+
+	dir /= dist;
+	float n_dot_l = dot(normal, dir);
+	float spec = DistributionTerm(normalize(dir - view_dir), normal, shininess);
+	float attn = AttenuationTerm(light_pos.xyz, pos_es, light_pos.w, light_color.w);
+	lighting = CalcColor(n_dot_l, spec, attn, vec3_splat(1), light_color.xyz);
+
 	return lighting;
 }
 

@@ -69,8 +69,8 @@ struct Light
 
 	static std::vector<PointLight> s_pointLights;
 	static std::vector<SpotLight> s_spotLights;
-	static std::vector<PointLight> s_pointLightsInView;
-	static std::vector<SpotLight> s_spotLightsInView;
+	static std::vector<PointLight> s_visiblePointLights;
+	static std::vector<SpotLight> s_visibleSpotLights;
 };
 
 }

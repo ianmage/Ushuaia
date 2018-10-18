@@ -173,8 +173,8 @@ void Shading::Update()
 	s_lightAttnOuterBuf.clear();
 	s_spotDirInnerBuf.clear();
 
-	size_t const plCnt = Light::s_pointLightsInView.size();
-	size_t const slCnt = Light::s_spotLightsInView.size();
+	size_t const plCnt = Light::s_visiblePointLights.size();
+	size_t const slCnt = Light::s_visibleSpotLights.size();
 	s_lightColorBuf.resize(plCnt + slCnt);
 	s_lightPosBuf.resize(plCnt + slCnt);
 	s_lightAttnOuterBuf.resize(plCnt + slCnt);
@@ -184,14 +184,14 @@ void Shading::Update()
 
 	for (size_t i = 0; i < plCnt; ++i)
 	{
-		auto & pl = Light::s_pointLightsInView[i];
+		auto & pl = Light::s_visiblePointLights[i];
 		ToLinearAccurate(s_lightColorBuf[i], pl.color);
 		mtxView.TransformPos(s_lightPosBuf[i], pl.pos);
 	}
 
 	for (size_t i = 0; i < slCnt; ++i)
 	{
-		auto & sl = Light::s_spotLightsInView[i];
+		auto & sl = Light::s_visibleSpotLights[i];
 		size_t const bufIdx = plCnt + i;
 		ToLinearAccurate(s_lightColorBuf[bufIdx], sl.color);
 		mtxView.TransformPos(s_lightPosBuf[bufIdx], sl.pos);
@@ -220,14 +220,14 @@ static void RenderLight()
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	PostProcess::DrawFullScreen(pDirLightTech);
 
-	size_t const plCnt = Light::s_pointLightsInView.size();
-	size_t const slCnt = Light::s_spotLightsInView.size();
+	size_t const plCnt = Light::s_visiblePointLights.size();
+	size_t const slCnt = Light::s_visibleSpotLights.size();
 	
 	// Point
 	auto const & plPG = s_pPointLightMesh->groups[0];
 	Matrix4x4 mtxLight;
 	for (size_t i = 0; i < plCnt; ++i) {
-		auto const & litPos = s_lightPosBuf[i];
+		auto const & litPos = Light::s_visiblePointLights[i].pos;
 
 		mtxLight.SetSRT({ litPos.w, litPos.w, litPos.w },
 			{ 0,0,0 }, {litPos.x, litPos.y, litPos.z});
@@ -246,7 +246,6 @@ static void RenderLight()
 		bgfx::setIndexBuffer(plPG.hIB);
 		bgfx::setVertexBuffer(0, plPG.hVB);
 
-		//PostProcess::DrawFullScreen(pPointLightTech);
 		bgfx::submit(PostProcess::ViewID(), pPointLightTech->Tech());
 	}
 }
