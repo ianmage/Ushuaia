@@ -48,6 +48,6 @@ void main()
 	vec3 viewDir = normalize(vPos);
 
 	vec4 lighting = CalcPoint(normal, PV_lightColor, viewDir, shininess, vPos, PV_lightPos);
-
+lighting = vec4(v_tc0.xy, 0, 0);
 	gl_FragColor = lighting;
 }

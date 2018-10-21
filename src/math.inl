@@ -46,6 +46,14 @@ constexpr TVec2<T> TVec2<T>::operator-(TVec2 const & other) const
 }
 
 template <typename T>
+constexpr TVec2<T> TVec2<T>::operator*(TVec2 const & other) const
+{
+	TVec2<T> ret;
+	ret.Set(v[0] * other.v[0], v[1] * other.v[1]);
+	return std::move(ret);
+}
+
+template <typename T>
 constexpr TVec2<T> TVec2<T>::operator*(T s) const
 {
 	TVec2 ret;
@@ -62,19 +70,31 @@ constexpr TVec2<T> TVec2<T>::operator/(T s) const
 template <typename T>
 constexpr void TVec2<T>::operator+=(TVec2 const & other)
 {
-	set(v[0] + other.v[0], v[1] + other.v[1]);
+	Set(v[0] + other.v[0], v[1] + other.v[1]);
 }
 
 template <typename T>
 constexpr void TVec2<T>::operator-=(TVec2 const & other)
 {
-	set(v[0] - other.v[0], v[1] - other.v[1]);
+	Set(v[0] - other.v[0], v[1] - other.v[1]);
+}
+
+template <typename T>
+constexpr void TVec2<T>::operator*=(TVec2 const & other)
+{
+	Set(v[0] * other.v[0], v[1] * other.v[1]);
+}
+
+template <typename T>
+constexpr void TVec2<T>::operator/=(TVec2 const & other)
+{
+	Set(v[0] / other.v[0], v[1] / other.v[1]);
 }
 
 template <typename T>
 constexpr void TVec2<T>::operator*=(T s)
 {
-	set(v[0] * s, v[1] * s);
+	Set(v[0] * s, v[1] * s);
 }
 
 template <typename T>
@@ -147,6 +167,14 @@ inline TVec3<T> TVec3<T>::operator-(TVec3 const & other) const
 }
 
 template <typename T>
+inline TVec3<T> TVec3<T>::operator*(TVec3 const & other) const
+{
+	TVec3<T> ret;
+	bx::vec3Mul(ret.v, v, other.v);
+	return std::move(ret);
+}
+
+template <typename T>
 inline TVec3<T> TVec3<T>::operator*(T s) const
 {
 	TVec3<T> ret;
@@ -172,6 +200,12 @@ template <typename T>
 inline void TVec3<T>::operator-=(TVec3 const & other)
 {
 	bx::vec3Sub(v, v, other.v);
+}
+
+template <typename T>
+inline void TVec3<T>::operator*=(TVec3 const & other)
+{
+	bx::vec3Mul(v, v, other.v);
 }
 
 template <typename T>

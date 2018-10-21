@@ -23,14 +23,6 @@ struct PosVertex
 	static bgfx::VertexDecl s_decl;
 };
 
-struct PosTC0Vertex
-{
-	Vector3 pos;
-	Vector4 tc;
-
-	static bgfx::VertexDecl s_decl;
-};
-
 struct PosNormVertex
 {
 	Vector3 pos;

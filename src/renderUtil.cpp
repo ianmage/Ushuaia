@@ -6,6 +6,7 @@
 #include <cmath>
 #include "math.h"
 #include <map>
+#include "frameBuffer.h"
 
 #pragma optimize("", off)
 
@@ -16,48 +17,29 @@ namespace Ushuaia
 static void MakeScreenQuad(void * pVerts,
 	float x, float y, float w, float h)
 {
+	x = x * 2.f - 1.f;
+	y = 1.f - y * 2.f;
+	w *= 2.f;
+	h *= 2.f;
 	float const zz = 0.f;
 
-	TRect<float> xyRect { { x, y }, { x+w, y+h } };
+	TRect<float> xyRect { { x, y-h }, { x+w, y } };
 
-	Vector2 const texelHalf {
-		ViewState::texelOffset / (g_viewState.width * w),
-		ViewState::texelOffset / (g_viewState.height * h)
-	};
-
-	TRect<float> uvRect {
-		{ texelHalf.x, texelHalf.y },
-		{ 1.f + texelHalf.x, 1.f + texelHalf.y }
-	};
-
-	if (bgfx::getCaps()->originBottomLeft) {
-		std::swap(uvRect.rMin.y, uvRect.rMax.y);
-		uvRect.rMin.y -= 1.f;
-		uvRect.rMax.y -= 1.f;
-	}
-
-	PosTC0Vertex * pVtx = reinterpret_cast<PosTC0Vertex*>(pVerts);
+	PosVertex *pVtx = reinterpret_cast<PosVertex*>(pVerts);
 
 	pVtx[0].pos.Set(xyRect.rMin.x, xyRect.rMax.y, zz);
-	pVtx[0].tc.Set(uvRect.rMin.x, uvRect.rMax.y, 0.f, 0.f);
-
 	pVtx[1].pos.Set(xyRect.rMax.x, xyRect.rMax.y, zz);
-	pVtx[1].tc.Set(uvRect.rMax.x, uvRect.rMax.y, 0.f, 0.f);
-
 	pVtx[2].pos.Set(xyRect.rMin.x, xyRect.rMin.y, zz);
-	pVtx[2].tc.Set(uvRect.rMin.x, uvRect.rMin.y, 0.f, 0.f);
-
 	pVtx[3].pos.Set(xyRect.rMax.x, xyRect.rMin.y, zz);
-	pVtx[3].tc.Set(uvRect.rMax.x, uvRect.rMin.y, 0.f, 0.f);
 }
 
 
-void DrawScreenQuad(bgfx::ViewId viewId, Shader const *pShader
+void DrawScreenQuad(Shader const *pShader
 	, uint64_t state, float x, float y, float w, float h)
 {
-	assert(4 == bgfx::getAvailTransientVertexBuffer(4, PosTC0Vertex::s_decl));
+	assert(4 == bgfx::getAvailTransientVertexBuffer(4, PosVertex::s_decl));
 	bgfx::TransientVertexBuffer vb;
-	bgfx::allocTransientVertexBuffer(&vb, 4, PosTC0Vertex::s_decl);
+	bgfx::allocTransientVertexBuffer(&vb, 4, PosVertex::s_decl);
 
 	MakeScreenQuad(vb.data, x, y, w, h);
 
@@ -66,19 +48,16 @@ void DrawScreenQuad(bgfx::ViewId viewId, Shader const *pShader
 	state |= BGFX_STATE_PT_TRISTRIP;
 	bgfx::setState(state);
 
-	bgfx::submit(viewId, pShader->Tech());
+	bgfx::submit(FrameBuffer::CurrFB()->ViewID(), pShader->Tech());
 }
 
 
-void ViewVecForReconstructPos(Vector2 & viewVec, Vector2 const & st, Camera const *pCam)
-{
-	Vector2 homoCoord{
-		(st.x - 0.5f) * 2.f, (0.5f - st.y) * 2.f
-	};
+Vector2 ViewVecForReconstructPos(Camera const *pCam)
+{	// homoCoord
 	float D = pCam->far * ::tanf(pCam->fovY / 360.f * (float)MATH_PI);
-	Vector2 corner{ D * pCam->aspect, D };
-	viewVec.x = corner.x * homoCoord.x / pCam->far;
-	viewVec.y = corner.y * homoCoord.y / pCam->far;
+	Vector2 corner { D * pCam->aspect, D };
+	corner *= pCam->far;
+	return std::move(corner);
 }
 
 
@@ -86,22 +65,21 @@ void WorldSpaceFrustumCorners(FrustumCorners & corners
 	, float near, float far, float projWidth, float projHeight
 	, Matrix4x4 const & mtxInvView)
 {
-	Vector2 const ns{ near * projWidth, near * projHeight };
-	Vector2 const fs{ far * projWidth, far * projHeight };
+	Vector2 const ns { near * projWidth, near * projHeight };
+	Vector2 const fs { far * projWidth, far * projHeight };
 
 	float const rawCorners[8][3] = {
 		{ -ns.x,  ns.y, near },
-		{ ns.x,  ns.y, near },
-		{ ns.x, -ns.y, near },
+		{  ns.x,  ns.y, near },
+		{  ns.x, -ns.y, near },
 		{ -ns.x, -ns.y, near },
 		{ -fs.x,  fs.y, far },
-		{ fs.x,  fs.y, far },
-		{ fs.x, -fs.y, far },
+		{  fs.x,  fs.y, far },
+		{  fs.x, -fs.y, far },
 		{ -fs.x, -fs.y, far },
 	};
 
-	for (uint8_t ii = 0; ii < 8; ++ii)
-	{
+	for (uint8_t ii = 0; ii < 8; ++ii) {
 		bx::vec3MulMtx(corners[ii].v, (float*)&rawCorners[ii], mtxInvView.v);
 	}
 }
@@ -122,8 +100,7 @@ void SplitFrustum(std::vector<float> & _splits, uint8_t _numSplits
 
 	_splits[0] = near;
 
-	for (uint8_t nn = 2, ff = 1; nn < numSlices; nn += 2, ff += 2)
-	{
+	for (uint8_t nn = 2, ff = 1; nn < numSlices; nn += 2, ff += 2) {
 		float si = float(ff) / numSlicesF;
 
 		float const nearP = l * (near * bx::pow(ratio, si)) + (1 - l)*(near + (far - near)*si);

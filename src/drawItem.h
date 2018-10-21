@@ -22,8 +22,7 @@ struct DrawItem : public DrawUnit
 
 	bool isValid;
 
-	void Submit(bgfx::ViewId vId,
-		uint64_t overrideSt0, uint64_t overrideSt1) const;
+	void Submit(uint64_t overrideSt0, uint64_t overrideSt1) const;
 };
 
 
@@ -40,8 +39,7 @@ struct InstanceItem : public DrawUnit
 		return di;
 	}
 
-	void Submit(bgfx::ViewId vId,
-		uint64_t overrideSt0, uint64_t overrideSt1) const;
+	void Submit(uint64_t overrideSt0, uint64_t overrideSt1) const;
 };
 
 struct DrawChannel
@@ -52,7 +50,7 @@ public:
 	static void Init();
 	static void Gather();
 	static DrawItem& Add();
-	static void DrawOpaque(bgfx::ViewId viewId, uint64_t override0, uint64_t override1);
+	static void DrawOpaque(uint64_t override0, uint64_t override1);
 	static void ClearAll();
 
 private:

@@ -1,5 +1,6 @@
 #include "drawItem.h"
 #include "scene.h"
+#include "frameBuffer.h"
 
 //#pragma optimize("", off)
 
@@ -19,8 +20,7 @@ void DrawUnit::Submit(uint64_t overrideSt0, uint64_t overrideSt1) const
 }
 
 
-void DrawItem::Submit(bgfx::ViewId vId,
-	uint64_t overrideSt0, uint64_t overrideSt1) const
+void DrawItem::Submit(uint64_t overrideSt0, uint64_t overrideSt1) const
 {
 	bgfx::setTransform(transform.v);
 
@@ -28,7 +28,7 @@ void DrawItem::Submit(bgfx::ViewId vId,
 
 	DrawUnit::Submit(overrideSt0, overrideSt1);
 
-	bgfx::submit(vId, pMtl->GetShader()->Tech());
+	bgfx::submit(FrameBuffer::CurrFB()->ViewID(), pMtl->GetShader()->Tech());
 }
 
 
@@ -48,8 +48,7 @@ inline bool DrawItemEqCmp(DrawItem const & lhs, DrawItem const & rhs)
 }
 
 
-void InstanceItem::Submit(bgfx::ViewId vId,
-	uint64_t overrideSt0, uint64_t overrideSt1) const
+void InstanceItem::Submit(uint64_t overrideSt0, uint64_t overrideSt1) const
 {
 #if PACK_INST_DATA
 	uint16_t const instStride = static_cast<uint16_t>(sizeof(float) * 12);
@@ -82,7 +81,7 @@ void InstanceItem::Submit(bgfx::ViewId vId,
 
 	DrawUnit::Submit(overrideSt0, overrideSt1);
 
-	bgfx::submit(vId, pInstShader->Tech());
+	bgfx::submit(FrameBuffer::CurrFB()->ViewID(), pInstShader->Tech());
 }
 	
 
@@ -157,12 +156,12 @@ DrawItem& DrawChannel::Add()
 }
 
 
-void DrawChannel::DrawOpaque(bgfx::ViewId viewId, uint64_t override0, uint64_t override1)
+void DrawChannel::DrawOpaque(uint64_t override0, uint64_t override1)
 {
 	for (auto const & m : s_opaque)
 	{
 		if (m.isValid) {
-			m.Submit(viewId, override0, override1);
+			m.Submit(override0, override1);
 		}
 	}
 
@@ -173,7 +172,7 @@ void DrawChannel::DrawOpaque(bgfx::ViewId viewId, uint64_t override0, uint64_t o
 		//bgfx::setTransform(mtx.v);
 		for (auto const & m : s_instance)
 		{
-			m.Submit(viewId, override0, override1);
+			m.Submit(override0, override1);
 		}
 	}
 }

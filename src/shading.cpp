@@ -27,8 +27,11 @@ static FrameBuffer *pFbLight = nullptr;
 static FrameBuffer *pFbShade = nullptr;
 #endif
 
+static bgfx::UniformHandle uhViewVec;
 static bgfx::UniformHandle s_Sampler[3];
-static bgfx::UniformHandle uParam;
+static bgfx::UniformHandle uhParam;
+
+static Vector4 s_viewVec;
 
 static Shader *pDepthTech = nullptr;
 static Shader *pAmbLightTech = nullptr;
@@ -58,7 +61,8 @@ void Shading::Init()
 		s_Sampler[i] = bgfx::createUniform((smpl+std::to_string(i)).c_str()
 			, bgfx::UniformType::Int1);
 	}
-	uParam = bgfx::createUniform("uParam", bgfx::UniformType::Vec4);
+	uhParam = bgfx::createUniform("uParam", bgfx::UniformType::Vec4);
+	uhViewVec = bgfx::createUniform("PV_viewVec", bgfx::UniformType::Vec4);
 
 	pDepthTech = Shader::Load("vs_screen_quad", "fs_linear_depth");
 	pDirLightTech = Shader::Load("vs_screen_quad", "fs_dir_light");
@@ -102,12 +106,12 @@ void Shading::Fini()
 	SafeDelete(pFbDepth);
 	SafeDelete(pFbGBuf);
 
+	bgfx::destroy(uhViewVec);
 	for (uint8_t i = 0; i < ArrayCount(s_Sampler); ++i) {
 		if (isValid(s_Sampler[i]))
 			bgfx::destroy(s_Sampler[i]);
 	}
-	if (isValid(uParam))
-		bgfx::destroy(uParam);
+	bgfx::destroy(uhParam);
 
 	bgfx::destroy(uhPointColor);
 	bgfx::destroy(uhPointPos);
@@ -166,7 +170,9 @@ void Shading::Reset()
 
 void Shading::Update()
 {
-	PostProcess::Update();
+	Vector2 vVec = ViewVecForReconstructPos(Camera::pCurrent);
+	s_viewVec.x = vVec.x;
+	s_viewVec.y = vVec.y;
 
 	s_lightColorBuf.clear();
 	s_lightPosBuf.clear();
@@ -182,15 +188,13 @@ void Shading::Update()
 
 	Matrix4x4 const & mtxView = Camera::pCurrent->mtxView;
 
-	for (size_t i = 0; i < plCnt; ++i)
-	{
+	for (size_t i = 0; i < plCnt; ++i) {
 		auto & pl = Light::s_visiblePointLights[i];
 		ToLinearAccurate(s_lightColorBuf[i], pl.color);
 		mtxView.TransformPos(s_lightPosBuf[i], pl.pos);
 	}
 
-	for (size_t i = 0; i < slCnt; ++i)
-	{
+	for (size_t i = 0; i < slCnt; ++i) {
 		auto & sl = Light::s_visibleSpotLights[i];
 		size_t const bufIdx = plCnt + i;
 		ToLinearAccurate(s_lightColorBuf[bufIdx], sl.color);
@@ -202,15 +206,32 @@ void Shading::Update()
 }
 
 
+static void UpdateViewParams()
+{
+	Vector2 const texelHalf {
+		ViewState::texelOffset / FrameBuffer::CurrFB()->Width(),
+		ViewState::texelOffset / FrameBuffer::CurrFB()->Height()
+	};
+	s_viewVec.Set(s_viewVec.x, s_viewVec.y, texelHalf.x, texelHalf.y);
+
+	bgfx::setUniform(uhViewVec, &s_viewVec);
+}
+
+
 static void RenderLight()
 {
 	bgfx::setMarker("Lighting");
+	Light::Submit();
+	auto pCam = Camera::pCurrent;
+	Matrix4x4 mtxLight;
+
 	uint64_t st_lightAdd = 
 		BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_ONE, BGFX_STATE_BLEND_ONE)
 		|| BGFX_STATE_BLEND_EQUATION(BGFX_STATE_BLEND_EQUATION_ADD)
 		|| BGFX_STATE_WRITE_RGB;
 
-	PostProcess::NewFrameBuf(pFbLight, true);
+	pFbLight->Setup(pCam, bgfx::ViewMode::Sequential, true);
+	UpdateViewParams();
 	
 	Light::Submit();
 
@@ -222,10 +243,9 @@ static void RenderLight()
 
 	size_t const plCnt = Light::s_visiblePointLights.size();
 	size_t const slCnt = Light::s_visibleSpotLights.size();
-	
+
 	// Point
 	auto const & plPG = s_pPointLightMesh->groups[0];
-	Matrix4x4 mtxLight;
 	for (size_t i = 0; i < plCnt; ++i) {
 		auto const & litPos = Light::s_visiblePointLights[i].pos;
 
@@ -241,28 +261,24 @@ static void RenderLight()
 		bgfx::setTexture( 0, s_Sampler[0], pFbGBuf->TexHandle(0) );
 		bgfx::setTexture( 1, s_Sampler[1], pFbDepth->TexHandle(0) );
 		
-		bgfx::setState(st_lightAdd);
+		//bgfx::setState(st_lightAdd);
+		bgfx::setState(BGFX_STATE_WRITE_RGB);
+		UpdateViewParams();
 
 		bgfx::setIndexBuffer(plPG.hIB);
 		bgfx::setVertexBuffer(0, plPG.hVB);
 
-		bgfx::submit(PostProcess::ViewID(), pPointLightTech->Tech());
+		bgfx::submit(FrameBuffer::CurrFB()->ViewID(), pPointLightTech->Tech());
 	}
 }
 
 
 void Shading::Render()
 {
-	bgfx::setMarker("GeoBuffer");
-	bgfx::setViewRect(RENDER_PASS::GEOMETRY_ID, 0, 0, g_viewState.width, g_viewState.height);
-	bgfx::setViewFrameBuffer(RENDER_PASS::GEOMETRY_ID, pFbGBuf->Handle());
-	bgfx::setViewClear(RENDER_PASS::GEOMETRY_ID,
-		BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0, 1.f, 0);
-
 	auto pCam = Camera::pCurrent;
-	bgfx::setViewTransform(RENDER_PASS::GEOMETRY_ID, pCam->mtxView.v, pCam->mtxProj.v);
 
-	Light::Submit();
+	bgfx::setMarker("GeoBuffer");
+	pFbGBuf->Setup(pCam, bgfx::ViewMode::Default, true);
 
 	uint64_t overrideSt0 = RenderState::s_val[0];
 	uint64_t overrideSt1 = 0
@@ -275,23 +291,27 @@ void Shading::Render()
 
 	DrawChannel::Gather();
 
-	DrawChannel::DrawOpaque(RENDER_PASS::GEOMETRY_ID, overrideSt0, overrideSt1);
+	DrawChannel::DrawOpaque(overrideSt0, overrideSt1);
 
 	DrawChannel::ClearAll();
 
+	Vector4 v4Param;
+
 	bgfx::setMarker("Linear Depth");
-	PostProcess::NewFrameBuf(pFbDepth, true);
+	pFbDepth->Setup(nullptr, bgfx::ViewMode::Sequential, true);
+	UpdateViewParams();
 	bgfx::setTexture( 0, s_Sampler[0], pFbGBuf->TexHandle(2) );
 	float q = pCam->far / (pCam->far - pCam->near);
-	Vector4 v4Param{pCam->near, pCam->far, q, pCam->near * q};
-	bgfx::setUniform(uParam, v4Param.v);
+	v4Param.Set(pCam->near, pCam->far, q, pCam->near * q);
+	bgfx::setUniform(uhParam, v4Param.v);
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	PostProcess::DrawFullScreen(pDepthTech);
 
 	RenderLight();
 
 	bgfx::setMarker("Shading");
-	PostProcess::NewFrameBuf(pFbShade, true);
+	pFbShade->Setup(nullptr, bgfx::ViewMode::Sequential, true);
+	UpdateViewParams();
 	bgfx::setTexture( 0, s_Sampler[0], pFbGBuf->TexHandle(0) );
 	bgfx::setTexture( 1, s_Sampler[1], pFbDepth->TexHandle(0) );
 	bgfx::setTexture( 2, s_Sampler[2], pFbLight->TexHandle(0) );
@@ -299,10 +319,13 @@ void Shading::Render()
 	PostProcess::DrawFullScreen(pShadeTech);
 
 	bgfx::setMarker("Final Combine");
-	PostProcess::NewFrameBuf(nullptr, false);
+	FrameBuffer::BackBuf()->Setup(nullptr, bgfx::ViewMode::Sequential, false);
+	UpdateViewParams();
+	Vector4 const texTile { 0.5f, 0.f, 0.5f, 0.5f };
+	bgfx::setUniform(uhParam, texTile.v);
 	bgfx::setTexture( 0, s_Sampler[0], pFbShade->TexHandle(0) );
-	DrawScreenQuad(PostProcess::ViewID(), pCombineTech,
-		BGFX_STATE_WRITE_RGB , 0.f, 0.f, 1.f, 1.f);
+	DrawScreenQuad(pCombineTech,
+		BGFX_STATE_WRITE_RGB , texTile.x,texTile.y, texTile.z,texTile.w);
 }
 
 }

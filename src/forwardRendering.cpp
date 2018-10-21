@@ -172,7 +172,7 @@ void ForwardRendering::Render()
 	//}
 	DrawChannel::Gather();
 
-	DrawChannel::DrawOpaque(0, overrideSt0, overrideSt1);
+	DrawChannel::DrawOpaque(overrideSt0, overrideSt1);
 
 	DrawChannel::ClearAll();
 }

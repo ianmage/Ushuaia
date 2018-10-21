@@ -10,10 +10,10 @@
 namespace Ushuaia
 {
 
-void DrawScreenQuad(bgfx::ViewId viewId, Shader const *pShader
-	, uint64_t state, float x, float y, float w, float h);
+void DrawScreenQuad(Shader const *pShader, uint64_t state
+	, float x, float y, float w, float h);
 
-void ViewVecForReconstructPos(Vector2 & viewVec, Vector2 const & st, Camera const *pCam);
+Vector2 ViewVecForReconstructPos(Camera const *pCam);
 
 typedef std::array<Vector3, 8>	FrustumCorners;
 

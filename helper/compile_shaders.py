@@ -46,4 +46,4 @@ if __name__ == '__main__' :
 		scId = f[3:-3]
 		if scId in vary :
 			fxc.proc(f, vary[scId], macros, modTime)
-	fxc.press_any_key_exit()
+	#fxc.press_any_key_exit()

@@ -6,16 +6,6 @@
 namespace Ushuaia
 {
 
-struct RENDER_PASS
-{
-	enum : uint16_t {
-		GEOMETRY_ID,
-
-		GEO_NUM
-	};
-};
-
-
 struct ViewState
 {
 	uint16_t width;

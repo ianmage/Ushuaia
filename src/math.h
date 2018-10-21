@@ -40,11 +40,15 @@ struct TVec2
 
 	constexpr TVec2 operator+(TVec2 const & other) const;
 	constexpr TVec2 operator-(TVec2 const & other) const;
+	constexpr TVec2 operator*(TVec2 const & other) const;
+	constexpr TVec2 operator/(TVec2 const & other) const;
 	constexpr TVec2 operator*(T s) const;
 	constexpr TVec2 operator/(T s) const;
 
 	constexpr void operator+=(TVec2 const & other);
 	constexpr void operator-=(TVec2 const & other);
+	constexpr void operator*=(TVec2 const & other);
+	constexpr void operator/=(TVec2 const & other);
 	constexpr void operator*=(T s);
 	constexpr void operator/=(T s);
 
@@ -76,11 +80,13 @@ struct TVec3
 
 	inline TVec3 operator+(TVec3 const & other) const;
 	inline TVec3 operator-(TVec3 const & other) const;
+	inline TVec3 operator*(TVec3 const & other) const;
 	inline TVec3 operator*(T s) const;
 	inline TVec3 operator/(T s) const;
 
 	inline void operator+=(TVec3 const & other);
 	inline void operator-=(TVec3 const & other);
+	inline void operator*=(TVec3 const & other);
 	inline void operator*=(T s);
 	inline void operator/=(T s);
 
