@@ -1,7 +1,6 @@
-$input v_tc0
-
 #include "../common/common.sh"
 #include "pbr_lighting.sh"
+#include "util.sh"
 
 uniform vec4 PV_viewVec;
 uniform vec4 PV_rtSize;
@@ -31,10 +30,13 @@ vec4 CalcPoint(vec3 normal, vec4 light_color, vec3 view_dir, float shininess, ve
 
 	dir /= dist;
 	float n_dot_l = dot(normal, dir);
-	float spec = DistributionTerm(normalize(dir - view_dir), normal, shininess);
-	float attn = AttenuationTerm(light_pos.xyz, pos_es, light_pos.w, light_color.w);
-	lighting = CalcColor(n_dot_l, spec, attn, vec3_splat(1), light_color.xyz);
-lighting = vec4(pos_es - light_pos.xyz, 0);
+	if (n_dot_l > 0) {
+		float spec = DistributionTerm(normalize(dir - view_dir), normal, shininess);
+		float attn = AttenuationTerm(light_pos.xyz, pos_es, light_pos.w, light_color.w);
+lighting = vec4_splat(attn);	// test
+		lighting = CalcColor(n_dot_l, spec, attn, vec3_splat(1), light_color.xyz);
+	}
+
 	return lighting;
 }
 
@@ -59,11 +61,11 @@ void main()
 	float shininess = Glossiness2Shininess(normG.w);
 
 	float depth = texture2D(s_tex1, uv).x;
-	vec3 vPos = depth * PV_viewVec;
+	vec3 vPos = ReconstructViewPos(PV_viewVec.xy, depth, uv);
 
 	vec3 viewDir = normalize(vPos);
 
 	vec4 lighting = CalcPoint(normal, PV_lightColor, viewDir, shininess, vPos, PV_lightPos);
-lighting = vec4_splat(depth / 300);
+
 	gl_FragColor = lighting;
 }

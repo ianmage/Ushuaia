@@ -114,8 +114,8 @@ struct TVec4
 	constexpr T& operator[](int i);
 	constexpr T operator[](int i) const;
 
-	inline TVec3<T> & Vec3();
-	inline TVec3<T> const & Vec3() const;
+	constexpr TVec3<T> & Vec3();
+	constexpr TVec3<T> const & Vec3() const;
 
 	constexpr void Set(T _v0, T _v1, T _v2, T _v3);
 

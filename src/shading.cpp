@@ -203,24 +203,23 @@ void Shading::Update()
 }
 
 
-static void UpdateViewParams()
+static inline void UpdateScreenParams()
 {
-	Vector4 vec4Param;
-
-	Vector3 vVec = Camera::pCurrent->ViewExpansionVector();
-
-	vec4Param.Set(vVec.x, vVec.y, vVec.z, 0.f);
-
-	bgfx::setUniform(uhViewVec, &vec4Param);
-
 	float w = FrameBuffer::CurrFB()->Width();
 	float h = FrameBuffer::CurrFB()->Height();
-
-	vec4Param.Set(w, h 
-		, ViewState::texelOffset / w
-		, ViewState::texelOffset / h);
-
+	Vector4 vec4Param {
+		w, h,
+		ViewState::texelOffset / w,
+		ViewState::texelOffset / h
+	};
 	bgfx::setUniform(uhRtSize, &vec4Param);
+}
+
+static inline void UpdateViewParams()
+{
+	Vector3 vVec = Camera::pCurrent->ViewExpansionVector();
+	Vector4 vec4Param { vVec.x, vVec.y, vVec.z, 0.f };
+	bgfx::setUniform(uhViewVec, &vec4Param);
 }
 
 
@@ -232,7 +231,7 @@ static void LinearizeDepth()
 	auto pCam = Camera::pCurrent;
 
 	float q = pCam->far / (pCam->far - pCam->near);
-	Vector4 camParam{ pCam->near * q, q, pCam->far, 1.f / pCam->far };
+	Vector4 camParam { pCam->near * q, q, pCam->far, 1.f / pCam->far };
 
 	bgfx::setUniform(uhParam, camParam.v);
 	bgfx::setTexture(0, s_Sampler[0], pFbGBuf->TexHandle(2));
@@ -253,11 +252,11 @@ static void RenderLight()
 		|| BGFX_STATE_WRITE_RGB;
 
 	pFbLight->Setup(pCam, bgfx::ViewMode::Sequential, true);
-	UpdateViewParams();
 	
 	Light::Submit();
 
 	// Directional
+	UpdateViewParams();
 	bgfx::setTexture( 0, s_Sampler[0], pFbGBuf->TexHandle(0) );
 	bgfx::setTexture( 1, s_Sampler[1], pFbDepth->TexHandle(0) );
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
@@ -287,6 +286,7 @@ static void RenderLight()
 		
 		//bgfx::setState(st_lightAdd);
 		bgfx::setState(BGFX_STATE_WRITE_RGB);
+		UpdateScreenParams();
 		UpdateViewParams();
 
 		bgfx::setIndexBuffer(plPG.hIB);
@@ -334,7 +334,6 @@ void Shading::Render()
 
 	bgfx::setMarker("Final Combine");
 	FrameBuffer::BackBuf()->Setup(nullptr, bgfx::ViewMode::Sequential, false);
-	UpdateViewParams();
 	Vector4 const texTile { 0.5f, 0.f, 0.5f, 0.5f };
 	bgfx::setUniform(uhParam, texTile.v);
 	bgfx::setTexture( 0, s_Sampler[0], pFbShade->TexHandle(0) );

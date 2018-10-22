@@ -1,5 +1,4 @@
 $input a_position
-$output v_tc0
 
 #include "../common/common.sh"
 
@@ -14,7 +13,5 @@ void main()
 	uv += PV_viewVec.zw;
 
 	v_tc0 = vec4(uv, viewVec);
-#else
-	v_tc0 = gl_Position;
 #endif
 }

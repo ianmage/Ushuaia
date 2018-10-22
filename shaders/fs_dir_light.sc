@@ -2,6 +2,9 @@ $input v_tc0
 
 #include "../common/common.sh"
 #include "pbr_lighting.sh"
+#include "util.sh"
+
+uniform vec4 PV_viewVec;
 
 uniform vec4 PV_lightDirColor;
 uniform vec4 PV_lightDirDir;
@@ -20,12 +23,14 @@ vec4 CalcColor(float n_dot_l, float spec, float atten, vec3 shadow, vec4 light_c
 
 void main()
 {
-	vec4 normG = texture2D(s_tex0, v_tc0.xy);
+	vec2 uv = v_tc0.xy;
+
+	vec4 normG = texture2D(s_tex0, uv);
 	vec3 normal = decodeNormalSphereMap(normG.xy);
 	float shininess = Glossiness2Shininess(normG.w);
 
-	float depth = texture2D(s_tex1, v_tc0.xy).x;
-	vec3 vPos = vec3(depth * v_tc0.zw, depth);
+	float depth = texture2D(s_tex1, uv).x;
+	vec3 vPos = ReconstructViewPos(PV_viewVec.xy, depth, uv);
 
 	vec3 viewDir = normalize(vPos);
 
@@ -33,8 +38,7 @@ void main()
 	vec4 lighting = vec4_splat(0);
 	vec3 dir = -PV_lightDirDir.xyz;
 	float n_dot_l = dot(normal, dir);
-	if (n_dot_l > 0)
-	{
+	if (n_dot_l > 0) {
 		spec = DistributionTerm(normalize(dir - viewDir), normal, shininess);
 		lighting = CalcColor(n_dot_l, spec, 1, vec3_splat(1), PV_lightDirColor);
 	}

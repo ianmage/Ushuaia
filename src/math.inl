@@ -270,15 +270,15 @@ constexpr T TVec4<T>::operator[](int i) const
 }
 
 template <typename T>
-inline TVec3<T> & TVec4<T>::Vec3()
+constexpr TVec3<T> & TVec4<T>::Vec3()
 {
-	return *reinterpret_cast<TVec3<T>*>(v);
+	return *(TVec3<T>*)(v);
 }
 
 template <typename T>
-inline TVec3<T> const & TVec4<T>::Vec3() const
+constexpr TVec3<T> const & TVec4<T>::Vec3() const
 {
-	return *reinterpret_cast<TVec3<T> const *>(v);
+	return *(TVec3<T> const *)(v);
 }
 
 template <typename T>
@@ -405,7 +405,7 @@ inline Matrix4x4 Matrix4x4::GetInverse() const
 
 constexpr Vector4 const & Matrix4x4::GetRow(uint8_t r) const
 {
-	return *reinterpret_cast<Vector4 const *>(&v[r * 4]);
+	return *(Vector4 const *)(&v[r * 4]);
 }
 
 void MtxMultiply(Matrix4x4 & out, Matrix4x4 const & lhs, Matrix4x4 const & rhs)

@@ -5,6 +5,7 @@
 #include "viewState.h"
 #include "appConf.h"
 #include "../examples/common/bounds.h"
+#include <tgmath.h>
 
 
 namespace Ushuaia
@@ -110,10 +111,10 @@ bool Camera::IsVisible(Vector4 const & boundSphere)
 
 
 Vector3 Camera::ViewExpansionVector() const
-{
+{	// could be property
 	float D = far * ::tanf(fovY * 0.5f / 180.f * (float)MATH_PI);
 	Vector3 corner { D * aspect, D, far };
-	corner /= far;	// test
+	corner /= far;
 	return std::move(corner);
 }
 

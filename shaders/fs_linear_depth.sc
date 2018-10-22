@@ -2,22 +2,28 @@ $input v_tc0
 
 #include "../common/common.sh"
 
-SAMPLER2D(s_tex0, 0);
 uniform vec4 uParam;	// near, far, f-n, 1/f
+
+SAMPLER2D(s_tex0, 0);
+
 
 void main()
 {
-	float deviceZ = texture2D(s_tex0, v_tc0.xy).x;
+	vec2 uv = v_tc0.xy;
+	float deviceZ = texture2D(s_tex0, uv).x;
 
 #if BGFX_SHADER_LANGUAGE_HLSL || BGFX_SHADER_LANGUAGE_PSSL || BGFX_SHADER_LANGUAGE_METAL
 #else
 	deviceZ = deviceZ * 2.0 - 1.0;
 #endif // BGFX_SHADER_LANGUAGE_HLSL || BGFX_SHADER_LANGUAGE_PSSL || BGFX_SHADER_LANGUAGE_METAL
 
-#if 0	// ReverseZ
-	//float lz = uParam.x / (deviceZ * uParam.z + uParam.x)
+#ifdef NormalizedZ	// map to 0~1
+#ifdef ReverseZ
+	//float lz = uParam.x / (uParam.x + deviceZ * uParam.z)
 #else
-	//float lz = uParam.x / (-deviceZ * uParam.z + uParam.y);
+	//float lz = uParam.x / (uParam.y - deviceZ * uParam.z);
+#endif
+#else	// origin depth, * far
 	float lz = uParam.x / (uParam.y - deviceZ);
 #endif
 	gl_FragData[0] = vec4(lz, lz, lz, 1.0);
