@@ -13,8 +13,6 @@ namespace Ushuaia
 void DrawScreenQuad(Shader const *pShader, uint64_t state
 	, float x, float y, float w, float h);
 
-Vector2 ViewVecForReconstructPos(Camera const *pCam);
-
 typedef std::array<Vector3, 8>	FrustumCorners;
 
 void WorldSpaceFrustumCorners(FrustumCorners & corners

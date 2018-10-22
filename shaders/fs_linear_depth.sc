@@ -3,7 +3,7 @@ $input v_tc0
 #include "../common/common.sh"
 
 SAMPLER2D(s_tex0, 0);
-uniform vec4 uParam;	// near, far, q, near*q, while q = far/(far-near)
+uniform vec4 uParam;	// near, far, f-n, 1/f
 
 void main()
 {
@@ -14,6 +14,11 @@ void main()
 	deviceZ = deviceZ * 2.0 - 1.0;
 #endif // BGFX_SHADER_LANGUAGE_HLSL || BGFX_SHADER_LANGUAGE_PSSL || BGFX_SHADER_LANGUAGE_METAL
 
-	float lz = uParam.w / (uParam.z - deviceZ);
+#if 0	// ReverseZ
+	//float lz = uParam.x / (deviceZ * uParam.z + uParam.x)
+#else
+	//float lz = uParam.x / (-deviceZ * uParam.z + uParam.y);
+	float lz = uParam.x / (uParam.y - deviceZ);
+#endif
 	gl_FragData[0] = vec4(lz, lz, lz, 1.0);
 }

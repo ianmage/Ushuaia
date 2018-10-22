@@ -56,8 +56,6 @@ void PostProcess::DrawFullScreen(Shader const *pShader)
 	float const yMax = 3.f;
 	float const zz = 0.f;
 
-	FrameBuffer const * pFB = FrameBuffer::CurrFB();
-
 	pVtx[0].pos.Set(xMin, -1.f, zz);
 	pVtx[1].pos.Set(1.f, -1.f, zz);
 	pVtx[2].pos.Set(1.f, yMax, zz);

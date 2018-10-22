@@ -41,14 +41,12 @@ struct TVec2
 	constexpr TVec2 operator+(TVec2 const & other) const;
 	constexpr TVec2 operator-(TVec2 const & other) const;
 	constexpr TVec2 operator*(TVec2 const & other) const;
-	constexpr TVec2 operator/(TVec2 const & other) const;
 	constexpr TVec2 operator*(T s) const;
 	constexpr TVec2 operator/(T s) const;
 
 	constexpr void operator+=(TVec2 const & other);
 	constexpr void operator-=(TVec2 const & other);
 	constexpr void operator*=(TVec2 const & other);
-	constexpr void operator/=(TVec2 const & other);
 	constexpr void operator*=(T s);
 	constexpr void operator/=(T s);
 
@@ -154,6 +152,9 @@ struct Matrix4x4
 	constexpr void Mtx4x3(float * out) const;
 
 	constexpr void Transpose();
+
+	inline Matrix4x4 GetInverse() const;
+	constexpr Vector4 const & GetRow(uint8_t r) const;
 };
 
 inline void MtxMultiply(Matrix4x4 & out, Matrix4x4 const & lhs, Matrix4x4 const & rhs);
@@ -171,6 +172,8 @@ struct Matrix3x3
 	constexpr void Transform(Vector3 & out, Vector3 const & in) const;
 
 	constexpr void Transpose();
+
+	inline Matrix3x3 GetInverse() const;
 };
 
 

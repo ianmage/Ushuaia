@@ -15,7 +15,6 @@ struct Camera
 	Matrix4x4 mtxView;
 	Matrix4x4 mtxProj;
 	Matrix4x4 mtxInvView;
-	Matrix4x4 mtxInvProj;
 
 	Vector4 frustum[6];	// near, far, left, right, top, bottom
 
@@ -31,6 +30,9 @@ struct Camera
 	void Update();
 
 	bool IsVisible(Vector4 const & boundSphere);
+
+	Vector3 ViewExpansionVector() const;
+	void WorldExpansionBasis(Vector4 & vBasisX, Vector4 & vBasisY, Vector4 & vBasisZ) const;
 
 	static Camera* pCurrent;
 

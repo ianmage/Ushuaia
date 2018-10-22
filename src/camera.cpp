@@ -81,8 +81,12 @@ void Camera::Update()
 {
 	cameraUpdate(AppConf::deltaTime, AppConf::mouseState);
 	cameraGetViewMtx(mtxView.v);
+
+	bx::mtxInverse(mtxInvView.v, mtxView.v);
+
 	Matrix4x4 mtxViewProj;
 	MtxMultiply(mtxViewProj, mtxView, mtxProj);
+
 	::Plane *planes = reinterpret_cast<::Plane*>(frustum);
 	buildFrustumPlanes(planes, mtxViewProj.v);
 }
@@ -102,6 +106,15 @@ bool Camera::IsVisible(Vector4 const & boundSphere)
 		}
 	}
 	return ret;
+}
+
+
+Vector3 Camera::ViewExpansionVector() const
+{
+	float D = far * ::tanf(fovY * 0.5f / 180.f * (float)MATH_PI);
+	Vector3 corner { D * aspect, D, far };
+	corner /= far;	// test
+	return std::move(corner);
 }
 
 }

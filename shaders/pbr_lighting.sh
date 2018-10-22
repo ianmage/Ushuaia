@@ -72,11 +72,11 @@ float AttenuationTerm(vec3 light_pos, vec3 pos, vec3 atten)
 float AttenuationTerm(vec3 light_pos, vec3 pos, float range, float attn)
 {
 	vec3 v = light_pos - pos;
-	float d2 = dot(v, v);
-	//float inv_d = inversesqrt(d2);
-	float dr2 = d2 / (range * range);
-	float num = clamp(1 - dr2*dr2, 0, 1);
-	float ret = num * num / (d2 + 1);
+	float dist = length(v);
+	v /= dist;
+
+	float ret = 1 / (dist * dist);
+	ret *= saturate(1 - dist*dist * attn);
 	return ret;
 }
 #endif

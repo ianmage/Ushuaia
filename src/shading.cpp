@@ -9,7 +9,7 @@
 #include "frameBuffer.h"
 #include "../../cpp_common/commUtil.h"
 
-//#pragma optimize("", off)
+#pragma optimize("", off)
 
 
 namespace Ushuaia
@@ -28,10 +28,9 @@ static FrameBuffer *pFbShade = nullptr;
 #endif
 
 static bgfx::UniformHandle uhViewVec;
+static bgfx::UniformHandle uhRtSize;
 static bgfx::UniformHandle s_Sampler[3];
 static bgfx::UniformHandle uhParam;
-
-static Vector4 s_viewVec;
 
 static Shader *pDepthTech = nullptr;
 static Shader *pAmbLightTech = nullptr;
@@ -63,10 +62,11 @@ void Shading::Init()
 	}
 	uhParam = bgfx::createUniform("uParam", bgfx::UniformType::Vec4);
 	uhViewVec = bgfx::createUniform("PV_viewVec", bgfx::UniformType::Vec4);
+	uhRtSize = bgfx::createUniform("PV_rtSize", bgfx::UniformType::Vec4);
 
 	pDepthTech = Shader::Load("vs_screen_quad", "fs_linear_depth");
 	pDirLightTech = Shader::Load("vs_screen_quad", "fs_dir_light");
-	pPointLightTech = Shader::Load("vs_point_light", "fs_point_light");
+	pPointLightTech = Shader::Load("vs_screen_geo", "fs_point_light");
 	pShadeTech = Shader::Load("vs_screen_quad", "fs_shading");
 	pCombineTech = Shader::Load("vs_screen_quad", "fs_combine");
 
@@ -87,7 +87,7 @@ void Shading::Init()
 
 	std::vector<Vector3> sphereVtx;
 	std::vector<uint16_t> sphereIdx;
-	CreateSphere(sphereVtx, sphereIdx, nullptr, 2, 1.f);
+	CreateSphere(sphereVtx, sphereIdx, nullptr, 1, 1.f);
 	s_pPointLightMesh = Mesh::Create("plSphere", sphereVtx.data(), (uint32_t)sphereVtx.size(),
 		PosVertex::s_decl, sphereIdx.data(), (uint32_t)sphereIdx.size());	// exception on exit
 
@@ -107,6 +107,7 @@ void Shading::Fini()
 	SafeDelete(pFbGBuf);
 
 	bgfx::destroy(uhViewVec);
+	bgfx::destroy(uhRtSize);
 	for (uint8_t i = 0; i < ArrayCount(s_Sampler); ++i) {
 		if (isValid(s_Sampler[i]))
 			bgfx::destroy(s_Sampler[i]);
@@ -170,10 +171,6 @@ void Shading::Reset()
 
 void Shading::Update()
 {
-	Vector2 vVec = ViewVecForReconstructPos(Camera::pCurrent);
-	s_viewVec.x = vVec.x;
-	s_viewVec.y = vVec.y;
-
 	s_lightColorBuf.clear();
 	s_lightPosBuf.clear();
 	s_lightAttnOuterBuf.clear();
@@ -208,20 +205,45 @@ void Shading::Update()
 
 static void UpdateViewParams()
 {
-	Vector2 const texelHalf {
-		ViewState::texelOffset / FrameBuffer::CurrFB()->Width(),
-		ViewState::texelOffset / FrameBuffer::CurrFB()->Height()
-	};
-	s_viewVec.Set(s_viewVec.x, s_viewVec.y, texelHalf.x, texelHalf.y);
+	Vector4 vec4Param;
 
-	bgfx::setUniform(uhViewVec, &s_viewVec);
+	Vector3 vVec = Camera::pCurrent->ViewExpansionVector();
+
+	vec4Param.Set(vVec.x, vVec.y, vVec.z, 0.f);
+
+	bgfx::setUniform(uhViewVec, &vec4Param);
+
+	float w = FrameBuffer::CurrFB()->Width();
+	float h = FrameBuffer::CurrFB()->Height();
+
+	vec4Param.Set(w, h 
+		, ViewState::texelOffset / w
+		, ViewState::texelOffset / h);
+
+	bgfx::setUniform(uhRtSize, &vec4Param);
+}
+
+
+static void LinearizeDepth()
+{
+	bgfx::setMarker("Linear Depth");
+	pFbDepth->Setup(nullptr, bgfx::ViewMode::Sequential, true);
+
+	auto pCam = Camera::pCurrent;
+
+	float q = pCam->far / (pCam->far - pCam->near);
+	Vector4 camParam{ pCam->near * q, q, pCam->far, 1.f / pCam->far };
+
+	bgfx::setUniform(uhParam, camParam.v);
+	bgfx::setTexture(0, s_Sampler[0], pFbGBuf->TexHandle(2));
+	bgfx::setState(BGFX_STATE_WRITE_RGB);
+	PostProcess::DrawFullScreen(pDepthTech);
 }
 
 
 static void RenderLight()
 {
 	bgfx::setMarker("Lighting");
-	Light::Submit();
 	auto pCam = Camera::pCurrent;
 	Matrix4x4 mtxLight;
 
@@ -253,6 +275,8 @@ static void RenderLight()
 			{ 0,0,0 }, {litPos.x, litPos.y, litPos.z});
 		bgfx::setTransform(mtxLight.v);
 
+		Color4F lc = s_lightColorBuf[i];
+		Vector4 lp = s_lightPosBuf[i];
 		bgfx::setUniform(uhPointColor, &s_lightColorBuf[i]);
 		bgfx::setUniform(uhPointPos, &s_lightPosBuf[i]);
 		//bgfx::setUniform(uhPointAttnOuter, &s_lightAttnOuterBuf[i]);
@@ -295,17 +319,7 @@ void Shading::Render()
 
 	DrawChannel::ClearAll();
 
-	Vector4 v4Param;
-
-	bgfx::setMarker("Linear Depth");
-	pFbDepth->Setup(nullptr, bgfx::ViewMode::Sequential, true);
-	UpdateViewParams();
-	bgfx::setTexture( 0, s_Sampler[0], pFbGBuf->TexHandle(2) );
-	float q = pCam->far / (pCam->far - pCam->near);
-	v4Param.Set(pCam->near, pCam->far, q, pCam->near * q);
-	bgfx::setUniform(uhParam, v4Param.v);
-	bgfx::setState(BGFX_STATE_WRITE_RGB);
-	PostProcess::DrawFullScreen(pDepthTech);
+	LinearizeDepth();
 
 	RenderLight();
 

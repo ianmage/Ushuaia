@@ -52,15 +52,6 @@ void DrawScreenQuad(Shader const *pShader
 }
 
 
-Vector2 ViewVecForReconstructPos(Camera const *pCam)
-{	// homoCoord
-	float D = pCam->far * ::tanf(pCam->fovY / 360.f * (float)MATH_PI);
-	Vector2 corner { D * pCam->aspect, D };
-	corner *= pCam->far;
-	return std::move(corner);
-}
-
-
 void WorldSpaceFrustumCorners(FrustumCorners & corners
 	, float near, float far, float projWidth, float projHeight
 	, Matrix4x4 const & mtxInvView)

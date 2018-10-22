@@ -86,12 +86,6 @@ constexpr void TVec2<T>::operator*=(TVec2 const & other)
 }
 
 template <typename T>
-constexpr void TVec2<T>::operator/=(TVec2 const & other)
-{
-	Set(v[0] / other.v[0], v[1] / other.v[1]);
-}
-
-template <typename T>
 constexpr void TVec2<T>::operator*=(T s)
 {
 	Set(v[0] * s, v[1] * s);
@@ -402,6 +396,18 @@ constexpr void Matrix4x4::Transpose()
 	}
 }
 
+inline Matrix4x4 Matrix4x4::GetInverse() const
+{
+	Matrix4x4 ret;
+	bx::mtxInverse(ret.v, v);
+	return std::move(ret);
+}
+
+constexpr Vector4 const & Matrix4x4::GetRow(uint8_t r) const
+{
+	return *reinterpret_cast<Vector4 const *>(&v[r * 4]);
+}
+
 void MtxMultiply(Matrix4x4 & out, Matrix4x4 const & lhs, Matrix4x4 const & rhs)
 {
 	bx::mtxMul(out.v, lhs.v, rhs.v);
@@ -437,6 +443,13 @@ constexpr void Matrix3x3::Transpose()
 			std::swap(v[i*4+j], v[j*4+i]);
 		}
 	}
+}
+
+inline Matrix3x3 Matrix3x3::GetInverse() const
+{
+	Matrix3x3 ret;
+	bx::mtx3Inverse(ret.v, v);
+	return std::move(ret);
 }
 
 
