@@ -30,25 +30,14 @@ vec4 CalcPoint(vec3 normal, vec4 light_color, vec3 view_dir, float shininess, ve
 
 	dir /= dist;
 	float n_dot_l = dot(normal, dir);
+
 	if (n_dot_l > 0) {
 		float spec = DistributionTerm(normalize(dir - view_dir), normal, shininess);
-		float attn = AttenuationTerm(light_pos.xyz, pos_es, light_pos.w, light_color.w);
-lighting = vec4_splat(attn);	// test
+		float attn = AttenuationTerm(light_pos.xyz, pos_es, light_pos.w);
 		lighting = CalcColor(n_dot_l, spec, attn, vec3_splat(1), light_color.xyz);
 	}
 
 	return lighting;
-}
-
-
-vec4 CalcUvView(vec4 v_tc0)
-{
-	vec2 homoCoord = v_tc0.xy / v_tc0.w;
-	vec2 viewVec = homoCoord * PV_viewVec.xy;
-	vec2 uv = vec2(homoCoord.x + 1.f, 1.f - homoCoord.y) * 0.5f;
-	uv += PV_viewVec.zw;
-
-	return vec4(uv, viewVec);
 }
 
 

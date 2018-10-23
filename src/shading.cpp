@@ -248,8 +248,8 @@ static void RenderLight()
 
 	uint64_t st_lightAdd = 
 		BGFX_STATE_BLEND_FUNC(BGFX_STATE_BLEND_ONE, BGFX_STATE_BLEND_ONE)
-		|| BGFX_STATE_BLEND_EQUATION(BGFX_STATE_BLEND_EQUATION_ADD)
-		|| BGFX_STATE_WRITE_RGB;
+		| BGFX_STATE_BLEND_EQUATION(BGFX_STATE_BLEND_EQUATION_ADD)
+		| BGFX_STATE_WRITE_RGB;
 
 	pFbLight->Setup(pCam, bgfx::ViewMode::Sequential, true);
 	
@@ -284,8 +284,8 @@ static void RenderLight()
 		bgfx::setTexture( 0, s_Sampler[0], pFbGBuf->TexHandle(0) );
 		bgfx::setTexture( 1, s_Sampler[1], pFbDepth->TexHandle(0) );
 		
-		//bgfx::setState(st_lightAdd);
-		bgfx::setState(BGFX_STATE_WRITE_RGB);
+		bgfx::setState(st_lightAdd);
+		//bgfx::setState(BGFX_STATE_WRITE_RGB);
 		UpdateScreenParams();
 		UpdateViewParams();
 
