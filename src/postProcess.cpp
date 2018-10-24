@@ -26,24 +26,6 @@ void PostProcess::Fini()
 }
 
 
-static void CalcUvRect(uint16_t w, uint16_t h, TRect<float> & uvRect)
-{
-	Vector2 const texelHalf {
-		ViewState::texelOffset / w,
-		ViewState::texelOffset / h
-	};
-
-	uvRect.rMin = { -1.f + texelHalf.x, texelHalf.y };
-	uvRect.rMax = { 1.f + texelHalf.x, 2.f + texelHalf.y };
-
-	if (bgfx::getCaps()->originBottomLeft) {
-		std::swap(uvRect.rMin.y, uvRect.rMax.y);
-		uvRect.rMin.y -= 1.f;
-		uvRect.rMax.y -= 1.f;
-	}
-}
-
-
 void PostProcess::DrawFullScreen(Shader const *pShader)
 {
 #if 1

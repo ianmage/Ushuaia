@@ -5,7 +5,9 @@
 #include "viewState.h"
 #include "appConf.h"
 #include "../examples/common/bounds.h"
+#ifdef _APPLE
 #include <tgmath.h>
+#endif
 
 
 namespace Ushuaia

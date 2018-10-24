@@ -30,6 +30,8 @@ struct Color3F
 	inline void operator-=(Color3F const & other);
 	inline void operator*=(float s);
 	inline void operator/=(float s);
+
+	inline float Luminance() const;
 };
 
 
@@ -60,6 +62,8 @@ struct Color4F
 	inline void operator-=(Color4F const & other);
 	inline void operator*=(float s);
 	inline void operator/=(float s);
+
+	inline float Luminance() const { return Color3().Luminance(); }
 };
 
 

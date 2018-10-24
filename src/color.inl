@@ -69,6 +69,13 @@ inline void Color3F::operator/=(float s)
 	bx::vec3Mul(v, v, 1.f/s);
 }
 
+inline float Color3F::Luminance() const
+{
+	Color3F c;
+	ToLinearAccurate(c, *this);
+	return c.r * 0.2126f + c.g * 0.7152f + c.b * 0.0722f;
+}
+
 
 inline Color3F & Color4F::Color3()
 {
