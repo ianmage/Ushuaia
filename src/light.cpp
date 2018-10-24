@@ -6,6 +6,7 @@ namespace Ushuaia
 {
 
 static bgfx::UniformHandle uhAmbientColor;
+static bgfx::UniformHandle uhAmbientViewUp;
 static bgfx::UniformHandle uhDirectionalColor;
 static bgfx::UniformHandle uhDirectionalDir;
 
@@ -19,6 +20,7 @@ decltype(Light::s_spotLights) Light::s_visibleSpotLights;
 
 
 static Color4F s_ambLightColor;
+static Vector4 s_ambLightViewUp;
 static Color4F s_dirLightColor;
 static Vector4 s_dirLightDir;
 
@@ -26,6 +28,7 @@ static Vector4 s_dirLightDir;
 void Light::Init()
 {
 	uhAmbientColor = bgfx::createUniform("PV_lightAmbColor", bgfx::UniformType::Vec4);
+	uhAmbientViewUp = bgfx::createUniform("PV_lightAmbViewUp", bgfx::UniformType::Vec4);
 	uhDirectionalColor = bgfx::createUniform("PV_lightDirColor", bgfx::UniformType::Vec4);
 	uhDirectionalDir = bgfx::createUniform("PV_lightDirDir", bgfx::UniformType::Vec4);
 }
@@ -34,6 +37,7 @@ void Light::Init()
 void Light::Fini()
 {
 	bgfx::destroy(uhAmbientColor);
+	bgfx::destroy(uhAmbientViewUp);
 	bgfx::destroy(uhDirectionalColor);
 	bgfx::destroy(uhDirectionalDir);
 }
@@ -113,8 +117,10 @@ void Light::Deserialize(JsonValue const & _jsObj)
 		if (dirItr != dirObj.MemberEnd())
 			ReadFloatArray(dirItr->value, dirLight.color.v);
 		dirItr = dirObj.FindMember("Dir");
-		if (dirItr != dirObj.MemberEnd())
+		if (dirItr != dirObj.MemberEnd()) {
 			ReadFloatArray(dirItr->value, dirLight.dir.v);
+			dirLight.dir.Vec3().Normalize();
+		}
 	}
 
 	itr = _jsObj.FindMember("Point");
@@ -178,6 +184,7 @@ void Light::UpdateAll(Camera *pCam)
 {
 	Matrix4x4 const & mtxView = pCam->mtxView;
 	ToLinearAccurate(s_ambLightColor, ambLight.color);
+	s_ambLightViewUp = mtxView.GetRow(1);
 
 	ToLinearAccurate(s_dirLightColor, dirLight.color);
 
@@ -201,13 +208,11 @@ void Light::UpdateAll(Camera *pCam)
 uint16_t Light::AddPointLight(bool isSpot)
 {
 	size_t ret = 0;
-	if (!isSpot)
-	{
+	if (!isSpot) {
 		ret = s_pointLights.size();
 		s_pointLights.emplace_back();
 	}
-	else
-	{
+	else {
 		ret = s_spotLights.size();
 		s_spotLights.emplace_back();
 	}
@@ -218,6 +223,7 @@ uint16_t Light::AddPointLight(bool isSpot)
 void Light::Submit()
 {
 	bgfx::setUniform(uhAmbientColor, &s_ambLightColor);
+	bgfx::setUniform(uhAmbientViewUp, &s_ambLightViewUp);
 
 	bgfx::setUniform(uhDirectionalColor, &s_dirLightColor);
 	bgfx::setUniform(uhDirectionalDir, &s_dirLightDir);

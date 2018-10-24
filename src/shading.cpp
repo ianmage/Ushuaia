@@ -132,40 +132,12 @@ void Shading::Lost()
 
 void Shading::Reset()
 {
-#if 0
-	uint64_t const samplerFlags = 0
-		| BGFX_TEXTURE_RT
-		| BGFX_SAMPLER_MIN_POINT
-		| BGFX_SAMPLER_MAG_POINT
-		| BGFX_SAMPLER_MIP_POINT
-		| BGFX_SAMPLER_U_CLAMP
-		| BGFX_SAMPLER_V_CLAMP
-		;
-
-	bgfx::TextureHandle gbufRT[3] = {
-		bgfx::createTexture2D(g_viewState.width, g_viewState.height,
-			false, 1, bgfx::TextureFormat::RGBA16F, samplerFlags),
-		bgfx::createTexture2D(g_viewState.width, g_viewState.height,
-			false, 1, bgfx::TextureFormat::RGBA16F, samplerFlags),
-		bgfx::createTexture2D(g_viewState.width, g_viewState.height,
-			false, 1, bgfx::TextureFormat::D24S8, samplerFlags),
-	};
-	h_gbufFB = bgfx::createFrameBuffer(ArrayCount(gbufRT), gbufRT, true);
-
-	hDepthTex = bgfx::createTexture2D(g_viewState.width, g_viewState.height,
-		false, 1, bgfx::TextureFormat::R32F, samplerFlags);
-	h_depthFB = bgfx::createFrameBuffer(1, &hDepthTex, true);
-
-	h_shadeFB = bgfx::createFrameBuffer(g_viewState.width, g_viewState.height
-		, bgfx::TextureFormat::RGBA16F, samplerFlags);
-#else
 	pFbGBuf->Reset();
 	pFbDepth->Reset();
 	pFbLight->Reset();
 	pFbShade->Reset();
 
 	hDepthTex = pFbDepth->TexHandle(0);
-#endif
 }
 
 
@@ -258,7 +230,6 @@ static void RenderLight()
 	// Directional
 	UpdateViewParams();
 	bgfx::setTexture( 0, s_Sampler[0], pFbGBuf->TexHandle(0) );
-	bgfx::setTexture( 1, s_Sampler[1], pFbDepth->TexHandle(0) );
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	PostProcess::DrawFullScreen(pDirLightTech);
 
@@ -327,7 +298,7 @@ void Shading::Render()
 	pFbShade->Setup(nullptr, bgfx::ViewMode::Sequential, true);
 	UpdateViewParams();
 	bgfx::setTexture( 0, s_Sampler[0], pFbGBuf->TexHandle(0) );
-	bgfx::setTexture( 1, s_Sampler[1], pFbDepth->TexHandle(0) );
+	bgfx::setTexture( 1, s_Sampler[1], pFbGBuf->TexHandle(1) );
 	bgfx::setTexture( 2, s_Sampler[2], pFbLight->TexHandle(0) );
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	PostProcess::DrawFullScreen(pShadeTech);
@@ -337,6 +308,7 @@ void Shading::Render()
 	Vector4 const texTile { 0.5f, 0.f, 0.5f, 0.5f };
 	bgfx::setUniform(uhParam, texTile.v);
 	bgfx::setTexture( 0, s_Sampler[0], pFbShade->TexHandle(0) );
+	bgfx::setTexture( 1, s_Sampler[1], pFbDepth->TexHandle(0) );
 	DrawScreenQuad(pCombineTech,
 		BGFX_STATE_WRITE_RGB , texTile.x,texTile.y, texTile.z,texTile.w);
 }

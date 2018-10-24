@@ -2,7 +2,7 @@ $input v_tc0
 
 #include "../common/common.sh"
 
-uniform vec4 uParam;	// near, far, f-n, 1/f
+uniform vec4 uParam;	// near, far, ?, ?
 
 SAMPLER2D(s_tex0, 0);
 
@@ -17,7 +17,7 @@ void main()
 	deviceZ = deviceZ * 2.0 - 1.0;
 #endif // BGFX_SHADER_LANGUAGE_HLSL || BGFX_SHADER_LANGUAGE_PSSL || BGFX_SHADER_LANGUAGE_METAL
 
-#ifdef NormalizedZ	// map to 0~1
+#ifdef NormalizedZ	// map to 0~1, z is f-n
 #ifdef ReverseZ
 	//float lz = uParam.x / (uParam.x + deviceZ * uParam.z)
 #else

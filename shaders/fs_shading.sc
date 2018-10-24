@@ -1,9 +1,8 @@
 $input v_tc0
 
 #include "../common/common.sh"
+#include "pbr_lighting.sh"
 #include "util.sh"
-
-uniform vec4 PV_viewVec;
 
 SAMPLER2D(s_tex0, 0);
 SAMPLER2D(s_tex1, 1);
@@ -14,17 +13,23 @@ void main()
 {
 	vec2 uv = v_tc0.xy;
 
-	vec3 normG = texture2D(s_tex0, uv).xyz;
+	vec4 normG = texture2D(s_tex0, uv);
 	vec3 normal = decodeNormalSphereMap(normG.xy);
+	float shiny = Glossiness2Shininess(normG.w);
 
-	float depth = texture2D(s_tex1, uv).x;
-	vec3 vPos = ReconstructViewPos(PV_viewVec.xy, depth, uv);
+	vec4 baseM = texture2D(s_tex1, uv);
+	vec3 albedo = baseM.rgb;
+	float metal = baseM.a;
+	vec3 diff = albedo * (1 - metal);
+	vec3 spec = mix(vec3_splat(0.04), albedo, vec3_splat(metal));
+
+	vec3 viewDir = normalize(vec3(v_tc0.zw, 1));
 
 	vec4 lighting = texture2D(s_tex2, uv);
 
-	//vec3 final = normal * 0.5 + 0.5;
-	vec3 final = toGamma(lighting.xyz);
-	//vec3 final = vec3_splat(depth / 300);
+	vec3 shading = CalcShading(lighting, shiny, diff, spec, viewDir, normal);
 
-	gl_FragColor = vec4(final, 1.0);
+	// shading = normal * 0.5 + 0.5;
+
+	gl_FragColor = vec4(shading, 1.0);
 }

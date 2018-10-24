@@ -3,6 +3,8 @@ $output v_tc0
 
 #include "../common/common.sh"
 
+uniform vec4 PV_viewVec;
+
 
 void main()
 {
@@ -12,5 +14,5 @@ void main()
 
 	vec2 uv = vec2(homoCoord.x + 1.f, 1.f - homoCoord.y) * 0.5f;
 
-	v_tc0 = vec4(uv, 0, 0);
+	v_tc0 = vec4(uv, PV_viewVec.xy);
 }
