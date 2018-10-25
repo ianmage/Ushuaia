@@ -27,15 +27,13 @@ vec4 AmbLighting(vec3 normal)
 }
 
 
-vec4 DirLighting(vec3 normal, vec2 uv, float gloss)
+vec4 DirLighting(vec3 normal, vec3 viewDir, float gloss)
 {
 	vec4 ret = vec4_splat(0);
 
 	vec3 dir = -PV_lightDirDir.xyz;
 	float n_dot_l = dot(normal, dir);
 	if (n_dot_l > 0) {
-		vec3 viewDir = normalize(vec3(v_tc0.zw, 1));
-
 		float shininess = Glossiness2Shininess(gloss);
 		float spec = DistributionTerm(normalize(dir - viewDir), normal, shininess);
 		ret = CalcColor(n_dot_l, spec, 1, vec3_splat(1), PV_lightDirColor);
@@ -48,13 +46,14 @@ vec4 DirLighting(vec3 normal, vec2 uv, float gloss)
 void main()
 {
 	vec2 uv = v_tc0.xy;
+	vec3 viewDir = normalize(vec3(v_tc0.zw, 1));
 
 	vec4 normG = texture2D(s_tex0, uv);
 	vec3 normal = decodeNormalSphereMap(normG.xy);
 
 	vec4 lighting = vec4_splat(0);
 	lighting += AmbLighting(normal);
-	lighting += DirLighting(normal, uv, normG.w);
+	lighting += DirLighting(normal, viewDir, normG.w);
 
 	gl_FragColor = lighting;
 }

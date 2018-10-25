@@ -305,7 +305,7 @@ void Shading::Render()
 
 	bgfx::setMarker("Final Combine");
 	FrameBuffer::BackBuf()->Setup(nullptr, bgfx::ViewMode::Sequential, false);
-	Vector4 const texTile { 0.5f, 0.f, 0.5f, 0.5f };
+	Vector4 const texTile { 0.3f, 0.1f, 0.7f, 0.7f };
 	bgfx::setUniform(uhParam, texTile.v);
 	bgfx::setTexture( 0, s_Sampler[0], pFbShade->TexHandle(0) );
 	bgfx::setTexture( 1, s_Sampler[1], pFbDepth->TexHandle(0) );
