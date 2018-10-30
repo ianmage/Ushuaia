@@ -4,10 +4,14 @@ sys.dont_write_bytecode = True
 import shutil
 
 
-def listFile(nameList) :
-	for f in os.listdir('.') :
-		if os.path.isfile(f) and f.endswith('.sc') :
-			nameList.append(f)
+def listFile(dir, nameList) :
+	assert(os.path.isdir(dir))
+	for f in os.listdir(dir) :
+		p = os.path.join(dir,f)
+		if os.path.isfile(p) and f.endswith('.sc') :
+			nameList.append(p[2:])
+		elif os.path.isdir(p) :
+			listFile(p, nameList)
 
 
 def headerLastMod() :
@@ -27,7 +31,7 @@ if __name__ == '__main__' :
 	import fxc
 
 	fileList = []
-	listFile(fileList)
+	listFile('.', fileList)
 	lastModTime = headerLastMod()
 	force = raw_input("force all ? (y/n) : ")
 
@@ -43,7 +47,9 @@ if __name__ == '__main__' :
 		if not force :
 			modTime = os.stat(f).st_mtime
 			modTime = max(lastModTime, modTime)
-		scId = f[3:-3]
+		slashPos = f.rfind('/')
+		scId = f[slashPos+4:-3]
 		if scId in vary :
-			fxc.proc(f, vary[scId], macros, modTime)
+			v = f[:slashPos+1] + vary[scId]
+			fxc.proc(f, v, macros, modTime)
 	#fxc.press_any_key_exit()

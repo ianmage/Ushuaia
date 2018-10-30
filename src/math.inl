@@ -387,7 +387,7 @@ constexpr void Matrix4x4::Mtx4x3(float * out) const
 	}
 }
 
-constexpr void Matrix4x4::Transpose()
+inline void Matrix4x4::Transpose()
 {
 	for (int i = 0; i < 3; ++i) {
 		for (int j = i+1; j < 4; ++j) {
@@ -436,7 +436,7 @@ constexpr void Matrix3x3::Transform(Vector3 & out, Vector3 const & in) const
 	out.z = in.x * v[2] + in.y * v[5] + in.z * v[8];
 }
 
-constexpr void Matrix3x3::Transpose()
+inline void Matrix3x3::Transpose()
 {
 	for (int i = 0; i < 2; ++i) {
 		for (int j = i+1; j < 3; ++j) {

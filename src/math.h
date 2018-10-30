@@ -151,7 +151,7 @@ struct Matrix4x4
 
 	constexpr void Mtx4x3(float * out) const;
 
-	constexpr void Transpose();
+	inline void Transpose();
 
 	inline Matrix4x4 GetInverse() const;
 	constexpr Vector4 const & GetRow(uint8_t r) const;
@@ -171,7 +171,7 @@ struct Matrix3x3
 
 	constexpr void Transform(Vector3 & out, Vector3 const & in) const;
 
-	constexpr void Transpose();
+	inline void Transpose();
 
 	inline Matrix3x3 GetInverse() const;
 };

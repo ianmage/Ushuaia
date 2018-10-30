@@ -100,21 +100,24 @@ def proc(inFile, varyName, preDefs, srcModTime=None) :
 			if srcModTime < dstModTime :
 				return
 
+	slashPos = inFile.rfind('/')
+
 	cmd += ' --type'
-	if inFile.startswith('vs_') :
+	fName = inFile[slashPos+1 : slashPos+4]
+	if fName.startswith('vs_') :
 		cmd += ' vertex'
-	elif inFile.startswith('fs_') :
+	elif fName.startswith('fs_') :
 		cmd += ' fragment'
 	else :
-		printErr('unknown shader type (v/f)')
+		printErr('unknown shader type (v/f) %s' % fName)
 	cmd += ' --varyingdef %s.def' % varyName
 	cmd += ' --platform'
 
 	if isWin :
 		cmd += ' windows -O 3'
-		if inFile.startswith('vs_') :
+		if fName.startswith('vs_') :
 			cmd += ' -p vs_5_0'
-		elif inFile.startswith('fs_') :
+		elif fName.startswith('fs_') :
 			cmd += ' -p ps_5_0'
 	elif isOSX :
 		cmd += ' osx -p metal'
@@ -122,6 +125,11 @@ def proc(inFile, varyName, preDefs, srcModTime=None) :
 	if preDefs :
 		cmd += ' --define %s' % preDefs
 	#cmd += ' --verbose'
+
+	outDir = outPath[:outPath.rfind('/')]
+	if not os.path.exists(outDir) :
+		os.mkdir(outDir)
+
 	#print cmd
 	os.system(cmd)
 

@@ -68,7 +68,7 @@ void InitScriptData()
 		PosNormTC0Vertex::s_decl, planeIndices, BX_COUNTOF(planeIndices));
 	pModel->materials.emplace_back();
 	pMtl = &pModel->materials.back();
-	pMtl->SetShader(Shader::Load("vs_tex", "fs_tex"));
+	pMtl->SetShader(Shader::Load("material/vs_tex", "material/fs_tex"));
 	pMtl->renderState = BGFX_STATE_CULL_CCW;
 	color.Set(1, 1, 1, 0);
 	pMtl->SetParamColor(CT_HASH("PM_albedoMetal"), color);
@@ -94,7 +94,7 @@ void InitScriptData()
 		PosNormVertex::s_decl, sphereIdx.data(), (uint32_t)sphereIdx.size());
 	pModel->materials.emplace_back();
 	pMtl = &pModel->materials.back();
-	pMtl->SetShader(Shader::Load("vs_clay", "fs_clay"));
+	pMtl->SetShader(Shader::Load("material/vs_clay", "material/fs_clay"));
 	pMtl->renderState = BGFX_STATE_CULL_CCW;
 	color.SetUint(208, 90, 110, 0);
 	ToLinear(color, color);
