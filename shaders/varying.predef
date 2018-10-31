@@ -10,6 +10,7 @@
 		"dir_light",
 		"screen_geo", "point_light",
 		"shading",
-		"combine"
+		"combine",
+		"tone_mapping"
 	]
 }

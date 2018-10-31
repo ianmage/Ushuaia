@@ -30,8 +30,7 @@ void main()
 	
 	final = mix(fogColor, final, fogFactor);
 	
-	gl_FragColor.xyz = toGamma(final);
-	//gl_FragColor.xyz = PV_lightDirColor.xyz;
+	gl_FragColor.xyz = final;
 
 	gl_FragColor.w = 1.0;
 
