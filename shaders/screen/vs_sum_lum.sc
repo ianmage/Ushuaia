@@ -1,9 +1,9 @@
 $input a_position
-$output v_tc0
+$output v_tc0, v_tc1
 
 #include "../common/common.sh"
 
-SAMPLER2D(s_lum_tex, 0);
+uniform vec4 uTexCoordOffset[2];
 
 
 void main()
@@ -14,7 +14,8 @@ void main()
 
 	vec2 uv = vec2(homoCoord.x + 1.f, 1.f - homoCoord.y) * 0.5f;
 
-	float adaptedLum = texture2DLod(s_lum_tex, vec2_splat(0.5f), 0).x;
+	vec4 uvuv = vec4(uv, uv);
 
-	v_tc0 = vec4(uv, adaptedLum, 0);
+	v_tc0 = uvuv + uTexCoordOffset[0];
+	v_tc1 = uvuv + uTexCoordOffset[1];
 }
