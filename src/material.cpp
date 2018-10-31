@@ -139,6 +139,8 @@ bool Material::Deserialize(JsonValue const & jsObj)
 	if (itr != jsObj.MemberEnd()) {
 		std::string vsName = itr->value[0].GetString();
 		std::string fsName = itr->value[1].GetString();
+		vsName = "material/" + vsName;
+		fsName = "material/" + fsName;
 		SetShader( Shader::Load(vsName, fsName) );
 	}
 

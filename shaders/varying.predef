@@ -1,8 +1,8 @@
 {
-	"clay": [
+	"material/clay": [
 		"clay", "clay_instance"
 	],
-	"tex": [
+	"material/tex": [
 		"tex"
 	],
 	"pos_tc0": [

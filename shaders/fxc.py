@@ -84,7 +84,7 @@ def proc(inFile, varyName, preDefs, srcModTime=None) :
 	elif isOSX :
 		curDir = '~/Programs/3rdParty/bgfx'
 		cmd = '~/Programs/bgfx_tools/shaderc'
-	cmd += ' -i %s/src -i %s/examples/common' % (curDir, curDir)
+	cmd += ' -i %s/src -i %s/examples/common -i ../shaders' % (curDir, curDir)
 
 	cmd += ' -f %s' % inFile
 	if isWin :

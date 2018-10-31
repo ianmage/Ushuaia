@@ -65,9 +65,9 @@ void Shading::Init()
 	uhRtSize = bgfx::createUniform("PV_rtSize", bgfx::UniformType::Vec4);
 
 	pDepthTech = Shader::Load("vs_screen_quad", "fs_linear_depth");
-	pDirLightTech = Shader::Load("vs_screen_quad", "fs_dir_light");
-	pPointLightTech = Shader::Load("vs_screen_geo", "fs_point_light");
-	pShadeTech = Shader::Load("vs_screen_quad", "fs_shading");
+	pDirLightTech = Shader::Load("vs_screen_quad", "lighting/fs_dir_light");
+	pPointLightTech = Shader::Load("vs_screen_geo", "lighting/fs_point_light");
+	pShadeTech = Shader::Load("vs_screen_quad", "lighting/fs_shading");
 	pCombineTech = Shader::Load("vs_screen_quad", "fs_combine");
 
 	bgfx::TextureFormat::Enum gbufFmt[3] = {

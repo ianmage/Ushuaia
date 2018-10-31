@@ -6,7 +6,7 @@ $input v_normal
 
 #include "../common/common.sh"
 #ifndef DEFERRED
-#include "forward_rendering.sh"
+#include "../lighting/forward_rendering.sh"
 #include "fog.sh"
 #endif
 

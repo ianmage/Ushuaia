@@ -9,7 +9,7 @@ def listFile(dir, nameList) :
 	for f in os.listdir(dir) :
 		p = os.path.join(dir,f)
 		if os.path.isfile(p) and f.endswith('.sc') :
-			nameList.append(p[2:])
+			nameList.append(p[2:].replace('\\', '/'))
 		elif os.path.isdir(p) :
 			listFile(p, nameList)
 
@@ -47,9 +47,8 @@ if __name__ == '__main__' :
 		if not force :
 			modTime = os.stat(f).st_mtime
 			modTime = max(lastModTime, modTime)
-		slashPos = f.rfind('/')
-		scId = f[slashPos+4:-3]
+		scId = f[f.rfind('/')+4:-3]
 		if scId in vary :
-			v = f[:slashPos+1] + vary[scId]
+			v = vary[scId]
 			fxc.proc(f, v, macros, modTime)
 	#fxc.press_any_key_exit()
