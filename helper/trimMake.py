@@ -43,7 +43,7 @@ def slnProc(fLn) :
 	ret = []
 
 	for l in fLn :
-		if l.endswith('|Win32\n') :
+		if l.endswith('|Win32\n') or l.find('|x86')!=-1 :
 			continue
 
 		if l.startswith('\t\t{') :
