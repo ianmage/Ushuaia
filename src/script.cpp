@@ -33,7 +33,7 @@ static std::vector<PosNormVertex> MakeVertice(
 		vo.normal = vNorm[i];
 	}
 
-	return std::move(vtxOut);
+	return vtxOut;
 }
 
 

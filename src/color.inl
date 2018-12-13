@@ -24,49 +24,59 @@ constexpr bool Color3F::operator==(Color3F const & other) const
 inline Color3F Color3F::operator+(Color3F const & other) const
 {
 	Color3F ret;
-	bx::vec3Add(ret.v, v, other.v);
+	ret.r = r + other.r;
+	ret.g = g + other.g;
+	ret.b = b + other.b;
 	return ret;
 }
 
 inline Color3F Color3F::operator-(Color3F const & other) const
 {
 	Color3F ret;
-	bx::vec3Sub(ret.v, v, other.v);
+	ret.r = r - other.r;
+	ret.g = g - other.g;
+	ret.b = b - other.b;
 	return ret;
 }
 
 inline Color3F Color3F::operator*(float s) const
 {
 	Color3F ret;
-	bx::vec3Mul(ret.v, v, s);
+	ret.r = r * s;
+	ret.g = g * s;
+	ret.b = b * s;
 	return ret;
 }
 
 inline Color3F Color3F::operator/(float s) const
 {
-	Color3F ret;
-	bx::vec3Mul(ret.v, v, 1.f/s);
-	return ret;
+	return operator*(1.f / s);
 }
 
-inline void Color3F::operator+=(Color3F const & other)
+constexpr void Color3F::operator+=(Color3F const & other)
 {
-	bx::vec3Add(v, v, other.v);
+	r += other.r;
+	g += other.g;
+	b += other.b;
 }
 
-inline void Color3F::operator-=(Color3F const & other)
+constexpr void Color3F::operator-=(Color3F const & other)
 {
-	bx::vec3Sub(v, v, other.v);
+	r -= other.r;
+	g -= other.g;
+	b -= other.b;
 }
 
-inline void Color3F::operator*=(float s)
+constexpr void Color3F::operator*=(float s)
 {
-	bx::vec3Mul(v, v, s);
+	r *= s;
+	g *= s;
+	b *= s;
 }
 
-inline void Color3F::operator/=(float s)
+constexpr void Color3F::operator/=(float s)
 {
-	bx::vec3Mul(v, v, 1.f/s);
+	return operator*=(1.f / s);
 }
 
 inline float Color3F::Luminance() const

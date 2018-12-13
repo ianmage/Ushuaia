@@ -78,15 +78,15 @@ struct TVec3
 
 	inline TVec3 operator+(TVec3 const & other) const;
 	inline TVec3 operator-(TVec3 const & other) const;
-	inline TVec3 operator*(TVec3 const & other) const;
-	inline TVec3 operator*(T s) const;
-	inline TVec3 operator/(T s) const;
+	constexpr TVec3 operator*(TVec3 const & other) const;
+	constexpr TVec3 operator*(T s) const;
+	constexpr TVec3 operator/(T s) const;
 
 	inline void operator+=(TVec3 const & other);
 	inline void operator-=(TVec3 const & other);
-	inline void operator*=(TVec3 const & other);
-	inline void operator*=(T s);
-	inline void operator/=(T s);
+	constexpr void operator*=(TVec3 const & other);
+	constexpr void operator*=(T s);
+	constexpr void operator/=(T s);
 
 	inline void TransformBy(Matrix3x3 const & m);
 	inline void TransformBy(Matrix4x4 const & m);
@@ -94,7 +94,7 @@ struct TVec3
 	constexpr T Dot(TVec3 const & other) const;
 	constexpr T Length() const;
 	constexpr T Normalize();
-	inline TVec3 Cross(TVec3 const & other) const;
+	constexpr TVec3 Cross(TVec3 const & other) const;
 };
 
 typedef TVec3<float>	Vector3;

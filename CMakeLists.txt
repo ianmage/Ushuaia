@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 2.8)
 
 project (my3D)
 
+cmake_policy(SET CMP0054 NEW) 
+cmake_policy(SET CMP0045 NEW)
+
 set(CMAKE_C_COMPILER "/usr/bin/clang")
 set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
 
@@ -22,10 +25,10 @@ set(JSON_INCLUDE_DIR ${EXT_DIR}/rapidjson/include)
 set(BOOST_LIB_DIR ${BOOST_INCLUDE_DIR}/stage/lib)
 if (WIN32)
 	set(BX_COMPAT_DIR ${BX_INCLUDE_DIR}/compat/msvc)
-	set(BGFX_LIB_DIR ${BGFX_INCLUDE_DIR}/../.build/win64_vs2017/bin)
+	set(BGFX_LIB_DIR ${BGFX_INCLUDE_DIR}/../.build/win64_vs2017)
 elseif (APPLE)
 	set(BX_COMPAT_DIR ${BX_INCLUDE_DIR}/compat/osx)
-	set(BGFX_LIB_DIR ${BGFX_INCLUDE_DIR}/../.build/osx64_clang/bin)
+	set(BGFX_LIB_DIR ${BGFX_INCLUDE_DIR}/../.build/osx64_clang)
 endif ()
 
 include_directories(
@@ -40,7 +43,7 @@ include_directories(
 )
 
 link_directories(
-	${BGFX_LIB_DIR}
+	${BGFX_LIB_DIR}/bin
 	${BOOST_LIB_DIR}
 )
 
@@ -54,6 +57,7 @@ if (WIN32)
 add_definitions(-D_WIN32)
 elseif (APPLE)
 add_definitions(-D_APPLE)
+#add_compile_options(-Wmissing-braces)
 endif ()
 
 if (CMAKE_BUILD_TYPE MATCHES "")
@@ -108,12 +112,12 @@ add_executable(my3D
 if (WIN32)
 
 	target_link_libraries(my3D
-		bx${CMAKE_BUILD_TYPE}.lib
-		bimg${CMAKE_BUILD_TYPE}.lib
-		bimg_decode${CMAKE_BUILD_TYPE}.lib
-		bgfx${CMAKE_BUILD_TYPE}.lib
-		example-glue${CMAKE_BUILD_TYPE}.lib
-		example-common${CMAKE_BUILD_TYPE}.lib
+		bx.lib
+		bimg.lib
+		bimg_decode.lib
+		bgfx.lib
+		example-glue.lib
+		example-common.lib
 	)
 
 elseif (APPLE)
@@ -125,6 +129,11 @@ elseif (APPLE)
 		libbimg${CFG}.a
 		libbimg_decode${CFG}.a
 		libbgfx${CFG}.a
+		#libbimg_encode${CFG}.a
+		#libfcpp${CFG}.a
+		#libglsl-optimizer${CFG}.a
+		#libglslang${CFG}.a
+		#libspirv-opt${CFG}.a
 		libexample-glue${CFG}.a
 		libexample-common${CFG}.a
 		libboost_system.a

@@ -67,6 +67,14 @@ Shader* Shader::Load(std::string const & _vsName, std::string const & _fsName)
 
 bool Shader::Init()
 {
+#if 0
+	auto hVS = ::loadShader("material/vs_clay");
+	assert(isValid(hVS));
+	int nuV = bgfx::getShaderUniforms(hVS);
+	auto hFS = ::loadShader("material/fs_clay");
+	assert(isValid(hFS));
+	int nuF = bgfx::getShaderUniforms(hFS);
+#endif
 	return true;
 }
 

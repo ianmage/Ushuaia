@@ -1,6 +1,7 @@
 #include <limits>
 #include <cassert>
 #include <bx/math.h>
+#include <math.h>
 
 
 namespace Ushuaia
@@ -161,27 +162,34 @@ inline TVec3<T> TVec3<T>::operator-(TVec3 const & other) const
 }
 
 template <typename T>
-inline TVec3<T> TVec3<T>::operator*(TVec3 const & other) const
+constexpr TVec3<T> TVec3<T>::operator*(TVec3 const & other) const
 {
 	TVec3<T> ret;
-	bx::vec3Mul(ret.v, v, other.v);
-	return std::move(ret);
+	ret.x = v.x * other.x;
+	ret.y = v.y * other.y;
+	ret.z = v.z * other.z;
+	return ret;
 }
 
 template <typename T>
-inline TVec3<T> TVec3<T>::operator*(T s) const
+constexpr TVec3<T> TVec3<T>::operator*(T s) const
 {
 	TVec3<T> ret;
-	bx::vec3Mul(ret.v, v, s);
-	return std::move(ret);
+	ret.x = x * s;
+	ret.y = y * s;
+	ret.z = z * s;
+	return ret;
 }
 
 template <typename T>
-inline TVec3<T> TVec3<T>::operator/(T s) const
+constexpr TVec3<T> TVec3<T>::operator/(T s) const
 {
 	TVec3<T> ret;
-	bx::vec3Mul(ret.v, v, 1.f/s);
-	return std::move(ret);
+	s = 1.f / s;
+	ret.x = x * s;
+	ret.y = y * s;
+	ret.z = z * s;
+	return ret;
 }
 
 template <typename T>
@@ -197,21 +205,28 @@ inline void TVec3<T>::operator-=(TVec3 const & other)
 }
 
 template <typename T>
-inline void TVec3<T>::operator*=(TVec3 const & other)
+constexpr void TVec3<T>::operator*=(TVec3 const & other)
 {
-	bx::vec3Mul(v, v, other.v);
+	x *= other.x;
+	y *= other.y;
+	z *= other.z;
 }
 
 template <typename T>
-inline void TVec3<T>::operator*=(T m)
+constexpr void TVec3<T>::operator*=(T m)
 {
-	bx::vec3Mul(v, v, m);
+	x *= m;
+	y *= m;
+	z *= m;
 }
 
 template <typename T>
-inline void TVec3<T>::operator/=(T d)
+constexpr void TVec3<T>::operator/=(T d)
 {
-	bx::vec3Mul(v, v, 1.f/d);
+	T m = 1.f / d;
+	x *= m;
+	y *= m;
+	z *= m;
 }
 
 template <typename T>
@@ -234,27 +249,33 @@ inline void TVec3<T>::TransformBy(Matrix4x4 const & m)
 template <typename T>
 constexpr T TVec3<T>::Dot(TVec3 const & other) const
 {
-	return bx::vec3Dot(v, other.v);
+	return x * other.x + y * other.y + z * other.z;
 }
 
 template <typename T>
 constexpr T TVec3<T>::Length() const
 {
-	return bx::vec3Length(v);
+	return ::sqrtf(Dot(*this));
 }
 
 template <typename T>
 constexpr T TVec3<T>::Normalize()
 {
-	return bx::vec3Norm(v, v);
+	T len = Length();
+	if (len < 1e-5f)
+		return 0;
+	operator/=(len);
+	return len;
 }
 
 template <typename T>
-inline TVec3<T> TVec3<T>::Cross(TVec3 const & other) const
+constexpr TVec3<T> TVec3<T>::Cross(TVec3 const & other) const
 {
 	TVec3<T> ret;
-	bx::vec3Cross(ret.v, v, other.v);
-	return std::move(ret);
+	ret.x = y * other.z - other.y * z;
+	ret.y = other.x * z - x * other.z;
+	ret.z = x * other.y - other.x * y;
+	return ret;
 }
 
 
@@ -400,7 +421,7 @@ inline Matrix4x4 Matrix4x4::GetInverse() const
 {
 	Matrix4x4 ret;
 	bx::mtxInverse(ret.v, v);
-	return std::move(ret);
+	return ret;
 }
 
 constexpr Vector4 const & Matrix4x4::GetRow(uint8_t r) const
@@ -449,7 +470,7 @@ inline Matrix3x3 Matrix3x3::GetInverse() const
 {
 	Matrix3x3 ret;
 	bx::mtx3Inverse(ret.v, v);
-	return std::move(ret);
+	return ret;
 }
 
 

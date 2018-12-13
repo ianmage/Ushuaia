@@ -32,8 +32,8 @@ void FrameBuffer::Fini()
 
 
 FrameBuffer::FrameBuffer(uint16_t w, uint16_t h, bgfx::TextureFormat::Enum fmt)
-: width_(w), height_(h), numRT_(1)
-, handle_(BGFX_INVALID_HANDLE)
+: handle_(BGFX_INVALID_HANDLE)
+, width_(w), height_(h), numRT_(1)
 {
 	viewID_ = s_viewCnt++;
 
@@ -42,8 +42,8 @@ FrameBuffer::FrameBuffer(uint16_t w, uint16_t h, bgfx::TextureFormat::Enum fmt)
 
 
 FrameBuffer::FrameBuffer(uint16_t w, uint16_t h, uint8_t num, bgfx::TextureFormat::Enum const * fmts)
-: width_(w), height_(h), numRT_(num)
-, handle_(BGFX_INVALID_HANDLE)
+: handle_(BGFX_INVALID_HANDLE)
+, width_(w), height_(h), numRT_(num)
 {
 	assert(num > 0 && num <= 8);
 

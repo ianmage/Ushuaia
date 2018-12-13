@@ -26,10 +26,10 @@ struct Color3F
 	inline Color3F operator*(float s) const;
 	inline Color3F operator/(float s) const;
 
-	inline void operator+=(Color3F const & other);
-	inline void operator-=(Color3F const & other);
-	inline void operator*=(float s);
-	inline void operator/=(float s);
+	constexpr void operator+=(Color3F const & other);
+	constexpr void operator-=(Color3F const & other);
+	constexpr void operator*=(float s);
+	constexpr void operator/=(float s);
 
 	inline float Luminance() const;
 };
