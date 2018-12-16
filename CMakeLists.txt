@@ -83,7 +83,7 @@ if (APPLE)
 	)
 endif ()
 
-add_executable(my3D
+add_executable(executable
 	src/appEntry.cpp
 	src/camera.cpp
 	src/confDef.cpp
@@ -111,7 +111,7 @@ add_executable(my3D
 
 if (WIN32)
 
-	target_link_libraries(my3D
+	target_link_libraries(executable
 		bx.lib
 		bimg.lib
 		bimg_decode.lib
@@ -124,7 +124,7 @@ elseif (APPLE)
 
 	set(CFG "Release")
 
-	target_link_libraries(my3D
+	target_link_libraries(executable
 		libbx${CFG}.a
 		libbimg${CFG}.a
 		libbimg_decode${CFG}.a
