@@ -74,7 +74,7 @@ void InitScriptData()
 	pMtl->SetParamColor(CT_HASH("PM_albedoMetal"), color);
 	pMtl->SetParamFloat4(CT_HASH("PM_normalGloss"), 0, 1, 0, 0);
 	TexState ts;
-	ts.hSampler = bgfx::createUniform("S_albedoTex", bgfx::UniformType::Int1);
+	ts.hSampler = bgfx::createUniform("S_albedoTex", bgfx::UniformType::Sampler);
 	ts.stage = 0;
 	ts.pTex = TexMgr::LoadFromFile("figure-rgba");
 	ts.flags = UINT32_MAX;

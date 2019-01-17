@@ -113,7 +113,7 @@ std::string Shader::Name() const
 
 constexpr uint32_t GetUniformTypeSize(bgfx::UniformType::Enum t)
 {
-	return (t == bgfx::UniformType::Int1) ? sizeof(int32_t)
+	return (t == bgfx::UniformType::Sampler) ? sizeof(int32_t)
 		: (t == bgfx::UniformType::Vec4) ? sizeof(Vector4)
 		: (t == bgfx::UniformType::Mat3) ? sizeof(Matrix3x3)
 		: (t == bgfx::UniformType::Mat4) ? sizeof(Matrix4x4)
@@ -132,7 +132,7 @@ constexpr uint8_t PackUniformType(bgfx::UniformType::Enum t)
 constexpr bgfx::UniformType::Enum UnpackUniformType(uint8_t t)
 {
 	bgfx::UniformType::Enum ut[] = {
-		bgfx::UniformType::Int1,
+		bgfx::UniformType::Sampler,
 		bgfx::UniformType::Vec4,
 		bgfx::UniformType::Mat3,
 		bgfx::UniformType::Mat4

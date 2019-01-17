@@ -34,6 +34,8 @@ struct TVec2
 	constexpr T& operator[](int i);
 	constexpr T operator[](int i) const;
 
+	constexpr TVec2(T _v0, T _v1)
+		: x(_v0), y(_v1) {}
 	constexpr void Set(T _v0, T _v1);
 
 	constexpr bool operator==(TVec2 const & other) const;
@@ -72,30 +74,42 @@ struct TVec3
 	constexpr T& operator[](int i);
 	constexpr T operator[](int i) const;
 
+	constexpr TVec3() : x(0), y(0), z(0) {}
+	constexpr TVec3(T _v0, T _v1, T _v2)
+		: x(_v0), y(_v1), z(_v2) {}
+	//constexpr TVec3(TVec3 const & _v)
+	//	: x(_v.x), y(_v.y), z(_v.z) {}
 	constexpr void Set(T _v0, T _v1, T _v2);
 
 	constexpr bool operator==(TVec3 const & other) const;
 
-	inline TVec3 operator+(TVec3 const & other) const;
-	inline TVec3 operator-(TVec3 const & other) const;
+	constexpr TVec3 operator+(TVec3 const & other) const;
+	constexpr TVec3 operator-(TVec3 const & other) const;
 	constexpr TVec3 operator*(TVec3 const & other) const;
 	constexpr TVec3 operator*(T s) const;
 	constexpr TVec3 operator/(T s) const;
 
-	inline void operator+=(TVec3 const & other);
-	inline void operator-=(TVec3 const & other);
+	constexpr void operator+=(TVec3 const & other);
+	constexpr void operator-=(TVec3 const & other);
 	constexpr void operator*=(TVec3 const & other);
 	constexpr void operator*=(T s);
 	constexpr void operator/=(T s);
 
-	inline void TransformBy(Matrix3x3 const & m);
-	inline void TransformBy(Matrix4x4 const & m);
+	constexpr void TransformBy(Matrix3x3 const & m);
+	constexpr void TransformBy(Matrix4x4 const & m);
 
 	constexpr T Dot(TVec3 const & other) const;
 	constexpr T Length() const;
 	constexpr T Normalize();
 	constexpr TVec3 Cross(TVec3 const & other) const;
 };
+
+template <typename T>
+constexpr TVec3<T> const & Mul(TVec3<T> & out, TVec3<T> const & v, Matrix3x3 const & m);
+template <typename T>
+constexpr TVec3<T> const & Mul(TVec3<T> & out, TVec3<T> const & v, Matrix4x4 const & m);
+template <typename T>
+constexpr TVec3<T> CalcNormal(TVec3<T> const & _va, TVec3<T> const & _vb, TVec3<T> const & _vc);
 
 typedef TVec3<float>	Vector3;
 
@@ -117,18 +131,26 @@ struct TVec4
 	constexpr TVec3<T> & Vec3();
 	constexpr TVec3<T> const & Vec3() const;
 
+	constexpr TVec4() : x(0), y(0), z(0), w(0) {}
+	constexpr TVec4(T _v0, T _v1, T _v2, T _v3)
+		: x(_v0), y(_v1), z(_v2), w(_v3) {}
+	//constexpr TVec4(TVec4 const & _v)
+	//	: x(_v.x), y(_v.y), z(_v.z), w(_v.w) {}
 	constexpr void Set(T _v0, T _v1, T _v2, T _v3);
 
 	constexpr bool operator==(TVec4 const & other) const;
 
-	inline TVec4 operator*(T r) const;
-	inline TVec4 operator/(T r) const;
+	constexpr TVec4 operator*(T r) const;
+	constexpr TVec4 operator/(T r) const;
 
-	inline void operator*=(T r);
-	inline void operator/=(T r);
+	constexpr void operator*=(T r);
+	constexpr void operator/=(T r);
 
 	constexpr void TransformBy(Matrix4x4 const & m);
 };
+
+template <typename T>
+constexpr TVec4<T> const & Mul(TVec4<T> & out, TVec4<T> const & v, Matrix4x4 const & m);
 
 typedef TVec4<float>	Vector4;
 
@@ -140,14 +162,14 @@ struct Matrix4x4
 	constexpr float& operator[](int i);
 	constexpr float operator[](int i) const;
 
-	inline void SetIdentity();
+	constexpr void SetIdentity();
 	inline void SetSRT(Vector3 const & s, Vector3 const & r, Vector3 const & t);
 
-	inline void Transform(Vector4 & out, Vector4 const & in) const;
-	inline void TransformPos(Vector3 & out, Vector3 const & in) const;
-	inline void TransformDir(Vector3 & out, Vector3 const & in) const;
-	inline void TransformPos(Vector4 & out, Vector4 const & in) const;
-	inline void TransformDir(Vector4 & out, Vector4 const & in) const;
+	constexpr void Transform(Vector4 & out, Vector4 const & in) const;
+	constexpr void TransformPos(Vector3 & out, Vector3 const & in) const;
+	constexpr void TransformDir(Vector3 & out, Vector3 const & in) const;
+	constexpr void TransformPos(Vector4 & out, Vector4 const & in) const;
+	constexpr void TransformDir(Vector4 & out, Vector4 const & in) const;
 
 	constexpr void Mtx4x3(float * out) const;
 
@@ -167,7 +189,7 @@ struct Matrix3x3
 	constexpr float& operator[](int i);
 	constexpr float operator[](int i) const;
 
-	inline void SetIdentity();
+	constexpr void SetIdentity();
 
 	constexpr void Transform(Vector3 & out, Vector3 const & in) const;
 

@@ -59,7 +59,7 @@ void WorldSpaceFrustumCorners(FrustumCorners & corners
 	Vector2 const ns { near * projWidth, near * projHeight };
 	Vector2 const fs { far * projWidth, far * projHeight };
 
-	float const rawCorners[8][3] = {
+	Vector3 const rawCorners[8] = {
 		{ -ns.x,  ns.y, near },
 		{  ns.x,  ns.y, near },
 		{  ns.x, -ns.y, near },
@@ -71,7 +71,7 @@ void WorldSpaceFrustumCorners(FrustumCorners & corners
 	};
 
 	for (uint8_t ii = 0; ii < 8; ++ii) {
-		bx::vec3MulMtx(corners[ii].v, (float*)&rawCorners[ii], mtxInvView.v);
+		Mul(corners[ii], rawCorners[ii], mtxInvView);
 	}
 }
 
@@ -111,11 +111,10 @@ void CalcMeshNormal(Vector3 * normals, uint16_t numNorm
 	::memset(normals, 0, sizeof(Vector3) * numNorm);
 
 	for (uint32_t i = 0; i < numIdx; i += 3) {
-		Vector3 n;
 		Vector3 const & v0 = vertices[indices[i]];
 		Vector3 const & v1 = vertices[indices[i+1]];
 		Vector3 const & v2 = vertices[indices[i+2]];
-		bx::calcNormal(n.v, v0.v, v1.v, v2.v);
+		Vector3 n = CalcNormal(v0, v1, v2);
 		for (uint8_t j = 0; j < 3; ++j) {
 			normals[indices[i]] += n;
 		}

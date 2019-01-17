@@ -58,7 +58,7 @@ void Shading::Init()
 	std::string const smpl = "s_tex";
 	for (uint8_t i = 0; i < ArrayCount(s_Sampler); ++i) {
 		s_Sampler[i] = bgfx::createUniform((smpl+std::to_string(i)).c_str()
-			, bgfx::UniformType::Int1);
+			, bgfx::UniformType::Sampler);
 	}
 	uhParam = bgfx::createUniform("uParam", bgfx::UniformType::Vec4);
 	uhViewVec = bgfx::createUniform("PV_viewVec", bgfx::UniformType::Vec4);

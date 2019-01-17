@@ -33,39 +33,31 @@ constexpr bool TVec2<T>::operator==(TVec2 const & other) const
 template <typename T>
 constexpr TVec2<T> TVec2<T>::operator+(TVec2 const & other) const
 {
-	TVec2<T> ret;
-	ret.Set(v[0] + other.v[0], v[1] + other.v[1]);
-	return std::move(ret);
+	return TVec2(x+other.x, y+other.y);
 }
 
 template <typename T>
 constexpr TVec2<T> TVec2<T>::operator-(TVec2 const & other) const
 {
-	TVec2 ret;
-	ret.Set(v[0] - other.v[0], v[1] - other.v[1]);
-	return std::move(ret);
+	return TVec2(x-other.x, y-other.y);
 }
 
 template <typename T>
 constexpr TVec2<T> TVec2<T>::operator*(TVec2 const & other) const
 {
-	TVec2<T> ret;
-	ret.Set(v[0] * other.v[0], v[1] * other.v[1]);
-	return std::move(ret);
+	return TVec2(x*other.x, y*other.y);
 }
 
 template <typename T>
 constexpr TVec2<T> TVec2<T>::operator*(T s) const
 {
-	TVec2 ret;
-	ret.Set(v[0] * s, v[1] * s);
-	return std::move(ret);
+	return TVec2(x*s, y*s);
 }
 
 template <typename T>
 constexpr TVec2<T> TVec2<T>::operator/(T s) const
 {
-	return TVec2<T>{ v[0] / s, v[1] / s };
+	return TVec2(v[0] / s, v[1] / s);
 }
 
 template <typename T>
@@ -95,7 +87,7 @@ constexpr void TVec2<T>::operator*=(T s)
 template <typename T>
 constexpr void TVec2<T>::operator/=(T s)
 {
-	set(v[0] / s, v[1] / s);
+	Set(v[0] / s, v[1] / s);
 }
 
 template <typename T>
@@ -108,14 +100,14 @@ constexpr T TVec2<T>::Dot(TVec2 const & other) const
 template <typename T>
 inline T TVec2<T>::Length() const
 {
-	return bx::sqrt(Dot(*this));
+	return ::sqrtf(Dot(*this));
 }
 
 template <typename T>
 inline T TVec2<T>::Normalize()
 {
-	float const len = Length();
-	float const invLen = 1.0f / len;
+	T const len = Length();
+	T const invLen = 1.0f / len;
 	x = x * invLen;
 	y = y * invLen;
 	return len;
@@ -146,62 +138,50 @@ constexpr bool TVec3<T>::operator==(TVec3 const & other) const
 }
 
 template <typename T>
-inline TVec3<T> TVec3<T>::operator+(TVec3 const & other) const
+constexpr TVec3<T> TVec3<T>::operator+(TVec3 const & other) const
 {
-	TVec3<T> ret;
-	bx::vec3Add(ret.v, v, other.v);
-	return std::move(ret);
+	return TVec3(x+other.x, y+other.y, z+other.z);
 }
 
 template <typename T>
-inline TVec3<T> TVec3<T>::operator-(TVec3 const & other) const
+constexpr TVec3<T> TVec3<T>::operator-(TVec3 const & other) const
 {
-	TVec3<T> ret;
-	bx::vec3Sub(ret.v, v, other.v);
-	return std::move(ret);
+	return TVec3(x-other.x, y-other.y, z-other.z);
 }
 
 template <typename T>
 constexpr TVec3<T> TVec3<T>::operator*(TVec3 const & other) const
 {
-	TVec3<T> ret;
-	ret.x = v.x * other.x;
-	ret.y = v.y * other.y;
-	ret.z = v.z * other.z;
-	return ret;
+	return TVec3(x*other.x, y*other.y, z*other.z);
 }
 
 template <typename T>
 constexpr TVec3<T> TVec3<T>::operator*(T s) const
 {
-	TVec3<T> ret;
-	ret.x = x * s;
-	ret.y = y * s;
-	ret.z = z * s;
-	return ret;
+	return TVec3(x*s, y*s, z*s);
 }
 
 template <typename T>
 constexpr TVec3<T> TVec3<T>::operator/(T s) const
 {
-	TVec3<T> ret;
 	s = 1.f / s;
-	ret.x = x * s;
-	ret.y = y * s;
-	ret.z = z * s;
-	return ret;
+	return TVec3(x*s, y*s, z*s);
 }
 
 template <typename T>
-inline void TVec3<T>::operator+=(TVec3 const & other)
+constexpr void TVec3<T>::operator+=(TVec3 const & other)
 {
-	bx::vec3Add(v, v, other.v);
+	x += other.x;
+	y += other.y;
+	z += other.z;
 }
 
 template <typename T>
-inline void TVec3<T>::operator-=(TVec3 const & other)
+constexpr void TVec3<T>::operator-=(TVec3 const & other)
 {
-	bx::vec3Sub(v, v, other.v);
+	x -= other.x;
+	y -= other.y;
+	z -= other.z;
 }
 
 template <typename T>
@@ -230,20 +210,21 @@ constexpr void TVec3<T>::operator/=(T d)
 }
 
 template <typename T>
-inline void TVec3<T>::TransformBy(Matrix3x3 const & m)
+constexpr void TVec3<T>::TransformBy(Matrix3x3 const & m)
 {
 	T nX = x * m[0] + y * m[3] + z * m[6];
 	T nY = x * m[1] + y * m[4] + z * m[7];
 	T nZ = x * m[2] + y * m[5] + z * m[8];
-	set(nX, nY, nZ);
+	Set(nX, nY, nZ);
 }
 
 template <typename T>
-inline void TVec3<T>::TransformBy(Matrix4x4 const & m)
+constexpr void TVec3<T>::TransformBy(Matrix4x4 const & m)
 {
-	TVec3<T> result;
-	bx::vec3MulMtx(result.v, v, m.v);
-	*this = result;
+	T nX = x * m[0] + y * m[4] + z * m[ 8] + m[12];
+	T nY = x * m[1] + y * m[5] + z * m[ 9] + m[13];
+	T nZ = x * m[2] + y * m[6] + z * m[10] + m[14];
+	Set(nX, nY, nZ);
 }
 
 template <typename T>
@@ -276,6 +257,36 @@ constexpr TVec3<T> TVec3<T>::Cross(TVec3 const & other) const
 	ret.y = other.x * z - x * other.z;
 	ret.z = x * other.y - other.x * y;
 	return ret;
+}
+
+
+template <typename T>
+constexpr TVec3<T> const & Mul(TVec3<T> & out, TVec3<T> const & v, Matrix3x3 const & m)
+{
+	out.x = v.x * m[0] + v.y * m[3] + v.z * m[6];
+	out.y = v.x * m[1] + v.y * m[4] + v.z * m[7];
+	out.z = v.x * m[2] + v.y * m[5] + v.z * m[8];
+	return out;
+}
+
+template <typename T>
+constexpr TVec3<T> const & Mul(TVec3<T> & out, TVec3<T> const & v, Matrix4x4 const & m)
+{
+	out.x = v.x * m[0] + v.y * m[4] + v.z * m[ 8] + m[12];
+	out.y = v.x * m[1] + v.y * m[5] + v.z * m[ 9] + m[13];
+	out.z = v.x * m[2] + v.y * m[6] + v.z * m[10] + m[14];
+	return out;
+}
+
+
+template <typename T>
+constexpr TVec3<T> CalcNormal(TVec3<T> const & _va, TVec3<T> const & _vb, TVec3<T> const & _vc)
+{
+	TVec3<T> ba = _vb - _va;
+	TVec3<T> ca = _vc - _va;
+	TVec3<T> baXca = ba.Cross(ca);
+	baXca.Normalize();
+	return baXca;
 }
 
 
@@ -315,39 +326,52 @@ constexpr bool TVec4<T>::operator==(TVec4 const & other) const
 }
 
 template <typename T>
-inline TVec4<T> TVec4<T>::operator*(T s) const
+constexpr TVec4<T> TVec4<T>::operator*(T s) const
 {
-	TVec4<T> ret;
-	bx::vec4Mul(ret.v, v, s);
-	return std::move(ret);
+	return TVec4(x*s, y*s, z*s, w*s);
 }
 
 template <typename T>
-inline TVec4<T> TVec4<T>::operator/(T s) const
+constexpr TVec4<T> TVec4<T>::operator/(T s) const
 {
-	TVec4<T> ret;
-	bx::vec4Mul(ret.v, v, 1.f/s);
-	return std::move(ret);
+	s = 1.0f / s;
+	return TVec4(x*s, y*s, z*s, w*s);
 }
 
 template <typename T>
-inline void TVec4<T>::operator*=(T s)
+constexpr void TVec4<T>::operator*=(T s)
 {
-	bx::vec4Mul(v, v, s);
+	x *= s; y *= s;
+	z *= s; w *= s;
 }
 
 template <typename T>
-inline void TVec4<T>::operator/=(T s)
+constexpr void TVec4<T>::operator/=(T s)
 {
-	bx::vec4Mul(v, v, 1.f/s);
+	s = 1.0f / s;
+	x *= s; y *= s;
+	z *= s; w *= s;
 }
 
 template <typename T>
 constexpr void TVec4<T>::TransformBy(Matrix4x4 const & m)
 {
-	TVec4<T> result;
-	bx::vec4MulMtx(result.v, v, m.v);
-	*this = result;
+	T nX = x * m[0] + y * m[4] + z * m[ 8] + m[12];
+	T nY = x * m[1] + y * m[5] + z * m[ 9] + m[13];
+	T nZ = x * m[2] + y * m[6] + z * m[10] + m[14];
+	T nW = x * m[3] + y * m[7] + z * m[12] + m[15];
+	Set(nX, nY, nZ, nW);
+}
+
+
+template <typename T>
+constexpr TVec4<T> const & Mul(TVec4<T> & out, TVec4<T> const & v, Matrix4x4 const & m)
+{
+	out.x = v.x * m[0] + v.y * m[4] + v.z * m[ 8] + m[12];
+	out.y = v.x * m[1] + v.y * m[5] + v.z * m[ 9] + m[13];
+	out.z = v.x * m[2] + v.y * m[6] + v.z * m[10] + m[14];
+	out.w = v.x * m[3] + v.y * m[7] + v.z * m[12] + m[15];
+	return out;
 }
 
 
@@ -360,10 +384,15 @@ constexpr float Matrix4x4::operator[](int i) const
 	return v[i];
 }
 
-inline void Matrix4x4::SetIdentity()
+constexpr void Matrix4x4::SetIdentity()
 {
-	memset(v, 0, sizeof(v));
-	v[0] = v[5] = v[10] = v[15] = 1.0f;
+	v[0] = 1.0f;
+	v[1] = v[2] = v[3] = v[4] = 0.0f;
+	v[5] = 1.0f;
+	v[6] = v[7] = v[8] = v[9] = 0.0f;
+	v[10] = 1.0f;
+	v[11] = v[12] = v[13] = v[14] = 0.0f;
+	v[15] = 1.0f;
 }
 
 inline void Matrix4x4::SetSRT(Vector3 const & s, Vector3 const & r, Vector3 const & t)
@@ -371,30 +400,41 @@ inline void Matrix4x4::SetSRT(Vector3 const & s, Vector3 const & r, Vector3 cons
 	bx::mtxSRT(v, s.x, s.y, s.z, r.x, r.y, r.z, t.x, t.y, t.z);
 }
 
-inline void Matrix4x4::Transform(Vector4 & out, Vector4 const & in) const
+constexpr void Matrix4x4::Transform(Vector4 & out, Vector4 const & in) const
 {
-	bx::vec4MulMtx(out.v, in.v, v);
+	out.x = in.x * v[0] + in.y * v[4] + in.z * v[ 8] + in.w * v[12];
+	out.y = in.x * v[1] + in.y * v[5] + in.z * v[ 9] + in.w * v[13];
+	out.z = in.x * v[2] + in.y * v[6] + in.z * v[10] + in.w * v[14];
+	out.w = in.x * v[3] + in.y * v[7] + in.z * v[11] + in.w * v[15];
 }
 
-inline void Matrix4x4::TransformPos(Vector3 & out, Vector3 const & in) const
+constexpr void Matrix4x4::TransformPos(Vector3 & out, Vector3 const & in) const
 {
-	bx::vec3MulMtx(out.v, in.v, v);
+	out.x = in.x * v[0] + in.y * v[4] + in.z * v[ 8] + v[12];
+	out.y = in.x * v[1] + in.y * v[5] + in.z * v[ 9] + v[13];
+	out.z = in.x * v[2] + in.y * v[6] + in.z * v[10] + v[14];
 }
 
-inline void Matrix4x4::TransformDir(Vector3 & out, Vector3 const & in) const
+constexpr void Matrix4x4::TransformDir(Vector3 & out, Vector3 const & in) const
 {
-	bx::vec3MulMtxXyz0(out.v, in.v, v);
+	out.x = in.x * v[0] + in.y * v[4] + in.z * v[ 8];
+	out.y = in.x * v[1] + in.y * v[5] + in.z * v[ 9];
+	out.z = in.x * v[2] + in.y * v[6] + in.z * v[10];
 }
 
-inline void Matrix4x4::TransformPos(Vector4 & out, Vector4 const & in) const
+constexpr void Matrix4x4::TransformPos(Vector4 & out, Vector4 const & in) const
 {
-	bx::vec3MulMtx(out.Vec3().v, in.Vec3().v, v);
+	out.x = in.x * v[0] + in.y * v[4] + in.z * v[ 8] + v[12];
+	out.y = in.x * v[1] + in.y * v[5] + in.z * v[ 9] + v[13];
+	out.z = in.x * v[2] + in.y * v[6] + in.z * v[10] + v[14];
 	out.w = in.w;
 }
 
-inline void Matrix4x4::TransformDir(Vector4 & out, Vector4 const & in) const
+constexpr void Matrix4x4::TransformDir(Vector4 & out, Vector4 const & in) const
 {
-	bx::vec3MulMtxXyz0(out.Vec3().v, in.Vec3().v, v);
+	out.x = in.x * v[0] + in.y * v[4] + in.z * v[ 8];
+	out.y = in.x * v[1] + in.y * v[5] + in.z * v[ 9];
+	out.z = in.x * v[2] + in.y * v[6] + in.z * v[10];
 	out.w = in.w;
 }
 
@@ -444,10 +484,13 @@ constexpr float Matrix3x3::operator[](int i) const
 	return v[i];
 }
 
-inline void Matrix3x3::SetIdentity()
+constexpr void Matrix3x3::SetIdentity()
 {
-	memset(v, 0, sizeof(v));
-	v[0] = v[4] = v[8] = 1.0f;
+	v[0] = 1.0f;
+	v[1] = v[2] = v[3] = 0.0f;
+	v[4] = 1.0f;
+	v[5] = v[6] = v[7] = 0.0f;
+	v[8] = 1.0f;
 }
 
 constexpr void Matrix3x3::Transform(Vector3 & out, Vector3 const & in) const

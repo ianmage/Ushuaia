@@ -66,7 +66,8 @@ void Camera::RecalcProj()
 
 void Camera::SetPos(Vector3 const & pos)
 {
-	cameraSetPosition(pos.v);
+	bx::Vec3 const * bxVec3 = reinterpret_cast<bx::Vec3 const *>(pos.v);
+	cameraSetPosition(*bxVec3);
 }
 
 void Camera::SetHorizontalAngle(float ha)
@@ -90,7 +91,7 @@ void Camera::Update()
 	Matrix4x4 mtxViewProj;
 	MtxMultiply(mtxViewProj, mtxView, mtxProj);
 
-	::Plane *planes = reinterpret_cast<::Plane*>(frustum);
+	bx::Plane *planes = reinterpret_cast<bx::Plane*>(frustum);
 	buildFrustumPlanes(planes, mtxViewProj.v);
 }
 
