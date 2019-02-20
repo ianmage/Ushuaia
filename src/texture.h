@@ -20,9 +20,24 @@ public:
 		FROM_MEM
 	};
 
+	Texture(bgfx::TextureInfo const & texInfo, std::string const & name="");
 	virtual ~Texture();
 
-	bgfx::TextureHandle Get();
+	void Lost();
+
+	bgfx::TextureHandle Handle() const { return handle_; }
+	void Handle(bgfx::TextureHandle hTex, bool managed);
+
+	bgfx::TextureFormat::Enum Format() const { return info_.format; }
+	uint16_t Width() const { return info_.width; }
+	uint16_t Height() const { return info_.height; }
+	uint16_t Depth() const { return info_.depth; }
+	uint16_t NumLayers() const { return info_.numLayers; }
+	uint8_t NumMips() const { return info_.numMips; }
+	uint8_t BPP() const { return info_.bitsPerPixel; }
+	bool IsCube() const { return info_.cubeMap; }
+	uint32_t SizeInBytes() const { return info_.storageSize; }
+
 	std::string const & Name() const { return name_; }
 
 private:
@@ -31,10 +46,11 @@ private:
 		FILE_NOT_FOUND
 	};
 
-	Texture(std::string const & _name);
+	bgfx::TextureHandle handle_;
+	bool managed_;
+	bgfx::TextureInfo info_;
 
 	std::string name_;
-	bgfx::TextureHandle handle_;
 	uint8_t flag_;
 	uint8_t stateFlag_;
 

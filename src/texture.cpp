@@ -8,33 +8,33 @@
 namespace Ushuaia
 {
 
-Texture::Texture(std::string const & _name)
-	: name_(_name), handle_(BGFX_INVALID_HANDLE)
-	, stateFlag_(STATE_NORMAL)
+
+Texture::Texture(bgfx::TextureInfo const & texInfo, std::string const & name)
+: handle_(BGFX_INVALID_HANDLE), info_(texInfo), name_(name)
 {
-	
+	stateFlag_ = STATE_NORMAL;
 }
 
 
 Texture::~Texture()
 {
-	if (isValid(handle_))
+	Lost();
+}
+
+
+void Texture::Lost()
+{
+	if (!managed_ && isValid(handle_))
 		bgfx::destroy(handle_);
 }
 
 
-bgfx::TextureHandle Texture::Get()
+void Texture::Handle(bgfx::TextureHandle hTex, bool managed)
 {
-	if (isValid(handle_))
-		return handle_;
-	if (flag_ & FROM_FILE) {
-		if (!(stateFlag_ & FILE_NOT_FOUND)) {
-			handle_ = loadTexture(("texture/" + name_ + ".dds").c_str());
-			if (!isValid(handle_))
-				stateFlag_ |= FILE_NOT_FOUND;
-		}
-	}
-	return handle_;
+	Lost();
+
+	managed_ = managed;
+	handle_ = hTex;
 }
 
 
@@ -51,8 +51,15 @@ std::shared_ptr<Texture> TexMgr::LoadFromFile(std::string const & name)
 			return itr->second.lock();
 	}
 
-	Texture* pTex = new Texture(name);
+	bgfx::TextureInfo texInfo;
+	bgfx::TextureHandle hTex = ::loadTexture(("texture/" + name + ".dds").c_str(),
+		0U, (uint8_t)'\000', &texInfo);
+
+	Texture* pTex = new Texture(texInfo, name);
+	pTex->Handle(hTex, false);
 	pTex->flag_ = Texture::FROM_FILE;
+	if (!isValid(hTex))
+		pTex->stateFlag_ = Texture::FILE_NOT_FOUND;
 	std::shared_ptr<Texture> ret(pTex);
 	s_texs[k] = ret;
 	return ret;

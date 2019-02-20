@@ -34,6 +34,7 @@ struct TVec2
 	constexpr T& operator[](int i);
 	constexpr T operator[](int i) const;
 
+	constexpr TVec2() : x(0), y(0) {}
 	constexpr TVec2(T _v0, T _v1)
 		: x(_v0), y(_v1) {}
 	constexpr void Set(T _v0, T _v1);

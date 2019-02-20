@@ -33,24 +33,43 @@ void FrameBuffer::Fini()
 
 FrameBuffer::FrameBuffer(uint16_t w, uint16_t h, bgfx::TextureFormat::Enum fmt)
 : handle_(BGFX_INVALID_HANDLE)
-, width_(w), height_(h), numRT_(1)
+, width_(w), height_(h)
 {
 	viewID_ = s_viewCnt++;
 
-	fmts_[0] = fmt;
+	bgfx::TextureInfo texInfo;
+	texInfo.width = w;
+	texInfo.height = h;
+	texInfo.depth = 1;
+	texInfo.numLayers = 1;
+	texInfo.numMips = 1;
+	texInfo.format = fmt;
+	texInfo.cubeMap = false;
+
+	rTexs_.emplace_back(texInfo);
 }
 
 
 FrameBuffer::FrameBuffer(uint16_t w, uint16_t h, uint8_t num, bgfx::TextureFormat::Enum const * fmts)
 : handle_(BGFX_INVALID_HANDLE)
-, width_(w), height_(h), numRT_(num)
+, width_(w), height_(h)
 {
 	assert(num > 0 && num <= 8);
 
 	viewID_ = s_viewCnt++;
 
-	for (uint8_t i = 0; i < num; ++i)
-		fmts_[i] = fmts[i];
+	bgfx::TextureInfo texInfo;
+	for (uint8_t i = 0; i < num; ++i) {
+		texInfo.width = w;
+		texInfo.height = h;
+		texInfo.depth = 1;
+		texInfo.numLayers = 1;
+		texInfo.numMips = 1;
+		texInfo.format = fmts[i];
+		texInfo.cubeMap = false;
+
+		rTexs_.emplace_back(texInfo);
+	}
 }
 
 
@@ -62,7 +81,8 @@ FrameBuffer::~FrameBuffer()
 
 void FrameBuffer::Reset()
 {
-	if (fmts_[0] == bgfx::TextureFormat::Unknown)
+	size_t const numRT = rTexs_.size();
+	if (numRT == 0)
 		return;
 	assert(!isValid(handle_));
 
@@ -77,10 +97,11 @@ void FrameBuffer::Reset()
 
 	bgfx::TextureHandle rts[8];
 
-	for (uint8_t i = 0; i < numRT_; ++i) {
-		rts[i] = bgfx::createTexture2D(width_, height_, false, 1, fmts_[i], samplerFlags);
+	for (uint8_t i = 0; i < numRT; ++i) {
+		rts[i] = bgfx::createTexture2D(width_, height_, false, 1, rTexs_[i].Format(), samplerFlags);
+		rTexs_[i].Handle(rts[i], true);
 	}
-	handle_ = bgfx::createFrameBuffer(numRT_, rts, true);
+	handle_ = bgfx::createFrameBuffer(numRT, rts, true);
 }
 
 

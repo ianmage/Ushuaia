@@ -1,6 +1,8 @@
 #pragma once
 #include <bgfx/bgfx.h>
 #include "camera.h"
+#include "texture.h"
+#include <vector>
 
 
 namespace Ushuaia
@@ -22,8 +24,8 @@ public:
 	void Lost();
 
 	bgfx::FrameBufferHandle Handle() const { return handle_; }
-	bgfx::TextureHandle TexHandle(uint8_t attchment) const {
-		return bgfx::getTexture(handle_, attchment);
+	Texture const & Tex(uint8_t attachment) const {
+		return rTexs_[attachment];
 	}
 
 	uint16_t Width() const { return width_; }
@@ -36,8 +38,7 @@ private:
 	bgfx::FrameBufferHandle handle_;
 
 	uint16_t width_, height_;
-	uint8_t numRT_;
-	bgfx::TextureFormat::Enum fmts_[8];
+	std::vector<Texture> rTexs_;
 
 	uint16_t viewID_;
 

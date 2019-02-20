@@ -91,6 +91,7 @@ add_executable(executable
 	src/entity.cpp
 	src/forwardRendering.cpp
 	src/frameBuffer.cpp
+	src/hdr.cpp
 	src/light.cpp
 	src/material.cpp
 	src/mesh.cpp

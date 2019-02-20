@@ -210,7 +210,7 @@ void Material::SubmitParams(Shader const * pOverrideShader) const
 
 	for (auto & ts : texStates) {
 		if (ts.pTex)
-			bgfx::setTexture(ts.stage, ts.hSampler, ts.pTex->Get(), ts.flags);
+			bgfx::setTexture(ts.stage, ts.hSampler, ts.pTex->Handle(), ts.flags);
 		else {
 			bgfx::setTexture(ts.stage, ts.hSampler, BGFX_INVALID_HANDLE, ts.flags);
 		}
