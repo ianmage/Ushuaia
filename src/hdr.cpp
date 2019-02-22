@@ -4,7 +4,6 @@
 #include "bx/math.h"
 #include "renderUtil.h"
 #include "postProcess.h"
-#include "frameBuffer.h"
 #include "../../cpp_common/commUtil.h"
 
 
@@ -29,10 +28,10 @@ void HDR::Init()
 	}
 	uhViewVec = bgfx::createUniform("PV_viewVec", bgfx::UniformType::Vec4);
 	uhRtSize = bgfx::createUniform("PV_rtSize", bgfx::UniformType::Vec4);
-	uhOffsets = bgfx::createUniform("uvOffsets", bgfx::UniformType::Vec4, 2);
+	uhOffsets = bgfx::createUniform("uTexCoordOffset", bgfx::UniformType::Vec4, 2);
 
-	pLumTech = Shader::Load("screen/vs_screen_quad", "screen/hdr/fs_lum");
-	pLumAvgTech = Shader::Load("screen/vs_screen_quad", "screen/hdr/fs_lumavg");
+	pLumTech = Shader::Load("screen/vs_screen_quad", "screen/HDR/fs_sum_lum");
+	pLumAvgTech = Shader::Load("screen/vs_screen_quad", "screen/HDR/fs_sum_lum_avg");
 
 	Reset();
 }
@@ -101,9 +100,10 @@ static void ZoomOut(uint16_t* pW, uint16_t* pH)
 }
 
 
-static FrameBuffer* CalcLumAverage(Texture const & tex)
+static FrameBuffer* SumLumAverage(Texture const & tex)
 {
-	FrameBuffer *pFB = nullptr;
+	FrameBuffer *pFB = nullptr, *pOldFB = nullptr;
+	bgfx::TextureHandle hTex = tex.Handle();
 	uint16_t w = tex.Width(), h = tex.Height();
 	while (w > 1 || h > 1) {
 		float u = 1.0f / w, v = 1.0f / h;
@@ -115,14 +115,18 @@ static FrameBuffer* CalcLumAverage(Texture const & tex)
 		pFB = new FrameBuffer(w, h, bgfx::TextureFormat::BGRA8);
 		pFB->Setup(nullptr, bgfx::ViewMode::Sequential, false);
 		bgfx::setUniform(uhOffsets, offsets, 2);
-		bgfx::setTexture(0, s_Sampler[0], tex.Handle());
+		bgfx::setTexture(0, s_Sampler[0], hTex);
 		bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A);
 		PostProcess::DrawFullScreen(pLumAvgTech);
+		delete pOldFB;
+		pOldFB = pFB;
+		hTex = pFB->Tex(0).Handle();
 	}
+	return pFB;
 }
 
 
-static FrameBuffer* CalcLum(Texture const & tex)
+static FrameBuffer* SumLum(Texture const & tex)
 {
 	FrameBuffer *pFB = nullptr;
 	uint16_t w = tex.Width(), h = tex.Height();
@@ -139,7 +143,7 @@ static FrameBuffer* CalcLum(Texture const & tex)
 	bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A);
 	PostProcess::DrawFullScreen(pLumTech);
 
-	pFB = CalcLumAverage(pFB->Tex(0));
+	pFB = SumLumAverage(pFB->Tex(0));
 
 	return pFB;
 }
@@ -147,7 +151,7 @@ static FrameBuffer* CalcLum(Texture const & tex)
 
 void HDR::Render(Texture const & inTex, FrameBuffer const * pOutFB)
 {
-	FrameBuffer* pLumFB = CalcLum(inTex);
+	FrameBuffer* pLumFB = SumLum(inTex);
 
 
 	delete pLumFB;

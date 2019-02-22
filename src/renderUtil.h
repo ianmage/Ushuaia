@@ -2,7 +2,6 @@
 
 #include <array>
 #include <vector>
-#include "vtxDecl.h"
 #include "shader.h"
 #include "camera.h"
 

@@ -85,6 +85,7 @@ endif ()
 
 add_executable(executable
 	src/appEntry.cpp
+	src/blur.cpp
 	src/camera.cpp
 	src/confDef.cpp
 	src/drawItem.cpp
@@ -97,6 +98,7 @@ add_executable(executable
 	src/mesh.cpp
 	src/model.cpp
 	src/postProcess.cpp
+	src/renderHelper.cpp
 	src/renderState.cpp
 	src/renderTarget.cpp
 	src/renderUtil.cpp
