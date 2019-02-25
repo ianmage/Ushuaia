@@ -4,6 +4,7 @@ $input v_tc0, v_tc1, v_tc2
 
 uniform vec4 uTexSize;
 uniform vec4 colorWeights[2];
+uniform vec4 tcOffsets[2];
 
 SAMPLER2D(s_tex0, 0);
 
@@ -12,11 +13,12 @@ void main()
 {
 	vec2 uv = v_tc0;
 	float offset = (floor(uv.y * uTexSize.x) + 0.5f) * uTexSize.y - uv.y;
+	offset += uv.y;
 
 	vec4 color = vec4(0, 0, 0, 1);
 
-	vec4 tc1 = v_tc1 + vec4_splat(offset);
-	vec4 tc2 = v_tc2 + vec4_splat(offset);
+	vec4 tc1 = tcOffsets[0] + vec4_splat(offset);
+	vec4 tc2 = tcOffsets[1] + vec4_splat(offset);
 	vec2 tc;
 
 	tc = vec2(uv.x, tc1.x);
