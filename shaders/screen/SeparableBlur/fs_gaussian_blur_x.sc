@@ -2,7 +2,7 @@ $input v_tc0
 
 #include "../common/common.sh"
 
-uniform vec4 uTexSize;
+uniform vec4 texSize;
 uniform vec4 colorWeights[2];
 uniform vec4 tcOffsets[2];
 
@@ -11,8 +11,8 @@ SAMPLER2D(s_tex0, 0);
 
 void main()
 {
-	vec2 uv = v_tc0;
-	float offset = (floor(uv.x * uTexSize.x) + 0.5f) * uTexSize.y - uv.x;
+	vec2 uv = v_tc0.xy;
+	float offset = (floor(uv.x * texSize.x) + 0.5f) * texSize.y - uv.x;
 	offset += uv.x;
 
 	vec4 color = vec4(0, 0, 0, 1);

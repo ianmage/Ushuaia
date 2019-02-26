@@ -1,19 +1,38 @@
+#include "blur.h"
 #include "renderUtil.h"
 #include "viewState.h"
 #include "bx/math.h"
-#include "vtxDecl.h"
 #include "../examples/common/bgfx_utils.h"
 #include <cmath>
 #include "math.h"
 #include <map>
-#include "frameBuffer.h"
 #include <array>
+#include "postProcess.h"
 
 #pragma optimize("", off)
 
 
 namespace Ushuaia
 {
+
+Shader* GaussianBlur::pXTech = nullptr;
+Shader* GaussianBlur::pYTech = nullptr;
+
+static bgfx::UniformHandle uhTexSize;
+static bgfx::UniformHandle uhColorWeights;
+static bgfx::UniformHandle uhTcOffsets;
+
+
+bool GaussianBlur::Init()
+{
+	uhTexSize = bgfx::createUniform("texSize", bgfx::UniformType::Vec4);
+	uhColorWeights = bgfx::createUniform("colorWeights", bgfx::UniformType::Vec4, 2);
+	uhTcOffsets = bgfx::createUniform("tcOffsets", bgfx::UniformType::Vec4, 2);
+
+	pXTech = Shader::Load("screen/vs_screen_quad", "screen/SeparableBlur/fs_gaussian_blur_x");
+	pYTech = Shader::Load("screen/vs_screen_quad", "screen/SeparableBlur/fs_gaussian_blur_y");
+}
+
 
 static float GaussianDistribution(float x, float y, float rho)
 {
@@ -23,10 +42,10 @@ static float GaussianDistribution(float x, float y, float rho)
 }
 
 
-static void CalcSampleOffsets(uint16_t texSize, float kernelRadius, float deviation)
+static void CalcSampleOffsets(uint16_t texSize, uint8_t kernelRadius, float deviation)
 {
-	std::array<float, 6> colorWeights;
-	std::array<float, 6> tcOffsets;
+	std::array<float, 8> colorWeights = { 0 };
+	std::array<float, 8> tcOffsets = { 0 };
 
 	std::vector<float> tmpWeights(kernelRadius * 2, 0);
 	std::vector<float> tmpOffsets(kernelRadius * 2, 0);
@@ -57,48 +76,19 @@ static void CalcSampleOffsets(uint16_t texSize, float kernelRadius, float deviat
 		tcOffsets[i] = (tmpOffsets[i * 2] + (1 - frac)) * tu;
 		colorWeights[i] = scale;
 	}
-	for (int i = kernelRadius; i < 8; ++i) {
-		tcOffsets[i] = 0.0f;
-		colorWeights[i] = 0.0f;
-	}
 }
 
 
-static void MakeScreenQuad(void * pVerts,
-	float x, float y, float w, float h)
+void GaussianBlur::Render(Texture const & srcTex, FrameBuffer *pOutFB)
 {
-	x = x * 2.f - 1.f;
-	y = 1.f - y * 2.f;
-	w *= 2.f;
-	h *= 2.f;
-	float const zz = 0.f;
+	if (pXTech == nullptr)
+		Init();
 
-	TRect<float> xyRect { { x, y-h }, { x+w, y } };
+	bgfx::setMarker("Gaussian Blur");
+	pOutFB->Setup(nullptr, bgfx::ViewMode::Sequential, false);
 
-	PosVertex *pVtx = reinterpret_cast<PosVertex*>(pVerts);
-
-	pVtx[0].pos.Set(xyRect.rMin.x, xyRect.rMax.y, zz);
-	pVtx[1].pos.Set(xyRect.rMax.x, xyRect.rMax.y, zz);
-	pVtx[2].pos.Set(xyRect.rMin.x, xyRect.rMin.y, zz);
-	pVtx[3].pos.Set(xyRect.rMax.x, xyRect.rMin.y, zz);
-}
-
-
-void GaussianBlur(Shader const *pShader
-	, uint64_t state, float x, float y, float w, float h)
-{
-	assert(4 == bgfx::getAvailTransientVertexBuffer(4, PosVertex::s_decl));
-	bgfx::TransientVertexBuffer vb;
-	bgfx::allocTransientVertexBuffer(&vb, 4, PosVertex::s_decl);
-
-	MakeScreenQuad(vb.data, x, y, w, h);
-
-	bgfx::setVertexBuffer(0, &vb);
-
-	state |= BGFX_STATE_PT_TRISTRIP;
-	bgfx::setState(state);
-
-	bgfx::submit(FrameBuffer::CurrFB()->ViewID(), pShader->Tech());
+	bgfx::setState(BGFX_STATE_WRITE_RGB);
+	PostProcess::DrawFullScreen(pXTech);
 }
 
 }

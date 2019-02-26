@@ -1,4 +1,4 @@
-$input v_tc0, v_tc1, v_tc2
+$input v_tc0
 
 #include "../common/common.sh"
 
@@ -11,7 +11,7 @@ SAMPLER2D(s_tex0, 0);
 
 void main()
 {
-	vec2 uv = v_tc0;
+	vec2 uv = v_tc0.xy;
 	float offset = (floor(uv.y * uTexSize.x) + 0.5f) * uTexSize.y - uv.y;
 	offset += uv.y;
 

@@ -1,14 +1,20 @@
 #pragma once
 
-#include <array>
-#include <vector>
 #include "shader.h"
-#include "camera.h"
 
 
 namespace Ushuaia
 {
 
-void GaussianBlur();
+class GaussianBlur
+{
+public :
+	static void Render(Texture const & srcTex, FrameBuffer *pOutFB);
+
+private :
+	static bool Init();
+
+	static Shader *pXTech, *pYTech;
+};
 
 }
