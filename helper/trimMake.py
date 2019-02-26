@@ -38,7 +38,7 @@ def slnPreProc(fLn, filters) :
 
 def slnProc(fLn) :
 	filters = set()
-	fLn = slnPreProc(fLn, filters)
+	slnPreProc(fLn, filters)
 
 	ret = []
 
@@ -98,6 +98,7 @@ def projProc(fLn) :
 				l = l.replace('_HAS_ITERATOR_DEBUGGING=0;', '')
 				l = l.replace('_SCL_SECURE=0;', '')
 				l = l.replace('_SECURE_SCL=0;', '')
+				l = l.replace('_ITERATOR_DEBUG_LEVEL=0', '')
 			elif itemName(l) == debugItemEndStr :
 				debugItemEndStr = ''
 
