@@ -13,7 +13,6 @@ namespace Ushuaia
 static bgfx::UniformHandle uhViewVec;
 static bgfx::UniformHandle uhRtSize;
 static bgfx::UniformHandle uhOffsets;
-static bgfx::UniformHandle s_Sampler[3];
 
 static Shader *pLumTech = nullptr;
 static Shader *pLumAvgTech = nullptr;
@@ -21,11 +20,6 @@ static Shader *pLumAvgTech = nullptr;
 
 void HDR::Init()
 {
-	std::string const smpl = "s_tex";
-	for (uint8_t i = 0; i < ArrayCount(s_Sampler); ++i) {
-		s_Sampler[i] = bgfx::createUniform((smpl+std::to_string(i)).c_str()
-			, bgfx::UniformType::Sampler);
-	}
 	uhViewVec = bgfx::createUniform("PV_viewVec", bgfx::UniformType::Vec4);
 	uhRtSize = bgfx::createUniform("PV_rtSize", bgfx::UniformType::Vec4);
 	uhOffsets = bgfx::createUniform("uTexCoordOffset", bgfx::UniformType::Vec4, 2);
@@ -43,10 +37,6 @@ void HDR::Fini()
 
 	bgfx::destroy(uhViewVec);
 	bgfx::destroy(uhRtSize);
-	for (uint8_t i = 0; i < ArrayCount(s_Sampler); ++i) {
-		if (isValid(s_Sampler[i]))
-			bgfx::destroy(s_Sampler[i]);
-	}
 }
 
 
@@ -115,7 +105,7 @@ static FrameBuffer* SumLumAverage(Texture const & tex)
 		pFB = new FrameBuffer(w, h, bgfx::TextureFormat::BGRA8);
 		pFB->Setup(nullptr, bgfx::ViewMode::Sequential, false);
 		bgfx::setUniform(uhOffsets, offsets, 2);
-		bgfx::setTexture(0, s_Sampler[0], hTex);
+		bgfx::setTexture(0, SamplerMgr::Get("s_tex0"), hTex);
 		bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A);
 		PostProcess::DrawFullScreen(pLumAvgTech);
 		delete pOldFB;
@@ -139,7 +129,7 @@ static FrameBuffer* SumLum(Texture const & tex)
 	pFB = new FrameBuffer(w, h, bgfx::TextureFormat::BGRA8);
 	pFB->Setup(nullptr, bgfx::ViewMode::Sequential, false);
 	bgfx::setUniform(uhOffsets, offsets, 2);
-	bgfx::setTexture(0, s_Sampler[0], tex.Handle());
+	bgfx::setTexture(0, SamplerMgr::Get("s_tex0"), tex.Handle());
 	bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A);
 	PostProcess::DrawFullScreen(pLumTech);
 

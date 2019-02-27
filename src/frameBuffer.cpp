@@ -9,6 +9,7 @@ namespace Ushuaia
 uint16_t FrameBuffer::s_viewCnt = 0;
 FrameBuffer const * FrameBuffer::s_currFB = nullptr;
 FrameBuffer const * FrameBuffer::s_backBuf = nullptr;
+decltype(FrameBuffer::s_rts) FrameBuffer::s_rts;
 static Matrix4x4 s_mtxOrtho;
 
 
@@ -28,10 +29,14 @@ void FrameBuffer::Fini()
 {
 	delete s_backBuf;
 	s_backBuf = nullptr;
+
+	for (auto pFB : s_rts)
+		delete pFB;
+	s_rts.clear();
 }
 
 
-FrameBuffer::FrameBuffer(uint16_t w, uint16_t h, bgfx::TextureFormat::Enum fmt)
+FrameBuffer::FrameBuffer(uint16_t w, uint16_t h, bgfx::TextureFormat::Enum fmt, uint8_t mipCnt)
 : handle_(BGFX_INVALID_HANDLE)
 , width_(w), height_(h)
 {
@@ -42,34 +47,31 @@ FrameBuffer::FrameBuffer(uint16_t w, uint16_t h, bgfx::TextureFormat::Enum fmt)
 	texInfo.height = h;
 	texInfo.depth = 1;
 	texInfo.numLayers = 1;
-	texInfo.numMips = 1;
+	texInfo.numMips = mipCnt;
 	texInfo.format = fmt;
 	texInfo.cubeMap = false;
 
 	rTexs_.emplace_back(texInfo);
+
+	Reset();
 }
 
 
-FrameBuffer::FrameBuffer(uint16_t w, uint16_t h, uint8_t num, bgfx::TextureFormat::Enum const * fmts)
+FrameBuffer::FrameBuffer(bgfx::TextureInfo const * texInfos, uint8_t numRT)
 : handle_(BGFX_INVALID_HANDLE)
-, width_(w), height_(h)
 {
-	assert(num > 0 && num <= 8);
+	assert(numRT > 0 && numRT <= 8);
+	width_ = texInfos[0].width;
+	height_ = texInfos[0].height;
 
 	viewID_ = s_viewCnt++;
 
-	bgfx::TextureInfo texInfo;
-	for (uint8_t i = 0; i < num; ++i) {
-		texInfo.width = w;
-		texInfo.height = h;
-		texInfo.depth = 1;
-		texInfo.numLayers = 1;
-		texInfo.numMips = 1;
-		texInfo.format = fmts[i];
-		texInfo.cubeMap = false;
-
-		rTexs_.emplace_back(texInfo);
+	for (uint8_t i = 0; i < numRT; ++i) {
+		assert(texInfos[i].width == width_ && texInfos[i].height == height_);
+		rTexs_.emplace_back(texInfos[i]);
 	}
+
+	Reset();
 }
 
 
@@ -129,6 +131,46 @@ void FrameBuffer::Setup(Camera const *pCam, bgfx::ViewMode::Enum mode, bool doCl
 			BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0, 1.f, 0);
 
 	s_currFB = this;
+}
+
+
+inline uint64_t MakeFrameBufferKey(uint16_t w, uint16_t h, bgfx::TextureFormat::Enum fmt, uint8_t mipCnt)
+{
+	uint64_t key = w + (h << 16);
+	key += static_cast<uint8_t>(fmt) << 32;
+	key += mipCnt << 40;
+	return key;
+}
+
+
+uint64_t FrameBuffer::HashCode() const
+{
+	if (rTexs_.size() > 1)
+		return 0;
+	Texture const & rt = rTexs_[0];
+	return MakeFrameBufferKey(rt.Width(), rt.Height(), rt.Format(), rt.NumMips());
+}
+
+
+FrameBuffer const * FrameBuffer::CheckOut(uint16_t w, uint16_t h, bgfx::TextureFormat::Enum fmt, uint8_t mipCnt)
+{
+	uint64_t key = MakeFrameBufferKey(w, h, fmt, mipCnt);
+
+	for (auto & pFB : s_rts) {
+		if (pFB->HashCode() == key) {
+			s_rts.erase(pFB);
+			return pFB;
+		}
+	}
+
+	return new FrameBuffer(w, h, fmt, mipCnt);
+}
+
+
+void FrameBuffer::CheckIn(FrameBuffer const * pFB)
+{
+	assert(pFB->rTexs_.size() == 1);
+	s_rts.insert(pFB);
 }
 
 }

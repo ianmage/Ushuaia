@@ -57,12 +57,14 @@ private:
 	friend struct TexMgr;
 };
 
+typedef std::shared_ptr<Texture>	TexPtr;
+
 
 struct TexMgr
 {
 public:
-	static std::shared_ptr<Texture> LoadFromFile(std::string const & name);
-	static std::shared_ptr<Texture> Get(size_t nameKey);
+	static TexPtr LoadFromFile(std::string const & name);
+	static TexPtr Get(size_t nameKey);
 
 	static void Fini();
 
@@ -70,6 +72,18 @@ private:
 	TexMgr();
 
 	static std::map<size_t, std::weak_ptr<Texture>> s_texs;
+};
+
+
+class SamplerMgr
+{
+public :
+	static bgfx::UniformHandle Get(std::string const & sName);
+
+	static void Fini();
+
+private :
+	static std::map<std::string, bgfx::UniformHandle> s_hSamplers;
 };
 
 }

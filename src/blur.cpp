@@ -1,11 +1,5 @@
 #include "blur.h"
 #include "renderUtil.h"
-#include "viewState.h"
-#include "bx/math.h"
-#include "../examples/common/bgfx_utils.h"
-#include <cmath>
-#include "math.h"
-#include <map>
 #include <array>
 #include "postProcess.h"
 
@@ -15,8 +9,8 @@
 namespace Ushuaia
 {
 
-Shader* GaussianBlur::pXTech = nullptr;
-Shader* GaussianBlur::pYTech = nullptr;
+Shader* GaussianBlur::pTechX = nullptr;
+Shader* GaussianBlur::pTechY = nullptr;
 
 static bgfx::UniformHandle uhTexSize;
 static bgfx::UniformHandle uhColorWeights;
@@ -29,8 +23,10 @@ bool GaussianBlur::Init()
 	uhColorWeights = bgfx::createUniform("colorWeights", bgfx::UniformType::Vec4, 2);
 	uhTcOffsets = bgfx::createUniform("tcOffsets", bgfx::UniformType::Vec4, 2);
 
-	pXTech = Shader::Load("screen/vs_screen_quad", "screen/SeparableBlur/fs_gaussian_blur_x");
-	pYTech = Shader::Load("screen/vs_screen_quad", "screen/SeparableBlur/fs_gaussian_blur_y");
+	pTechX = Shader::Load("screen/vs_screen_quad", "screen/SeparableBlur/fs_gaussian_blur_x");
+	pTechY = Shader::Load("screen/vs_screen_quad", "screen/SeparableBlur/fs_gaussian_blur_y");
+
+	return true;
 }
 
 
@@ -79,16 +75,25 @@ static void CalcSampleOffsets(uint16_t texSize, uint8_t kernelRadius, float devi
 }
 
 
-void GaussianBlur::Render(Texture const & srcTex, FrameBuffer *pOutFB)
+void GaussianBlur::Render(Texture const & srcTex, FrameBuffer const *pOutFB)
 {
-	if (pXTech == nullptr)
+	if (pTechX == nullptr)
 		Init();
 
-	bgfx::setMarker("Gaussian Blur");
-	pOutFB->Setup(nullptr, bgfx::ViewMode::Sequential, false);
+	bgfx::setMarker("Gaussian Blur X");
+	Texture const & rTex = pOutFB->Tex(0);
 
+	FrameBuffer const * pTmpFB = FrameBuffer::CheckOut(rTex.Width(), rTex.Height(), rTex.Format());
+
+	pTmpFB->Setup(nullptr, bgfx::ViewMode::Sequential, false);
+	bgfx::setTexture(0, SamplerMgr::Get("s_tex0"), srcTex.Handle());
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
-	PostProcess::DrawFullScreen(pXTech);
+	PostProcess::DrawFullScreen(pTechX);
+
+	pOutFB->Setup(nullptr, bgfx::ViewMode::Sequential, false);
+	bgfx::setTexture(0, SamplerMgr::Get("s_tex0"), pTmpFB->Tex(0).Handle());
+	bgfx::setState(BGFX_STATE_WRITE_RGB);
+	PostProcess::DrawFullScreen(pTechY);
 }
 
 }

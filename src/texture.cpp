@@ -2,7 +2,7 @@
 #include "../../cpp_common/commUtil.h"
 #include "../examples/common/bgfx_utils.h"
 
-#pragma optimize("", off)
+//#pragma optimize("", off)
 
 
 namespace Ushuaia
@@ -41,7 +41,7 @@ void Texture::Handle(bgfx::TextureHandle hTex, bool managed)
 decltype(TexMgr::s_texs) TexMgr::s_texs;
 
 
-std::shared_ptr<Texture> TexMgr::LoadFromFile(std::string const & name)
+TexPtr TexMgr::LoadFromFile(std::string const & name)
 {
 	size_t k = RT_HASH(name.c_str());
 
@@ -66,7 +66,7 @@ std::shared_ptr<Texture> TexMgr::LoadFromFile(std::string const & name)
 }
 
 
-std::shared_ptr<Texture> TexMgr::Get(size_t nameKey)
+TexPtr TexMgr::Get(size_t nameKey)
 {
 	auto itr = s_texs.find(nameKey);
 
@@ -91,6 +91,29 @@ void TexMgr::Fini()
 		}
 	}
 	s_texs.clear();
+}
+
+
+decltype(SamplerMgr::s_hSamplers) SamplerMgr::s_hSamplers;
+
+
+bgfx::UniformHandle SamplerMgr::Get(std::string const & sName)
+{
+	auto itr = s_hSamplers.find(sName);
+	if (itr != s_hSamplers.end())
+		return itr->second;
+
+	bgfx::UniformHandle s = bgfx::createUniform(sName.c_str(), bgfx::UniformType::Sampler);
+	s_hSamplers[sName] = s;
+	return s;
+}
+
+
+void SamplerMgr::Fini()
+{
+	for (auto & itr : s_hSamplers)
+		bgfx::destroy(itr.second);
+	s_hSamplers.clear();
 }
 
 }

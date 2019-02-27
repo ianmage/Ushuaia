@@ -1,6 +1,7 @@
 #pragma once
 
 #include "shader.h"
+#include "framebuffer.h"
 
 
 namespace Ushuaia
@@ -9,12 +10,12 @@ namespace Ushuaia
 class GaussianBlur
 {
 public :
-	static void Render(Texture const & srcTex, FrameBuffer *pOutFB);
+	static void Render(Texture const & srcTex, FrameBuffer const *pOutFB);
 
 private :
 	static bool Init();
 
-	static Shader *pXTech, *pYTech;
+	static Shader *pTechX, *pTechY;
 };
 
 }
