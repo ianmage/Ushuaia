@@ -18,7 +18,7 @@ bool FrameBuffer::Init()
 	bgfx::Caps const * caps = bgfx::getCaps();
 	bx::mtxOrtho(s_mtxOrtho.v, 0.f, 1.f, 1.f, 0.f, 0.f, 100.f, 0.f, caps->homogeneousDepth);
 	assert(!s_backBuf);
-	s_backBuf = new FrameBuffer(g_viewState.width, g_viewState.height, bgfx::TextureFormat::Unknown);
+	s_backBuf = new FrameBuffer(g_viewState.width, g_viewState.height, bgfx::TextureFormat::BGRA8);
 	s_currFB = s_backBuf;
 
 	return true;
@@ -42,6 +42,10 @@ FrameBuffer::FrameBuffer(uint16_t w, uint16_t h, bgfx::TextureFormat::Enum fmt, 
 {
 	viewID_ = s_viewCnt++;
 
+#ifdef _DEBUG
+	assert(width_ <= 4096 && height_ <= 4096);
+#endif
+
 	bgfx::TextureInfo texInfo;
 	texInfo.width = w;
 	texInfo.height = h;
@@ -63,6 +67,9 @@ FrameBuffer::FrameBuffer(bgfx::TextureInfo const * texInfos, uint8_t numRT)
 	assert(numRT > 0 && numRT <= 8);
 	width_ = texInfos[0].width;
 	height_ = texInfos[0].height;
+#ifdef _DEBUG
+	assert(width_ <= 4096 && height_ <= 4096);
+#endif
 
 	viewID_ = s_viewCnt++;
 
@@ -83,7 +90,7 @@ FrameBuffer::~FrameBuffer()
 
 void FrameBuffer::Reset()
 {
-	size_t const numRT = rTexs_.size();
+	uint8_t const numRT = static_cast<uint8_t>(rTexs_.size());
 	if (numRT == 0)
 		return;
 	assert(!isValid(handle_));
@@ -137,8 +144,8 @@ void FrameBuffer::Setup(Camera const *pCam, bgfx::ViewMode::Enum mode, bool doCl
 inline uint64_t MakeFrameBufferKey(uint16_t w, uint16_t h, bgfx::TextureFormat::Enum fmt, uint8_t mipCnt)
 {
 	uint64_t key = w + (h << 16);
-	key += static_cast<uint8_t>(fmt) << 32;
-	key += mipCnt << 40;
+	key += static_cast<uint64_t>(fmt) << 32;
+	key += static_cast<uint64_t>(mipCnt) << 40;
 	return key;
 }
 
@@ -156,14 +163,19 @@ FrameBuffer const * FrameBuffer::CheckOut(uint16_t w, uint16_t h, bgfx::TextureF
 {
 	uint64_t key = MakeFrameBufferKey(w, h, fmt, mipCnt);
 
+	FrameBuffer const * ret = nullptr;
 	for (auto & pFB : s_rts) {
 		if (pFB->HashCode() == key) {
-			s_rts.erase(pFB);
-			return pFB;
+			ret = pFB;
+			break;
 		}
 	}
+	if (ret != nullptr)
+		s_rts.erase(ret);
+	else
+		ret = new FrameBuffer(w, h, fmt, mipCnt);
 
-	return new FrameBuffer(w, h, fmt, mipCnt);
+	return ret;
 }
 
 

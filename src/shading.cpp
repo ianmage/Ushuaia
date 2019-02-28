@@ -8,6 +8,7 @@
 #include "postProcess.h"
 #include "frameBuffer.h"
 #include "../../cpp_common/commUtil.h"
+#include "blur.h"
 
 #pragma optimize("", off)
 
@@ -15,16 +16,15 @@
 namespace Ushuaia
 {
 
-decltype(Shading::hDepthTex) Shading::hDepthTex = BGFX_INVALID_HANDLE;
 #if 0
 static bgfx::FrameBufferHandle h_gbufFB;
 static bgfx::FrameBufferHandle h_shadeFB;
 static bgfx::FrameBufferHandle h_depthFB;
 #else
-static FrameBuffer *pFbGBuf = nullptr;
-static FrameBuffer *pFbDepth = nullptr;
-static FrameBuffer *pFbLight = nullptr;
-static FrameBuffer *pFbShade = nullptr;
+static FrameBuffer *pGBufFB = nullptr;
+static FrameBuffer *pDepthFB = nullptr;
+static FrameBuffer *pLightFB = nullptr;
+static FrameBuffer *pShadeFB = nullptr;
 #endif
 
 static bgfx::UniformHandle uhViewVec;
@@ -67,6 +67,8 @@ void Shading::Init()
 	bgfx::TextureInfo gbufRTexInfo[3];
 	for (int i = 0; i < 3; ++i) {
 		gbufRTexInfo[i].cubeMap = false;
+		gbufRTexInfo[i].width = g_viewState.width;
+		gbufRTexInfo[i].height = g_viewState.height;
 		gbufRTexInfo[i].depth = 1;
 		gbufRTexInfo[i].numLayers = 1;
 		gbufRTexInfo[i].numMips = 1;
@@ -74,10 +76,10 @@ void Shading::Init()
 	gbufRTexInfo[0].format = bgfx::TextureFormat::RGBA16F;
 	gbufRTexInfo[1].format = bgfx::TextureFormat::RGBA16F;
 	gbufRTexInfo[2].format = bgfx::TextureFormat::D24S8;
-	pFbGBuf = new FrameBuffer(gbufRTexInfo, 3);
-	pFbDepth = new FrameBuffer(g_viewState.width, g_viewState.height, bgfx::TextureFormat::R32F);
-	pFbLight = new FrameBuffer(g_viewState.width, g_viewState.height, bgfx::TextureFormat::RGBA16F);
-	pFbShade = new FrameBuffer(g_viewState.width, g_viewState.height, bgfx::TextureFormat::RGBA16F);
+	pGBufFB = new FrameBuffer(gbufRTexInfo, 3);
+	pDepthFB = new FrameBuffer(g_viewState.width, g_viewState.height, bgfx::TextureFormat::R32F);
+	pLightFB = new FrameBuffer(g_viewState.width, g_viewState.height, bgfx::TextureFormat::RGBA16F);
+	pShadeFB = new FrameBuffer(g_viewState.width, g_viewState.height, bgfx::TextureFormat::RGBA16F);
 
 	uhPointColor = bgfx::createUniform("PV_lightColor", bgfx::UniformType::Vec4);
 	uhPointPos = bgfx::createUniform("PV_lightPos", bgfx::UniformType::Vec4);
@@ -100,10 +102,10 @@ void Shading::Fini()
 
 	s_pPointLightMesh = nullptr;
 
-	SafeDelete(pFbShade);
-	SafeDelete(pFbLight);
-	SafeDelete(pFbDepth);
-	SafeDelete(pFbGBuf);
+	SafeDelete(pShadeFB);
+	SafeDelete(pLightFB);
+	SafeDelete(pDepthFB);
+	SafeDelete(pGBufFB);
 
 	bgfx::destroy(uhViewVec);
 	bgfx::destroy(uhRtSize);
@@ -118,21 +120,13 @@ void Shading::Fini()
 
 void Shading::Lost()
 {
-	pFbShade->Lost();
-	pFbLight->Lost();
-	pFbDepth->Lost();
-	pFbGBuf->Lost();
+
 }
 
 
 void Shading::Reset()
 {
-	pFbGBuf->Reset();
-	pFbDepth->Reset();
-	pFbLight->Reset();
-	pFbShade->Reset();
 
-	hDepthTex = pFbDepth->Tex(0).Handle();
 }
 
 
@@ -193,7 +187,7 @@ static inline void UpdateViewParams()
 static void LinearizeDepth()
 {
 	bgfx::setMarker("Linear Depth");
-	pFbDepth->Setup(nullptr, bgfx::ViewMode::Sequential, true);
+	pDepthFB->Setup(nullptr, bgfx::ViewMode::Sequential, true);
 
 	auto pCam = Camera::pCurrent;
 
@@ -201,7 +195,7 @@ static void LinearizeDepth()
 	Vector4 camParam { pCam->near * q, q, pCam->far, 1.f / pCam->far };
 
 	bgfx::setUniform(uhParam, camParam.v);
-	bgfx::setTexture(0, SamplerMgr::Get("s_tex0"), pFbGBuf->Tex(2).Handle());
+	bgfx::setTexture(0, SamplerMgr::Get("s_tex0"), pGBufFB->Tex(2).Handle());
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	PostProcess::DrawFullScreen(pDepthTech);
 }
@@ -218,13 +212,13 @@ static void RenderLight()
 		| BGFX_STATE_BLEND_EQUATION(BGFX_STATE_BLEND_EQUATION_ADD)
 		| BGFX_STATE_WRITE_RGB;
 
-	pFbLight->Setup(pCam, bgfx::ViewMode::Sequential, true);
+	pLightFB->Setup(pCam, bgfx::ViewMode::Sequential, true);
 	
 	Light::Submit();
 
 	// Directional
 	UpdateViewParams();
-	bgfx::setTexture( 0, SamplerMgr::Get("s_tex0"), pFbGBuf->Tex(0).Handle() );
+	bgfx::setTexture( 0, SamplerMgr::Get("s_tex0"), pGBufFB->Tex(0).Handle() );
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	PostProcess::DrawFullScreen(pDirLightTech);
 
@@ -247,8 +241,8 @@ static void RenderLight()
 		//bgfx::setUniform(uhPointAttnOuter, &s_lightAttnOuterBuf[i]);
 		//bgfx::setUniform(uhSpotDirInner, &s_spotDirInnerBuf[i]);
 
-		bgfx::setTexture( 0, SamplerMgr::Get("s_tex0"), pFbGBuf->Tex(0).Handle() );
-		bgfx::setTexture( 1, SamplerMgr::Get("s_tex1"), pFbDepth->Tex(0).Handle() );
+		bgfx::setTexture( 0, SamplerMgr::Get("s_tex0"), pGBufFB->Tex(0).Handle() );
+		bgfx::setTexture( 1, SamplerMgr::Get("s_tex1"), pDepthFB->Tex(0).Handle() );
 		
 		bgfx::setState(st_lightAdd);
 		//bgfx::setState(BGFX_STATE_WRITE_RGB);
@@ -268,7 +262,7 @@ void Shading::Render()
 	auto pCam = Camera::pCurrent;
 
 	bgfx::setMarker("GeoBuffer");
-	pFbGBuf->Setup(pCam, bgfx::ViewMode::Default, true);
+	pGBufFB->Setup(pCam, bgfx::ViewMode::Default, true);
 
 	uint64_t overrideSt0 = RenderState::s_val[0];
 	uint64_t overrideSt1 = 0
@@ -290,20 +284,22 @@ void Shading::Render()
 	RenderLight();
 
 	bgfx::setMarker("Shading");
-	pFbShade->Setup(nullptr, bgfx::ViewMode::Sequential, true);
+	pShadeFB->Setup(nullptr, bgfx::ViewMode::Sequential, true);
 	UpdateViewParams();
-	bgfx::setTexture( 0, SamplerMgr::Get("s_tex0"), pFbGBuf->Tex(0).Handle() );
-	bgfx::setTexture( 1, SamplerMgr::Get("s_tex1"), pFbGBuf->Tex(1).Handle() );
-	bgfx::setTexture( 2, SamplerMgr::Get("s_tex2"), pFbLight->Tex(0).Handle() );
+	bgfx::setTexture( 0, SamplerMgr::Get("s_tex0"), pGBufFB->Tex(0).Handle() );
+	bgfx::setTexture( 1, SamplerMgr::Get("s_tex1"), pGBufFB->Tex(1).Handle() );
+	bgfx::setTexture( 2, SamplerMgr::Get("s_tex2"), pLightFB->Tex(0).Handle() );
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	PostProcess::DrawFullScreen(pShadeTech);
+
+	GaussianBlur::Render(pShadeFB->Tex(0), FrameBuffer::BackBuf());
 
 	bgfx::setMarker("Final Combine");
 	FrameBuffer::BackBuf()->Setup(nullptr, bgfx::ViewMode::Sequential, false);
 	Vector4 const texTile { 0.2f, 0.1f, 0.8f, 0.8f };
 	bgfx::setUniform(uhParam, texTile.v);
-	bgfx::setTexture( 0, SamplerMgr::Get("s_tex0"), pFbShade->Tex(0).Handle() );
-	bgfx::setTexture( 1, SamplerMgr::Get("s_tex1"), pFbDepth->Tex(0).Handle() );
+	bgfx::setTexture( 0, SamplerMgr::Get("s_tex0"), pShadeFB->Tex(0).Handle() );
+	bgfx::setTexture( 1, SamplerMgr::Get("s_tex1"), pDepthFB->Tex(0).Handle() );
 	DrawScreenQuad(pCombineTech,
 		BGFX_STATE_WRITE_RGB , texTile.x,texTile.y, texTile.z,texTile.w);
 }

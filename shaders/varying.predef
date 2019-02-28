@@ -11,6 +11,6 @@
 		"screen_geo", "point_light",
 		"shading",
 		"combine",
-		"tone_mapping"
+		"gaussian_blur_x", "gaussian_blur_y"
 	]
 }

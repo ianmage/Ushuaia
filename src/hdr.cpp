@@ -90,9 +90,9 @@ static void ZoomOut(uint16_t* pW, uint16_t* pH)
 }
 
 
-static FrameBuffer* SumLumAverage(Texture const & tex)
+static FrameBuffer const * SumLumAverage(Texture const & tex)
 {
-	FrameBuffer *pFB = nullptr, *pOldFB = nullptr;
+	FrameBuffer const *pFB = nullptr, *pOldFB = nullptr;
 	bgfx::TextureHandle hTex = tex.Handle();
 	uint16_t w = tex.Width(), h = tex.Height();
 	while (w > 1 || h > 1) {
@@ -102,11 +102,11 @@ static FrameBuffer* SumLumAverage(Texture const & tex)
 			{+u, +v}, {-u, +v}
 		};
 		ZoomOut(&w, &h);
-		pFB = new FrameBuffer(w, h, bgfx::TextureFormat::BGRA8);
+		pFB = new FrameBuffer(w, h, bgfx::TextureFormat::R16F);
 		pFB->Setup(nullptr, bgfx::ViewMode::Sequential, false);
 		bgfx::setUniform(uhOffsets, offsets, 2);
 		bgfx::setTexture(0, SamplerMgr::Get("s_tex0"), hTex);
-		bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A);
+		bgfx::setState(BGFX_STATE_WRITE_R);
 		PostProcess::DrawFullScreen(pLumAvgTech);
 		delete pOldFB;
 		pOldFB = pFB;
@@ -116,9 +116,8 @@ static FrameBuffer* SumLumAverage(Texture const & tex)
 }
 
 
-static FrameBuffer* SumLum(Texture const & tex)
+static FrameBuffer const * SumLum(Texture const & tex)
 {
-	FrameBuffer *pFB = nullptr;
 	uint16_t w = tex.Width(), h = tex.Height();
 	float u = 1.0f / w, v = 1.0f / h;
 	Vector2 offsets[4] = {
@@ -126,14 +125,16 @@ static FrameBuffer* SumLum(Texture const & tex)
 		{+u, +v}, {-u, +v}
 	};
 	ZoomOut(&w, &h);
-	pFB = new FrameBuffer(w, h, bgfx::TextureFormat::BGRA8);
-	pFB->Setup(nullptr, bgfx::ViewMode::Sequential, false);
+	FrameBuffer const * pLum0FB = new FrameBuffer(w, h, bgfx::TextureFormat::R16F);
+	pLum0FB->Setup(nullptr, bgfx::ViewMode::Sequential, false);
 	bgfx::setUniform(uhOffsets, offsets, 2);
 	bgfx::setTexture(0, SamplerMgr::Get("s_tex0"), tex.Handle());
-	bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A);
+	bgfx::setState(BGFX_STATE_WRITE_R);
 	PostProcess::DrawFullScreen(pLumTech);
 
-	pFB = SumLumAverage(pFB->Tex(0));
+	FrameBuffer const * pFB = SumLumAverage(pLum0FB->Tex(0));
+
+	delete pLum0FB;
 
 	return pFB;
 }
@@ -141,7 +142,7 @@ static FrameBuffer* SumLum(Texture const & tex)
 
 void HDR::Render(Texture const & inTex, FrameBuffer const * pOutFB)
 {
-	FrameBuffer* pLumFB = SumLum(inTex);
+	FrameBuffer const * pLumFB = SumLum(inTex);
 
 
 	delete pLumFB;

@@ -112,6 +112,7 @@ bool Fini()
 	FrameBuffer::Fini();
 	Shader::ClearAll();
 
+	SamplerMgr::Fini();
 	TexMgr::Fini();
 
 	Camera::FiniDefault();

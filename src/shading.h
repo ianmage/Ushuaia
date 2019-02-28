@@ -18,8 +18,6 @@ struct Shading
 
 	static void Lost();
 	static void Reset();
-
-	static bgfx::TextureHandle hDepthTex;
 };
 
 }
