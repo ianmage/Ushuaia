@@ -48,7 +48,7 @@ void DrawScreenQuad(Shader const *pShader
 	state |= BGFX_STATE_PT_TRISTRIP;
 	bgfx::setState(state);
 
-	bgfx::submit(FrameBuffer::CurrFB()->ViewID(), pShader->Tech());
+	bgfx::submit(FrameBuffer::ViewID(), pShader->Tech());
 }
 
 

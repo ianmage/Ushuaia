@@ -47,7 +47,7 @@ void PostProcess::DrawFullScreen(Shader const *pShader)
 	assert(isValid(hVB_));
 	bgfx::setVertexBuffer(0, hVB_);
 #endif
-	bgfx::submit(FrameBuffer::CurrFB()->ViewID(), pShader->Tech());
+	bgfx::submit(FrameBuffer::ViewID(), pShader->Tech());
 }
 
 }

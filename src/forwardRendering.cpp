@@ -110,7 +110,7 @@ static void RenderLight()
 
 void ForwardRendering::Render()
 {
-	bgfx::setViewRect(0, 0, 0, g_viewState.width, g_viewState.height);
+	bgfx::setViewRect(0, 0, 0, bgfx::BackbufferRatio::Equal);
 	bgfx::setViewFrameBuffer(0, BGFX_INVALID_HANDLE);
 #if TEST
 	Vector3 at{ 0.f, 0.f, 0.f };

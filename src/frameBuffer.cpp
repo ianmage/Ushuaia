@@ -10,6 +10,7 @@ uint16_t FrameBuffer::s_viewCnt = 0;
 FrameBuffer const * FrameBuffer::s_currFB = nullptr;
 FrameBuffer const * FrameBuffer::s_backBuf = nullptr;
 decltype(FrameBuffer::s_rts) FrameBuffer::s_rts;
+decltype(FrameBuffer::s_viewChannelID) FrameBuffer::s_viewChannelID = 0;
 static Matrix4x4 s_mtxOrtho;
 
 
@@ -40,8 +41,6 @@ FrameBuffer::FrameBuffer(uint16_t w, uint16_t h, bgfx::TextureFormat::Enum fmt, 
 : handle_(BGFX_INVALID_HANDLE)
 , width_(w), height_(h)
 {
-	viewID_ = s_viewCnt++;
-
 #ifdef _DEBUG
 	assert(width_ <= 4096 && height_ <= 4096);
 #endif
@@ -70,8 +69,6 @@ FrameBuffer::FrameBuffer(bgfx::TextureInfo const * texInfos, uint8_t numRT)
 #ifdef _DEBUG
 	assert(width_ <= 4096 && height_ <= 4096);
 #endif
-
-	viewID_ = s_viewCnt++;
 
 	for (uint8_t i = 0; i < numRT; ++i) {
 		assert(texInfos[i].width == width_ && texInfos[i].height == height_);
@@ -125,17 +122,19 @@ void FrameBuffer::Lost()
 
 void FrameBuffer::Setup(Camera const *pCam, bgfx::ViewMode::Enum mode, bool doClear) const
 {
-	bgfx::setViewRect(viewID_, 0, 0, width_, height_);
-	bgfx::setViewFrameBuffer(viewID_, handle_);
-	bgfx::setViewMode(viewID_, mode);
+	uint8_t viewID = s_viewChannelID++;
+	if (s_viewChannelID == 0)
+		bgfx::frame();
+	bgfx::setViewRect(viewID, 0, 0, width_, height_);
+	bgfx::setViewFrameBuffer(viewID, handle_);
+	bgfx::setViewMode(viewID, mode);
 	if (pCam)
-		bgfx::setViewTransform(viewID_, pCam->mtxView.v, pCam->mtxProj.v);
+		bgfx::setViewTransform(viewID, pCam->mtxView.v, pCam->mtxProj.v);
 	else
-		bgfx::setViewTransform(viewID_, nullptr, s_mtxOrtho.v);
+		bgfx::setViewTransform(viewID, nullptr, s_mtxOrtho.v);
 	
 	if (doClear)
-		bgfx::setViewClear(viewID_,
-			BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0, 1.f, 0);
+		bgfx::setViewClear(viewID, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0, 1.f, 0);
 
 	s_currFB = this;
 }
@@ -183,6 +182,12 @@ void FrameBuffer::CheckIn(FrameBuffer const * pFB)
 {
 	assert(pFB->rTexs_.size() == 1);
 	s_rts.insert(pFB);
+}
+
+
+void FrameBuffer::Update()
+{
+	s_viewChannelID = 0;
 }
 
 }

@@ -124,8 +124,7 @@ bool Fini()
 bool Update()
 {
 #if TEST
-	bgfx::setViewRect(0, 0, 0,
-		uint16_t(g_viewState.width), uint16_t(g_viewState.height));
+	bgfx::setViewRect(0, 0, 0, bgfx::BackbufferRatio::Equal);
 	// This dummy draw call is here to make sure that view 0 is cleared
 	// if no other draw calls are submitted to view 0.
 	//bgfx::touch(0);

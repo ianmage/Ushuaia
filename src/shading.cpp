@@ -252,7 +252,7 @@ static void RenderLight()
 		bgfx::setIndexBuffer(plPG.hIB);
 		bgfx::setVertexBuffer(0, plPG.hVB);
 
-		bgfx::submit(FrameBuffer::CurrFB()->ViewID(), pPointLightTech->Tech());
+		bgfx::submit(FrameBuffer::ViewID(), pPointLightTech->Tech());
 	}
 }
 

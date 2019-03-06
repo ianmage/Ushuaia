@@ -28,7 +28,7 @@ void DrawItem::Submit(uint64_t overrideSt0, uint64_t overrideSt1) const
 
 	DrawUnit::Submit(overrideSt0, overrideSt1);
 
-	bgfx::submit(FrameBuffer::CurrFB()->ViewID(), pMtl->GetShader()->Tech());
+	bgfx::submit(FrameBuffer::ViewID(), pMtl->GetShader()->Tech());
 }
 
 
@@ -81,7 +81,7 @@ void InstanceItem::Submit(uint64_t overrideSt0, uint64_t overrideSt1) const
 
 	DrawUnit::Submit(overrideSt0, overrideSt1);
 
-	bgfx::submit(FrameBuffer::CurrFB()->ViewID(), pInstShader->Tech());
+	bgfx::submit(FrameBuffer::ViewID(), pInstShader->Tech());
 }
 	
 
