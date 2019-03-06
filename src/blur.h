@@ -1,7 +1,7 @@
 #pragma once
 
 #include "shader.h"
-#include "framebuffer.h"
+#include "frameBuffer.h"
 #include <array>
 
 

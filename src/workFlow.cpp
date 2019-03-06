@@ -160,7 +160,7 @@ bool Update()
 #else
 	Camera::pCurrent->Update();
 
-	UpdateScript();
+	FrameBuffer::Update();
 
 	Light::UpdateAll(Camera::pCurrent);
 
@@ -173,6 +173,8 @@ bool Update()
 	ForwardRendering::Render();
 #endif
 #endif
+
+	UpdateScript();
 
 	// Use debug font to print information about this example.
 	bgfx::dbgTextClear();

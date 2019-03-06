@@ -149,7 +149,7 @@ void ForwardRendering::Render()
 		;
 	bgfx::setState(state);
 #endif
-	uint64_t overrideSt0 = RenderState::s_val[0];
+	uint64_t overrideSt0 = BGFX_STATE_MASK;
 	uint64_t overrideSt1 = 0
 		| BGFX_STATE_WRITE_RGB
 		| BGFX_STATE_WRITE_A

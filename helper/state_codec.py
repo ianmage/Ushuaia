@@ -143,11 +143,11 @@ def ParseValue(v) :
 	groups = (5, 8, 13, 5, 2, 2, 4, 3)
 	i = 0
 	l = len(STATES_V_K)
-	for g in groups :
-		end = i + 5
+	for g in xrange(len(groups)) :
+		end = i + groups[g]
 		while i < end :
 			item = STATES_V_K[i]
-			if v & item[1] :
+			if v & item[1] :	# not correct, see below combine helper func
 				ret += item[0] + ' | '
 			i += 1
 		if ret.endswith(' | ') :
@@ -157,9 +157,23 @@ def ParseValue(v) :
 	return ret
 
 
+def STATE_BLEND_FUNC_SEPARATE(srcRGB, dstRGB, srcA, dstA) :
+	return (srcRGB | (dstRGB << 4)) | ((srcA | (dstA << 4)) << 8)
+
+def STATE_BLEND_FUNC(src, dst) :
+	return STATE_BLEND_FUNC_SEPARATE(src, dst, src, dst)
+
+
 
 if __name__ == '__main__' :
-	c = sys.argv[1]
+	st = 15
+	st = st | STATE_BLEND_FUNC(STATES_K_V["BLEND_ONE"], STATES_K_V["BLEND_ZERO"])
+	st = st | STATES_K_V["BLEND_EQUATION_ADD"]
+	s = NumToAry79Str(st)
+	print ParseValue(Ary79StrToNum(s))
+	print s
+	exit()
+	c = raw_input("StCode : ")
 	v = Ary79StrToNum(c)
 	print ParseValue(v)
 	if platform.system() == 'Windows' :

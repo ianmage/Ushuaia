@@ -122,9 +122,9 @@ void FrameBuffer::Lost()
 
 void FrameBuffer::Setup(Camera const *pCam, bgfx::ViewMode::Enum mode, bool doClear) const
 {
-	uint8_t viewID = s_viewChannelID++;
 	if (s_viewChannelID == 0)
 		bgfx::frame();
+	uint8_t viewID = s_viewChannelID++;
 	bgfx::setViewRect(viewID, 0, 0, width_, height_);
 	bgfx::setViewFrameBuffer(viewID, handle_);
 	bgfx::setViewMode(viewID, mode);

@@ -264,7 +264,7 @@ void Shading::Render()
 	bgfx::setMarker("GeoBuffer");
 	pGBufFB->Setup(pCam, bgfx::ViewMode::Default, true);
 
-	uint64_t overrideSt0 = RenderState::s_val[0];
+	uint64_t overrideSt0 = BGFX_STATE_MASK;
 	uint64_t overrideSt1 = 0
 		| BGFX_STATE_WRITE_RGB
 		| BGFX_STATE_WRITE_A

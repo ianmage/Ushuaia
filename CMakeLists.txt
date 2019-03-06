@@ -99,8 +99,6 @@ add_executable(executable
 	src/model.cpp
 	src/postProcess.cpp
 	src/renderHelper.cpp
-	src/renderState.cpp
-	src/renderTarget.cpp
 	src/renderUtil.cpp
 	src/script.cpp
 	src/scene.cpp
