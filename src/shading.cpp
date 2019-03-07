@@ -6,9 +6,8 @@
 #include "drawItem.h"
 #include "renderUtil.h"
 #include "postProcess.h"
-#include "frameBuffer.h"
-#include "../../cpp_common/commUtil.h"
 #include "blur.h"
+#include "../../cpp_common/commUtil.h"
 
 #pragma optimize("", off)
 
@@ -25,6 +24,7 @@ static FrameBuffer *pGBufFB = nullptr;
 static FrameBuffer *pDepthFB = nullptr;
 static FrameBuffer *pLightFB = nullptr;
 static FrameBuffer *pShadeFB = nullptr;
+static FrameBuffer *pPostFB = nullptr;
 #endif
 
 static bgfx::UniformHandle uhViewVec;
@@ -80,6 +80,7 @@ void Shading::Init()
 	pDepthFB = new FrameBuffer(g_viewState.width, g_viewState.height, bgfx::TextureFormat::R32F);
 	pLightFB = new FrameBuffer(g_viewState.width, g_viewState.height, bgfx::TextureFormat::RGBA16F);
 	pShadeFB = new FrameBuffer(g_viewState.width, g_viewState.height, bgfx::TextureFormat::RGBA16F);
+	pPostFB = new FrameBuffer(g_viewState.width, g_viewState.height, bgfx::TextureFormat::RGB10A2);
 
 	uhPointColor = bgfx::createUniform("PV_lightColor", bgfx::UniformType::Vec4);
 	uhPointPos = bgfx::createUniform("PV_lightPos", bgfx::UniformType::Vec4);
@@ -93,6 +94,8 @@ void Shading::Init()
 		PosVertex::s_decl, sphereIdx.data(), (uint32_t)sphereIdx.size());	// exception on exit
 
 	Reset();
+
+	PostProcess::Add(&GaussianBlur::Instance());
 }
 
 
@@ -102,6 +105,7 @@ void Shading::Fini()
 
 	s_pPointLightMesh = nullptr;
 
+	SafeDelete(pPostFB);
 	SafeDelete(pShadeFB);
 	SafeDelete(pLightFB);
 	SafeDelete(pDepthFB);
@@ -195,7 +199,7 @@ static void LinearizeDepth()
 	Vector4 camParam { pCam->near * q, q, pCam->far, 1.f / pCam->far };
 
 	bgfx::setUniform(uhParam, camParam.v);
-	bgfx::setTexture(0, SamplerMgr::Get("s_tex0"), pGBufFB->Tex(2).Handle());
+	bgfx::setTexture(0, SamplerMgr::Get("s_tex0"), pGBufFB->pTex(2)->Handle());
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	PostProcess::DrawFullScreen(pDepthTech);
 }
@@ -218,7 +222,7 @@ static void RenderLight()
 
 	// Directional
 	UpdateViewParams();
-	bgfx::setTexture( 0, SamplerMgr::Get("s_tex0"), pGBufFB->Tex(0).Handle() );
+	bgfx::setTexture( 0, SamplerMgr::Get("s_tex0"), pGBufFB->pTex(0)->Handle() );
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	PostProcess::DrawFullScreen(pDirLightTech);
 
@@ -241,8 +245,8 @@ static void RenderLight()
 		//bgfx::setUniform(uhPointAttnOuter, &s_lightAttnOuterBuf[i]);
 		//bgfx::setUniform(uhSpotDirInner, &s_spotDirInnerBuf[i]);
 
-		bgfx::setTexture( 0, SamplerMgr::Get("s_tex0"), pGBufFB->Tex(0).Handle() );
-		bgfx::setTexture( 1, SamplerMgr::Get("s_tex1"), pDepthFB->Tex(0).Handle() );
+		bgfx::setTexture( 0, SamplerMgr::Get("s_tex0"), pGBufFB->pTex(0)->Handle() );
+		bgfx::setTexture( 1, SamplerMgr::Get("s_tex1"), pDepthFB->pTex(0)->Handle() );
 		
 		bgfx::setState(st_lightAdd);
 		//bgfx::setState(BGFX_STATE_WRITE_RGB);
@@ -286,20 +290,20 @@ void Shading::Render()
 	bgfx::setMarker("Shading");
 	pShadeFB->Setup(nullptr, bgfx::ViewMode::Sequential, true);
 	UpdateViewParams();
-	bgfx::setTexture( 0, SamplerMgr::Get("s_tex0"), pGBufFB->Tex(0).Handle() );
-	bgfx::setTexture( 1, SamplerMgr::Get("s_tex1"), pGBufFB->Tex(1).Handle() );
-	bgfx::setTexture( 2, SamplerMgr::Get("s_tex2"), pLightFB->Tex(0).Handle() );
+	bgfx::setTexture( 0, SamplerMgr::Get("s_tex0"), pGBufFB->pTex(0)->Handle() );
+	bgfx::setTexture( 1, SamplerMgr::Get("s_tex1"), pGBufFB->pTex(1)->Handle() );
+	bgfx::setTexture( 2, SamplerMgr::Get("s_tex2"), pLightFB->pTex(0)->Handle() );
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	PostProcess::DrawFullScreen(pShadeTech);
 
-	GaussianBlur::Render(pShadeFB->Tex(0), FrameBuffer::BackBuf());
+	PostProcess::Render(pShadeFB->pTex(0), pPostFB);
 
 	bgfx::setMarker("Final Combine");
 	FrameBuffer::BackBuf()->Setup(nullptr, bgfx::ViewMode::Sequential, false);
 	Vector4 const texTile { 0.2f, 0.1f, 0.8f, 0.8f };
 	bgfx::setUniform(uhParam, texTile.v);
-	bgfx::setTexture( 0, SamplerMgr::Get("s_tex0"), pShadeFB->Tex(0).Handle() );
-	bgfx::setTexture( 1, SamplerMgr::Get("s_tex1"), pDepthFB->Tex(0).Handle() );
+	bgfx::setTexture( 0, SamplerMgr::Get("s_tex0"), pPostFB->pTex(0)->Handle() );
+	bgfx::setTexture( 1, SamplerMgr::Get("s_tex1"), pDepthFB->pTex(0)->Handle() );
 	DrawScreenQuad(pCombineTech,
 		BGFX_STATE_WRITE_RGB , texTile.x,texTile.y, texTile.z,texTile.w);
 }

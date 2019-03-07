@@ -23,14 +23,15 @@ public:
 
 	FrameBuffer(uint16_t w, uint16_t h, bgfx::TextureFormat::Enum fmt, uint8_t mipCnt=1);
 	FrameBuffer(bgfx::TextureInfo const * texInfos, uint8_t numRT);
+	FrameBuffer(FrameBuffer const & fb) = delete;
 	virtual ~FrameBuffer();
 
 	void Reset();
 	void Lost();
 
 	bgfx::FrameBufferHandle Handle() const { return handle_; }
-	Texture const & Tex(uint8_t attachment) const {
-		return rTexs_[attachment];
+	Texture const * pTex(uint8_t attachment) const {
+		return &rTexs_[attachment];
 	}
 
 	uint16_t Width() const { return width_; }

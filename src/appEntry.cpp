@@ -103,6 +103,8 @@ public:
 
 			Ushuaia::Update();
 
+			bgfx::frame();
+
 			return true;
 		}
 

@@ -90,11 +90,11 @@ static void ZoomOut(uint16_t* pW, uint16_t* pH)
 }
 
 
-static FrameBuffer const * SumLumAverage(Texture const & tex)
+static FrameBuffer const * SumLumAverage(Texture const *pTex)
 {
 	FrameBuffer const *pFB = nullptr, *pOldFB = nullptr;
-	bgfx::TextureHandle hTex = tex.Handle();
-	uint16_t w = tex.Width(), h = tex.Height();
+	bgfx::TextureHandle hTex = pTex->Handle();
+	uint16_t w = pTex->Width(), h = pTex->Height();
 	while (w > 1 || h > 1) {
 		float u = 1.0f / w, v = 1.0f / h;
 		Vector2 offsets[4] = {
@@ -110,15 +110,15 @@ static FrameBuffer const * SumLumAverage(Texture const & tex)
 		PostProcess::DrawFullScreen(pLumAvgTech);
 		delete pOldFB;
 		pOldFB = pFB;
-		hTex = pFB->Tex(0).Handle();
+		hTex = pFB->pTex(0)->Handle();
 	}
 	return pFB;
 }
 
 
-static FrameBuffer const * SumLum(Texture const & tex)
+static FrameBuffer const * SumLum(Texture const *pTex)
 {
-	uint16_t w = tex.Width(), h = tex.Height();
+	uint16_t w = pTex->Width(), h = pTex->Height();
 	float u = 1.0f / w, v = 1.0f / h;
 	Vector2 offsets[4] = {
 		{-u, -v}, {+u, -v},
@@ -128,11 +128,11 @@ static FrameBuffer const * SumLum(Texture const & tex)
 	FrameBuffer const * pLum0FB = new FrameBuffer(w, h, bgfx::TextureFormat::R16F);
 	pLum0FB->Setup(nullptr, bgfx::ViewMode::Sequential, false);
 	bgfx::setUniform(uhOffsets, offsets, 2);
-	bgfx::setTexture(0, SamplerMgr::Get("s_tex0"), tex.Handle());
+	bgfx::setTexture(0, SamplerMgr::Get("s_tex0"), pTex->Handle());
 	bgfx::setState(BGFX_STATE_WRITE_R);
 	PostProcess::DrawFullScreen(pLumTech);
 
-	FrameBuffer const * pFB = SumLumAverage(pLum0FB->Tex(0));
+	FrameBuffer const * pFB = SumLumAverage(pLum0FB->pTex(0));
 
 	delete pLum0FB;
 
@@ -140,9 +140,9 @@ static FrameBuffer const * SumLum(Texture const & tex)
 }
 
 
-void HDR::Render(Texture const & inTex, FrameBuffer const * pOutFB)
+void HDR::Render(Texture const *pInTex, FrameBuffer const * pOutFB)
 {
-	FrameBuffer const * pLumFB = SumLum(inTex);
+	FrameBuffer const * pLumFB = SumLum(pInTex);
 
 
 	delete pLumFB;

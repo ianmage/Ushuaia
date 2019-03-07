@@ -107,7 +107,8 @@ void FrameBuffer::Reset()
 		rts[i] = bgfx::createTexture2D(width_, height_, false, 1, rTexs_[i].Format(), samplerFlags);
 		rTexs_[i].Handle(rts[i], true);
 	}
-	handle_ = bgfx::createFrameBuffer(numRT, rts, true);
+	if (this != s_backBuf)
+		handle_ = bgfx::createFrameBuffer(numRT, rts, true);
 }
 
 

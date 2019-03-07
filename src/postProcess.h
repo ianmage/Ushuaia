@@ -8,6 +8,13 @@
 namespace Ushuaia
 {
 
+class PostProcessor
+{
+public:
+	virtual void Render(Texture const *pSrcTex, FrameBuffer const *pOutFB) = 0;
+};
+
+
 struct PostProcess
 {
 public:
@@ -16,8 +23,14 @@ public:
 
 	static void DrawFullScreen(Shader const *pShader);
 
+	static void Add(PostProcessor *pProcessor) {
+		processors_.push_back(pProcessor);
+	}
+	static void Del(PostProcessor const * pProcessor);
+	static void Render(Texture const *pSrcTex, FrameBuffer const *pFB);
+
 private:
-	static bgfx::VertexBufferHandle hVB_;
+	static std::vector<PostProcessor*> processors_;
 };
 
 }

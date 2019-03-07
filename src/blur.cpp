@@ -8,16 +8,20 @@
 namespace Ushuaia
 {
 
-uint8_t GaussianBlur::kernelRadius_ = 8;
-float GaussianBlur::multiplier_ = 1.0f;
-decltype(GaussianBlur::tcOffsets_) GaussianBlur::tcOffsets_;
-std::array<float, GaussianBlur::SAMPLE_RADIUS> GaussianBlur::colorWeights_;
-Shader* GaussianBlur::pTechX_ = nullptr;
-Shader* GaussianBlur::pTechY_ = nullptr;
-
 static bgfx::UniformHandle uhTexSize;
 static bgfx::UniformHandle uhColorWeights;
 static bgfx::UniformHandle uhTcOffsets;
+
+
+decltype(GaussianBlur::s_instance) GaussianBlur::s_instance;
+
+
+GaussianBlur::GaussianBlur()
+	: kernelRadius_(8)
+	, multiplier_(1.0f)
+	, pTechX_(nullptr), pTechY_(nullptr)
+{
+}
 
 
 bool GaussianBlur::Init()
@@ -80,24 +84,24 @@ void GaussianBlur::CalcSampleOffsets(float deviation)
 }
 
 
-void GaussianBlur::Render(Texture const & srcTex, FrameBuffer const *pOutFB)
+void GaussianBlur::Render(Texture const *pSrcTex, FrameBuffer const *pOutFB)
 {
 	if (pTechX_ == nullptr)
 		Init();
-	float srcW = static_cast<float>(srcTex.Width());
-	float srcH = static_cast<float>(srcTex.Height());
+	float srcW = static_cast<float>(pSrcTex->Width());
+	float srcH = static_cast<float>(pSrcTex->Height());
 	Vector4 texSize{ srcW, srcH, 1.0f / srcW, 1.0f / srcH };
 
 	bgfx::setMarker("Gaussian Blur X");
-	Texture const & rTex = pOutFB->Tex(0);
+	Texture const *pRT = pOutFB->pTex(0);
 
-	FrameBuffer const * pTmpFB = FrameBuffer::CheckOut(rTex.Width(), rTex.Height(), rTex.Format());
+	FrameBuffer const * pTmpFB = FrameBuffer::CheckOut(pRT->Width(), pRT->Height(), pRT->Format());
 
 	pTmpFB->Setup(nullptr, bgfx::ViewMode::Sequential, false);
 	bgfx::setUniform(uhTexSize, texSize.v);
 	bgfx::setUniform(uhTcOffsets, tcOffsets_.data(), 2);
 	bgfx::setUniform(uhColorWeights, colorWeights_.data(), 2);
-	bgfx::setTexture(0, SamplerMgr::Get("s_tex0"), srcTex.Handle());
+	bgfx::setTexture(0, SamplerMgr::Get("s_tex0"), pSrcTex->Handle());
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	PostProcess::DrawFullScreen(pTechX_);
 
@@ -107,7 +111,7 @@ void GaussianBlur::Render(Texture const & srcTex, FrameBuffer const *pOutFB)
 	bgfx::setUniform(uhTexSize, texSize.v);
 	bgfx::setUniform(uhTcOffsets, tcOffsets_.data(), 2);
 	bgfx::setUniform(uhColorWeights, colorWeights_.data(), 2);
-	bgfx::setTexture(0, SamplerMgr::Get("s_tex0"), pTmpFB->Tex(0).Handle());
+	bgfx::setTexture(0, SamplerMgr::Get("s_tex0"), pTmpFB->pTex(0)->Handle());
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	PostProcess::DrawFullScreen(pTechY_);
 

@@ -16,7 +16,7 @@ struct HDR
 
 	static void Update();
 
-	static void Render(Texture const & tex, FrameBuffer const * pOutFB);
+	static void Render(Texture const *pTex, FrameBuffer const * pOutFB);
 
 	static void Lost();
 	static void Reset();
