@@ -10,7 +10,7 @@ uint16_t FrameBuffer::s_viewCnt = 0;
 FrameBuffer const * FrameBuffer::s_currFB = nullptr;
 FrameBuffer const * FrameBuffer::s_backBuf = nullptr;
 decltype(FrameBuffer::s_rts) FrameBuffer::s_rts;
-decltype(FrameBuffer::s_viewChannelID) FrameBuffer::s_viewChannelID = 0;
+decltype(FrameBuffer::s_viewChannelID) FrameBuffer::s_viewChannelID = 0xFF;
 static Matrix4x4 s_mtxOrtho;
 
 
@@ -122,9 +122,9 @@ void FrameBuffer::Lost()
 
 void FrameBuffer::Setup(Camera const *pCam, bgfx::ViewMode::Enum mode, bool doClear) const
 {
-	if (s_viewChannelID == 0)
+	if (0 == ++s_viewChannelID)
 		bgfx::frame();
-	uint8_t viewID = s_viewChannelID++;
+	uint8_t viewID = s_viewChannelID;
 	bgfx::setViewRect(viewID, 0, 0, width_, height_);
 	bgfx::setViewFrameBuffer(viewID, handle_);
 	bgfx::setViewMode(viewID, mode);
@@ -188,6 +188,9 @@ void FrameBuffer::CheckIn(FrameBuffer const * pFB)
 void FrameBuffer::Update()
 {
 	s_viewChannelID = 0;
+	// Advance to next frame. Rendering thread will be kicked to
+	// process submitted rendering primitives.
+	bgfx::frame();
 }
 
 }

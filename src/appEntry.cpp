@@ -103,10 +103,6 @@ public:
 
 			Ushuaia::Update();
 
-			// Advance to next frame. Rendering thread will be kicked to
-			// process submitted rendering primitives.
-			bgfx::frame();
-
 			return true;
 		}
 
