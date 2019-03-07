@@ -4,7 +4,7 @@
 #include "appConf.h"
 #include "vtxDecl.h"
 #include "../examples/common/bgfx_utils.h"
-#include "renderUtil.h"
+#include "renderHelper.h"
 #ifdef _APPLE
 //#include <mach/mach.h>
 #endif

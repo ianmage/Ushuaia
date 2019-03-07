@@ -39,6 +39,17 @@ bool GaussianBlur::Init()
 }
 
 
+void GaussianBlur::Fini()
+{
+	SafeDestroy(uhTexSize);
+	SafeDestroy(uhColorWeights);
+	SafeDestroy(uhTcOffsets);
+
+	SafeDelete(pTechX_);
+	SafeDelete(pTechY_);
+}
+
+
 static float GaussianDistribution(float x, float y, float rho)
 {
 	float const pi = static_cast<float>(MATH_PI);

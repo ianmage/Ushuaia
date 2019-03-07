@@ -74,7 +74,6 @@ bool Init()
 
 	FrameBuffer::Init();
 	DrawChannel::Init();
-	PostProcess::Init();
 #if DEFERRED_RENDERING
 	Shading::Init();
 #else
@@ -107,7 +106,7 @@ bool Fini()
 #else
 	ForwardRendering::Fini();
 #endif
-	PostProcess::Fini();
+	PostProcessor::FiniAll();
 	Light::Fini();
 	FrameBuffer::Fini();
 	Shader::ClearAll();

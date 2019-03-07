@@ -5,8 +5,9 @@
 #include "bx/math.h"
 #include "drawItem.h"
 #include "renderUtil.h"
+#include "renderHelper.h"
 #include "postProcess.h"
-#include "blur.h"
+#include "hdr.h"
 #include "../../cpp_common/commUtil.h"
 
 #pragma optimize("", off)
@@ -95,7 +96,7 @@ void Shading::Init()
 
 	Reset();
 
-	PostProcess::Add(&GaussianBlur::Instance());
+	PostProcess::Add(&HDR::Instance());
 }
 
 
@@ -111,14 +112,14 @@ void Shading::Fini()
 	SafeDelete(pDepthFB);
 	SafeDelete(pGBufFB);
 
-	bgfx::destroy(uhViewVec);
-	bgfx::destroy(uhRtSize);
-	bgfx::destroy(uhParam);
+	SafeDestroy(uhViewVec);
+	SafeDestroy(uhRtSize);
+	SafeDestroy(uhParam);
 
-	bgfx::destroy(uhPointColor);
-	bgfx::destroy(uhPointPos);
-	bgfx::destroy(uhPointAttnOuter);
-	bgfx::destroy(uhSpotDirInner);
+	SafeDestroy(uhPointColor);
+	SafeDestroy(uhPointPos);
+	SafeDestroy(uhPointAttnOuter);
+	SafeDestroy(uhSpotDirInner);
 }
 
 

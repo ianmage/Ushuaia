@@ -10,12 +10,14 @@ namespace Ushuaia
 class GaussianBlur : public PostProcessor
 {
 public :
-	void Render(Texture const *pSrcTex, FrameBuffer const *pOutFB) override;
 	static GaussianBlur& Instance() { return s_instance; }
+
+	void Render(Texture const *pSrcTex, FrameBuffer const *pOutFB) override;
 
 private :
 	GaussianBlur();
-	bool Init();
+	bool Init() override;
+	void Fini() override;
 	void CalcSampleOffsets(float deviation);
 
 	static uint8_t const SAMPLE_RADIUS = 8;

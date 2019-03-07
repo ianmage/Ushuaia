@@ -10,17 +10,27 @@ namespace Ushuaia
 
 class PostProcessor
 {
-public:
+public :
 	virtual void Render(Texture const *pSrcTex, FrameBuffer const *pOutFB) = 0;
+	~PostProcessor();
+
+	static void FiniAll();
+
+protected :
+	PostProcessor();
+	virtual bool Init() = 0;
+	virtual void Fini() = 0;
+
+private :
+	PostProcessor(PostProcessor const &) = delete;
+
+	static std::vector<PostProcessor*> instances_;
 };
 
 
 struct PostProcess
 {
-public:
-	static void Init();
-	static void Fini();
-
+public :
 	static void DrawFullScreen(Shader const *pShader);
 
 	static void Add(PostProcessor *pProcessor) {
@@ -29,7 +39,7 @@ public:
 	static void Del(PostProcessor const * pProcessor);
 	static void Render(Texture const *pSrcTex, FrameBuffer const *pFB);
 
-private:
+private :
 	static std::vector<PostProcessor*> processors_;
 };
 

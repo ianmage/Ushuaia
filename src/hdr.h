@@ -1,25 +1,27 @@
 #pragma once
 
-#include <bgfx/bgfx.h>
-#include "texture.h"
-#include "frameBuffer.h"
+#include "postProcess.h"
 
 
 namespace Ushuaia
 {
 
-struct HDR
+class HDR : public PostProcessor
 {
-	static void Init();
+public :
+	static HDR& Instance() { return s_instance; }
 
-	static void Fini();
+	void Update();
+	void Render(Texture const *pTex, FrameBuffer const * pOutFB) override;
 
-	static void Update();
+protected :
+	bool Init() override;
+	void Fini() override;
 
-	static void Render(Texture const *pTex, FrameBuffer const * pOutFB);
+private :
+	static HDR s_instance;
 
-	static void Lost();
-	static void Reset();
+	Shader *pTech_;
 };
 
 }

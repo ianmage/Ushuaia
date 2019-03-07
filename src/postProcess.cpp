@@ -1,7 +1,6 @@
 #include "postProcess.h"
 #include "viewState.h"
 #include "renderUtil.h"
-#include "blur.h"
 
 #pragma optimize("", off)
 
@@ -9,19 +8,31 @@
 namespace Ushuaia
 {
 
+decltype(PostProcessor::instances_) PostProcessor::instances_;
+
+
+PostProcessor::PostProcessor()
+{
+	instances_.push_back(this);
+}
+
+PostProcessor::~PostProcessor()
+{
+	for (int i = 0; i < instances_.size(); ++i) {
+		if (instances_[i] == this)
+			instances_.erase(instances_.begin() + i);
+	}
+}
+
+
+void PostProcessor::FiniAll()
+{
+	for (auto ppp : instances_)
+		ppp->Fini();
+}
+
+
 decltype(PostProcess::processors_) PostProcess::processors_;
-
-
-void PostProcess::Init()
-{
-	
-}
-
-
-void PostProcess::Fini()
-{
-
-}
 
 
 void PostProcess::DrawFullScreen(Shader const *pShader)
