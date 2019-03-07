@@ -19,7 +19,7 @@ bool FrameBuffer::Init()
 	bgfx::Caps const * caps = bgfx::getCaps();
 	bx::mtxOrtho(s_mtxOrtho.v, 0.f, 1.f, 1.f, 0.f, 0.f, 100.f, 0.f, caps->homogeneousDepth);
 	assert(!s_backBuf);
-	s_backBuf = new FrameBuffer(g_viewState.width, g_viewState.height, bgfx::TextureFormat::BGRA8);
+	s_backBuf = new FrameBuffer(g_viewState.width, g_viewState.height, bgfx::TextureFormat::Unknown);
 	s_currFB = s_backBuf;
 
 	return true;
@@ -30,6 +30,8 @@ void FrameBuffer::Fini()
 {
 	delete s_backBuf;
 	s_backBuf = nullptr;
+
+	s_currFB = nullptr;
 
 	for (auto pFB : s_rts)
 		delete pFB;
@@ -42,8 +44,10 @@ FrameBuffer::FrameBuffer(uint16_t w, uint16_t h, bgfx::TextureFormat::Enum fmt, 
 , width_(w), height_(h)
 {
 #ifdef _DEBUG
-	assert(width_ <= 4096 && height_ <= 4096);
+	assert(w * h > 0 && w <= 4096 && h <= 4096);
 #endif
+	if (bgfx::TextureFormat::Unknown == fmt || bgfx::TextureFormat::UnknownDepth == fmt)
+		return;
 
 	bgfx::TextureInfo texInfo;
 	texInfo.width = w;
@@ -107,8 +111,7 @@ void FrameBuffer::Reset()
 		rts[i] = bgfx::createTexture2D(width_, height_, false, 1, rTexs_[i].Format(), samplerFlags);
 		rTexs_[i].Handle(rts[i], true);
 	}
-	if (this != s_backBuf)
-		handle_ = bgfx::createFrameBuffer(numRT, rts, true);
+	handle_ = bgfx::createFrameBuffer(numRT, rts, true);
 }
 
 
@@ -123,9 +126,9 @@ void FrameBuffer::Lost()
 
 void FrameBuffer::Setup(Camera const *pCam, bgfx::ViewMode::Enum mode, bool doClear) const
 {
-	if (0 == ++s_viewChannelID)
+	uint8_t viewID = ++s_viewChannelID;
+	if (0 == viewID)
 		bgfx::frame();
-	uint8_t viewID = s_viewChannelID;
 	bgfx::setViewRect(viewID, 0, 0, width_, height_);
 	bgfx::setViewFrameBuffer(viewID, handle_);
 	bgfx::setViewMode(viewID, mode);
@@ -161,6 +164,7 @@ uint64_t FrameBuffer::HashCode() const
 
 FrameBuffer const * FrameBuffer::CheckOut(uint16_t w, uint16_t h, bgfx::TextureFormat::Enum fmt, uint8_t mipCnt)
 {
+	assert(w * h > 0 && fmt != bgfx::TextureFormat::Enum::Unknown);
 	uint64_t key = MakeFrameBufferKey(w, h, fmt, mipCnt);
 
 	FrameBuffer const * ret = nullptr;
