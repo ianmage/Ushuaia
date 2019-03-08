@@ -4,6 +4,8 @@
 #include <vector>
 #include "shader.h"
 #include "camera.h"
+#include "texture.h"
+#include "postProcess.h"
 
 
 namespace Ushuaia
@@ -34,5 +36,11 @@ void CalcMeshNormal(Vector3 * normals, uint16_t numNorm
 	, uint16_t const * indices, uint32_t numIdx);
 
 uint16_t FloatToUint16(float f);
+
+
+void Copy(Texture const *pSrcTex, FrameBuffer const *pOutFB, bool bilinear);
+
+
+void ClearRenderUtilRes();
 
 }

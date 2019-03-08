@@ -50,14 +50,17 @@ static void ZoomOutQuater(uint16_t* pW, uint16_t* pH)
 }
 
 
-struct ImageStatProcessor
+class ImageStatProcessor
 {
+public :
 	static FrameBuffer const * Output(Texture const *pTex);
-	static FrameBuffer const * SumLumAverage(Texture const *pTex);
-	static FrameBuffer const * SumLum(Texture const *pTex);
 
 	static bool Init();
 	static void Fini();
+
+private :
+	static FrameBuffer const * SumLumAverage(Texture const *pTex);
+	static FrameBuffer const * SumLum(Texture const *pTex);
 
 	static Shader *pLumTech_;
 	static Shader *pLumAvgTech_;
@@ -140,13 +143,16 @@ FrameBuffer const * ImageStatProcessor::Output(Texture const *pTex)
 }
 
 
-struct LensEffect
+class LensEffect
 {
+public :
 	static FrameBuffer const * Output(Texture const *pTex);
-	static FrameBuffer const * BrightPass(Texture const *pTex);
 
 	static bool Init();
 	static void Fini();
+
+private :
+	static FrameBuffer const * BrightPass(Texture const *pTex);
 
 	static Shader *pBrightTech_;
 };

@@ -136,4 +136,29 @@ uint16_t FloatToUint16(float f)
 	return v.ui;
 }
 
+
+static Shader *pCopyTech = nullptr;
+
+
+void ClearRenderUtilRes()
+{
+	SafeDelete(pCopyTech);
+}
+
+
+void Copy(Texture const *pSrcTex, FrameBuffer const *pOutFB, bool bilinear)
+{
+	if (pCopyTech == nullptr)
+		pCopyTech = Shader::Load("screen/vs_screen_quad", "screen/fs_copy");
+
+	uint32_t samplerFlag = BGFX_SAMPLER_UVW_CLAMP | BGFX_SAMPLER_MIP_POINT;
+	if (!bilinear)
+		samplerFlag |= BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT;
+
+	pOutFB->Setup(nullptr, bgfx::ViewMode::Sequential, false);
+	bgfx::setTexture(0, SamplerMgr::Get("s_tex0"), pSrcTex->Handle(), samplerFlag);
+	bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A);
+	PostProcess::DrawFullScreen(pCopyTech);
+}
+
 }
