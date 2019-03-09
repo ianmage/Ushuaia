@@ -102,10 +102,10 @@ void GaussianBlur::Render(Texture const *pSrcTex, FrameBuffer const *pOutFB)
 	float srcW = static_cast<float>(pSrcTex->Width());
 	float srcH = static_cast<float>(pSrcTex->Height());
 	Vector4 texSize{ srcW, srcH, 1.0f / srcW, 1.0f / srcH };
-	uint32_t samplerFlag = BGFX_SAMPLER_UVW_CLAMP | BGFX_SAMPLER_MIP_POINT;
+	uint32_t const linearSampler = BGFX_SAMPLER_UVW_CLAMP | BGFX_SAMPLER_MIP_POINT;
 
 	bgfx::setMarker("Gaussian Blur X");
-	Texture const *pRT = pOutFB->pTex(0);
+	Texture const *pRT = pOutFB->pTex();
 
 	FrameBuffer const * pTmpFB = FrameBuffer::CheckOut(pRT->Width(), pRT->Height(), pRT->Format());
 
@@ -113,7 +113,7 @@ void GaussianBlur::Render(Texture const *pSrcTex, FrameBuffer const *pOutFB)
 	bgfx::setUniform(uhTexSize, texSize.v);
 	bgfx::setUniform(uhTcOffsets, tcOffsets_.data(), 2);
 	bgfx::setUniform(uhColorWeights, colorWeights_.data(), 2);
-	bgfx::setTexture(0, SamplerMgr::Get("s_tex0"), pSrcTex->Handle(), samplerFlag);
+	SetTexture(0, "src_tex", pSrcTex, linearSampler);
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	PostProcess::DrawFullScreen(pTechX_);
 
@@ -123,7 +123,7 @@ void GaussianBlur::Render(Texture const *pSrcTex, FrameBuffer const *pOutFB)
 	bgfx::setUniform(uhTexSize, texSize.v);
 	bgfx::setUniform(uhTcOffsets, tcOffsets_.data(), 2);
 	bgfx::setUniform(uhColorWeights, colorWeights_.data(), 2);
-	bgfx::setTexture(0, SamplerMgr::Get("s_tex0"), pTmpFB->pTex(0)->Handle(), samplerFlag);
+	SetTexture(0, "src_tex", pTmpFB->pTex(), linearSampler);
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	PostProcess::DrawFullScreen(pTechY_);
 

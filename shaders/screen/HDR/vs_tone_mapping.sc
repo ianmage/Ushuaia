@@ -3,7 +3,7 @@ $output v_tc0
 
 #include "../common/common.sh"
 
-SAMPLER2D(s_lum_tex, 0);
+SAMPLER2D(lum_tex, 0);
 
 
 void main()
@@ -14,7 +14,7 @@ void main()
 
 	vec2 uv = vec2(homoCoord.x + 1.f, 1.f - homoCoord.y) * 0.5f;
 
-	float adaptedLum = texture2DLod(s_lum_tex, vec2_splat(0.5f), 0).x;
+	float adaptedLum = texture2DLod(lum_tex, vec2_splat(0.5f), 0).x;
 
 	v_tc0 = vec4(uv, adaptedLum, 0);
 }

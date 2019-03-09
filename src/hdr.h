@@ -12,7 +12,7 @@ public :
 	static HDR& Instance() { return s_instance; }
 
 	void Update();
-	void Render(Texture const *pTex, FrameBuffer const * pOutFB) override;
+	void Render(Texture const *pTex, FrameBuffer const *pFB) override;
 
 protected :
 	bool Init() override;

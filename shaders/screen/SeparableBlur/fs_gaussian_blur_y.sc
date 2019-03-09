@@ -6,7 +6,7 @@ uniform vec4 texSize;
 uniform vec4 tcOffsets[2];
 uniform vec4 colorWeights[2];
 
-SAMPLER2D(s_tex0, 0);
+SAMPLER2D(src_tex, 0);
 
 
 void main()
@@ -22,21 +22,21 @@ void main()
 	vec2 tc;
 
 	tc = vec2(uv.x, tc1.x);
-	color.rgb += texture2D(s_tex0, tc).rgb * colorWeights[0].x;
+	color.rgb += texture2D(src_tex, tc).rgb * colorWeights[0].x;
 	tc = vec2(uv.x, tc1.y);
-	color.rgb += texture2D(s_tex0, tc).rgb * colorWeights[0].y;
+	color.rgb += texture2D(src_tex, tc).rgb * colorWeights[0].y;
 	tc = vec2(uv.x, tc1.z);
-	color.rgb += texture2D(s_tex0, tc).rgb * colorWeights[0].z;
+	color.rgb += texture2D(src_tex, tc).rgb * colorWeights[0].z;
 	tc = vec2(uv.x, tc1.w);
-	color.rgb += texture2D(s_tex0, tc).rgb * colorWeights[0].w;
+	color.rgb += texture2D(src_tex, tc).rgb * colorWeights[0].w;
 	tc = vec2(uv.x, tc2.x);
-	color.rgb += texture2D(s_tex0, tc).rgb * colorWeights[1].x;
+	color.rgb += texture2D(src_tex, tc).rgb * colorWeights[1].x;
 	tc = vec2(uv.x, tc2.y);
-	color.rgb += texture2D(s_tex0, tc).rgb * colorWeights[1].y;
+	color.rgb += texture2D(src_tex, tc).rgb * colorWeights[1].y;
 	tc = vec2(uv.x, tc2.z);
-	color.rgb += texture2D(s_tex0, tc).rgb * colorWeights[1].z;
+	color.rgb += texture2D(src_tex, tc).rgb * colorWeights[1].z;
 	tc = vec2(uv.x, tc2.w);
-	color.rgb += texture2D(s_tex0, tc).rgb * colorWeights[1].w;
+	color.rgb += texture2D(src_tex, tc).rgb * colorWeights[1].w;
 
 	gl_FragColor = color;
 }

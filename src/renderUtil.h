@@ -19,6 +19,12 @@ inline void SafeDestroy(bgfx::UniformHandle uh)
 	}
 }
 
+inline void SetTexture(uint8_t stage, std::string const & name, Texture const *pTex, uint32_t samplerFlag) {
+	bgfx::TextureHandle hTex = pTex ? pTex->Handle() : (bgfx::TextureHandle)BGFX_INVALID_HANDLE;
+	bgfx::setTexture(stage, SamplerMgr::Get(name), hTex, samplerFlag);
+}
+
+
 void DrawScreenQuad(Shader const *pShader, uint64_t state
 	, float x, float y, float w, float h);
 
@@ -38,8 +44,9 @@ void CalcMeshNormal(Vector3 * normals, uint16_t numNorm
 uint16_t FloatToUint16(float f);
 
 
-void Copy(Texture const *pSrcTex, FrameBuffer const *pOutFB, bool bilinear);
+void Copy(Texture const *pSrcTex, FrameBuffer const *pOutFB, uint64_t writeState, bool bilinear);
 
+void DownQuater(Texture const *pTex, FrameBuffer const *pOutFB, uint64_t writeState);
 
 void ClearRenderUtilRes();
 

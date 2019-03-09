@@ -17,7 +17,7 @@ public:
 	static FrameBuffer const * CurrFB() { return s_currFB; }
 	static FrameBuffer const * BackBuf() { return s_backBuf; }
 	static FrameBuffer const * CheckOut(uint16_t w, uint16_t h, bgfx::TextureFormat::Enum fmt, uint8_t mipCnt=1);
-	static void CheckIn(FrameBuffer const * pFB);
+	static void CheckIn(FrameBuffer const * &pFB);
 	static void Update();
 	static uint8_t ViewID() { return s_viewChannelID; }
 
@@ -30,7 +30,7 @@ public:
 	void Lost();
 
 	bgfx::FrameBufferHandle Handle() const { return handle_; }
-	Texture const * pTex(uint8_t attachment) const {
+	Texture const * pTex(uint8_t attachment = 0) const {
 		return &rTexs_[attachment];
 	}
 

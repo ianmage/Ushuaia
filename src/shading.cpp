@@ -200,7 +200,9 @@ static void LinearizeDepth()
 	Vector4 camParam { pCam->near * q, q, pCam->far, 1.f / pCam->far };
 
 	bgfx::setUniform(uhParam, camParam.v);
-	bgfx::setTexture(0, SamplerMgr::Get("s_tex0"), pGBufFB->pTex(2)->Handle());
+	uint32_t pointSampler = BGFX_SAMPLER_UVW_CLAMP | BGFX_SAMPLER_MIP_POINT
+		| BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT;
+	SetTexture(0, "s_tex0", pGBufFB->pTex(2), pointSampler);
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	PostProcess::DrawFullScreen(pDepthTech);
 }
@@ -221,9 +223,12 @@ static void RenderLight()
 	
 	Light::Submit();
 
+	uint32_t pointSampler = BGFX_SAMPLER_UVW_CLAMP | BGFX_SAMPLER_MIP_POINT
+		| BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT;
+
 	// Directional
 	UpdateViewParams();
-	bgfx::setTexture( 0, SamplerMgr::Get("s_tex0"), pGBufFB->pTex(0)->Handle() );
+	SetTexture(0, "s_tex0", pGBufFB->pTex(0), pointSampler);
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	PostProcess::DrawFullScreen(pDirLightTech);
 
@@ -246,8 +251,8 @@ static void RenderLight()
 		//bgfx::setUniform(uhPointAttnOuter, &s_lightAttnOuterBuf[i]);
 		//bgfx::setUniform(uhSpotDirInner, &s_spotDirInnerBuf[i]);
 
-		bgfx::setTexture( 0, SamplerMgr::Get("s_tex0"), pGBufFB->pTex(0)->Handle() );
-		bgfx::setTexture( 1, SamplerMgr::Get("s_tex1"), pDepthFB->pTex(0)->Handle() );
+		SetTexture(0, "s_tex0", pGBufFB->pTex(0), pointSampler);
+		SetTexture(1, "s_tex1", pDepthFB->pTex(), pointSampler);
 		
 		bgfx::setState(st_lightAdd);
 		//bgfx::setState(BGFX_STATE_WRITE_RGB);
@@ -277,6 +282,8 @@ void Shading::Render()
 		| BGFX_STATE_DEPTH_TEST_LESS
 		| BGFX_STATE_MSAA
 	;
+	uint32_t const pointSampler = BGFX_SAMPLER_UVW_CLAMP | BGFX_SAMPLER_MIP_POINT
+		| BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT;
 
 	DrawChannel::Gather();
 
@@ -291,20 +298,21 @@ void Shading::Render()
 	bgfx::setMarker("Shading");
 	pShadeFB->Setup(nullptr, bgfx::ViewMode::Sequential, true);
 	UpdateViewParams();
-	bgfx::setTexture( 0, SamplerMgr::Get("s_tex0"), pGBufFB->pTex(0)->Handle() );
-	bgfx::setTexture( 1, SamplerMgr::Get("s_tex1"), pGBufFB->pTex(1)->Handle() );
-	bgfx::setTexture( 2, SamplerMgr::Get("s_tex2"), pLightFB->pTex(0)->Handle() );
+	SetTexture(0, "s_tex0", pGBufFB->pTex(0), pointSampler);
+	SetTexture(1, "s_tex1", pGBufFB->pTex(1), pointSampler);
+	SetTexture(2, "s_tex2", pLightFB->pTex(), pointSampler);
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	PostProcess::DrawFullScreen(pShadeTech);
 
-	PostProcess::Render(pShadeFB->pTex(0), pPostFB);
+	PostProcess::Render(pShadeFB->pTex(), pPostFB);
 
 	bgfx::setMarker("Final Combine");
+	uint32_t const linearSampler = BGFX_SAMPLER_UVW_CLAMP | BGFX_SAMPLER_MIP_POINT;
 	FrameBuffer::BackBuf()->Setup(nullptr, bgfx::ViewMode::Sequential, false);
 	Vector4 const texTile { 0.2f, 0.1f, 0.8f, 0.8f };
 	bgfx::setUniform(uhParam, texTile.v);
-	bgfx::setTexture( 0, SamplerMgr::Get("s_tex0"), pPostFB->pTex(0)->Handle() );
-	bgfx::setTexture( 1, SamplerMgr::Get("s_tex1"), pDepthFB->pTex(0)->Handle() );
+	SetTexture(0, "s_tex0", pPostFB->pTex(), linearSampler);
+	SetTexture(1, "s_tex1", pDepthFB->pTex(), linearSampler);
 	DrawScreenQuad(pCombineTech,
 		BGFX_STATE_WRITE_RGB , texTile.x,texTile.y, texTile.z,texTile.w);
 }

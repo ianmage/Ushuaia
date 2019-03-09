@@ -10,8 +10,12 @@
 		"dir_light",
 		"screen_geo", "point_light",
 		"shading",
-		"combine",
-		"copy",
-		"gaussian_blur_x", "gaussian_blur_y"
+		"combine"
+	],
+	"tc1": [
+		"copy", "down_quater",
+		"gaussian_blur_x", "gaussian_blur_y",
+		"sum_lum", "bright", "glow_merger",
+		"tone_mapping"
 	]
 }

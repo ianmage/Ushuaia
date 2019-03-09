@@ -138,15 +138,19 @@ uint16_t FloatToUint16(float f)
 
 
 static Shader *pCopyTech = nullptr;
+static Shader *pDown4Tech = nullptr;
+
+static bgfx::UniformHandle hTcOffset = BGFX_INVALID_HANDLE;
 
 
 void ClearRenderUtilRes()
 {
 	SafeDelete(pCopyTech);
+	SafeDelete(pDown4Tech);
 }
 
 
-void Copy(Texture const *pSrcTex, FrameBuffer const *pOutFB, bool bilinear)
+void Copy(Texture const *pSrcTex, FrameBuffer const *pOutFB, uint64_t writeState, bool bilinear)
 {
 	if (pCopyTech == nullptr)
 		pCopyTech = Shader::Load("screen/vs_screen_quad", "screen/fs_copy");
@@ -156,9 +160,35 @@ void Copy(Texture const *pSrcTex, FrameBuffer const *pOutFB, bool bilinear)
 		samplerFlag |= BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT;
 
 	pOutFB->Setup(nullptr, bgfx::ViewMode::Sequential, false);
-	bgfx::setTexture(0, SamplerMgr::Get("s_tex0"), pSrcTex->Handle(), samplerFlag);
-	bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A);
+	SetTexture(0, "src_tex", pSrcTex, samplerFlag);
+	bgfx::setState(writeState);
 	PostProcess::DrawFullScreen(pCopyTech);
+}
+
+
+void DownQuater(Texture const *pTex, FrameBuffer const *pFB, uint64_t writeState)
+{
+	if (pDown4Tech == nullptr) {
+		pDown4Tech = Shader::Load("screen/vs_down_quater", "screen/fs_down_quater");
+		hTcOffset = bgfx::createUniform("uTexCoordOffset", bgfx::UniformType::Vec4, 2);
+	}
+
+	uint16_t w = pTex->Width(), h = pTex->Height();
+	w = std::max(1, w >> 2);
+	h = std::max(1, h >> 2);
+
+	float u = 1.0f / w, v = 1.0f / h;
+	Vector2 offsets[4] = {
+		{-u, -v}, {+u, -v},
+		{+u, +v}, {-u, +v}
+	};
+
+	pFB->Setup(nullptr, bgfx::ViewMode::Sequential, false);
+	bgfx::setUniform(hTcOffset, offsets, 2);
+	uint32_t const linearSampler = BGFX_SAMPLER_UVW_CLAMP | BGFX_SAMPLER_MIP_POINT;
+	SetTexture(0, "src_tex", pTex, linearSampler);
+	bgfx::setState(writeState);
+	PostProcess::DrawFullScreen(pDown4Tech);
 }
 
 }

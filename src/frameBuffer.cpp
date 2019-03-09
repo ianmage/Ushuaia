@@ -126,9 +126,15 @@ void FrameBuffer::Lost()
 
 void FrameBuffer::Setup(Camera const *pCam, bgfx::ViewMode::Enum mode, bool doClear) const
 {
-	uint8_t viewID = ++s_viewChannelID;
-	if (0 == viewID)
-		bgfx::frame();
+	uint8_t viewID;
+	if (s_currFB == this && mode == bgfx::ViewMode::Sequential)
+		viewID = s_viewChannelID;
+	else {
+		viewID = ++s_viewChannelID;
+		if (0 == viewID)
+			bgfx::frame();
+	}
+
 	bgfx::setViewRect(viewID, 0, 0, width_, height_);
 	bgfx::setViewFrameBuffer(viewID, handle_);
 	bgfx::setViewMode(viewID, mode);
@@ -183,10 +189,11 @@ FrameBuffer const * FrameBuffer::CheckOut(uint16_t w, uint16_t h, bgfx::TextureF
 }
 
 
-void FrameBuffer::CheckIn(FrameBuffer const * pFB)
+void FrameBuffer::CheckIn(FrameBuffer const * &pFB)
 {
 	assert(pFB->rTexs_.size() == 1);
 	s_rts.insert(pFB);
+	pFB = nullptr;
 }
 
 

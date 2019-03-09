@@ -4,8 +4,8 @@ $input v_tc0
 
 uniform vec4 uParam;
 
-SAMPLER2D(s_src_tex, 0);
-SAMPLER2D(s_bloom_tex, 1);
+SAMPLER2D(src_tex, 0);
+SAMPLER2D(bloom_tex, 1);
 
 #define RGB_TO_LUM	vec3(0.2126f, 0.7152f, 0.0722f)
 #define bloomStrength	uParam.x
@@ -53,8 +53,8 @@ void main()
 {
 	vec2 uv = v_tc0.xy;
 
-	vec3 srcColor = texture2D(s_src_tex, uv).rgb;
-	vec3 bloomColor = texture2D(s_bloom_tex, uv).rgb;
+	vec3 srcColor = texture2D(src_tex, uv).rgb;
+	vec3 bloomColor = texture2D(bloom_tex, uv).rgb;
 	vec3 ldr_rgb = saturate(ToneMapping(srcColor, bloomColor, v_tc0.z));
 
 	gl_FragColor = vec4(ldr_rgb, dot(toGamma(ldr_rgb), RGB_TO_LUM));

@@ -87,7 +87,7 @@ void PostProcess::Render(Texture const *pSrcTex, FrameBuffer const *pFB)
 	int ppIdx = num % 2;
 
 	FrameBuffer const * pPingPongFB[2];
-	pPingPongFB[0] = FrameBuffer::CheckOut(pFB->Width(), pFB->Height(), pFB->pTex(0)->Format());
+	pPingPongFB[0] = FrameBuffer::CheckOut(pFB->Width(), pFB->Height(), pFB->pTex()->Format());
 	pPingPongFB[1] = pFB;
 
 	Texture const *pTex = pSrcTex;
@@ -95,7 +95,7 @@ void PostProcess::Render(Texture const *pSrcTex, FrameBuffer const *pFB)
 	for (int i = 0; i < num; ++i) {
 		processors_[i]->Render(pTex, pPingPongFB[ppIdx]);
 
-		pTex = pPingPongFB[ppIdx]->pTex(0);
+		pTex = pPingPongFB[ppIdx]->pTex();
 		ppIdx = 1 - ppIdx;
 	}
 
