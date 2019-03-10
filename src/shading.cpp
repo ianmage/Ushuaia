@@ -282,7 +282,8 @@ void Shading::Render()
 		| BGFX_STATE_DEPTH_TEST_LESS
 		| BGFX_STATE_MSAA
 	;
-	uint32_t const pointSampler = BGFX_SAMPLER_UVW_CLAMP | BGFX_SAMPLER_MIP_POINT
+	uint32_t const pointSampler = BGFX_SAMPLER_UVW_CLAMP
+		| BGFX_SAMPLER_MIP_POINT
 		| BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT;
 
 	DrawChannel::Gather();

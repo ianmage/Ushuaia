@@ -80,7 +80,10 @@ void PostProcess::Render(Texture const *pSrcTex, FrameBuffer const *pFB)
 
 	if (num <= 1) {
 		// 0 should do BltCopy
-		processors_[0]->Render(pSrcTex, pFB);
+		if (num == 0)
+			Copy(pSrcTex, pFB, BGFX_STATE_WRITE_RGB, false);
+		else
+			processors_[0]->Render(pSrcTex, pFB);
 		return;
 	}
 
