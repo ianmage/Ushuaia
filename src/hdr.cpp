@@ -64,7 +64,7 @@ FrameBuffer const * ImageStatProcessor::SumLum(Texture const *pTex)
 	w = static_cast<uint16_t>(std::max(1, w >> 2));
 	h = static_cast<uint16_t>(std::max(1, h >> 2));
 	FrameBuffer const * pLumFB = FrameBuffer::CheckOut(w, h, bgfx::TextureFormat::R16F);
-	pLumFB->Setup(nullptr, bgfx::ViewMode::Sequential, false);
+	pLumFB->Setup(nullptr, bgfx::ViewMode::Sequential, 0);
 	bgfx::setUniform(hTcOffsets, offsets, 2);
 	SetTexture(0, "src_tex", pTex, samplerFlag);
 	bgfx::setState(BGFX_STATE_WRITE_R);
@@ -116,7 +116,7 @@ void LensEffect::BrightPass(Texture const *pTex, FrameBuffer const *pFB)
 	if (pBrightTech_ == nullptr)
 		pBrightTech_ = Shader::Load("screen/vs_screen_quad", "screen/HDR/fs_bright");
 
-	pFB->Setup(nullptr, bgfx::ViewMode::Sequential, false);
+	pFB->Setup(nullptr, bgfx::ViewMode::Sequential, 0);
 	uint32_t const linearSampler = BGFX_SAMPLER_UVW_CLAMP | BGFX_SAMPLER_MIP_POINT;
 	SetTexture(0, "src_tex", pTex, linearSampler);
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
@@ -153,7 +153,7 @@ FrameBuffer const * LensEffect::GlowMerger(Texture const *pTex)
 		FrameBuffer::CheckIn(downFB);
 
 	FrameBuffer const *pFB = FrameBuffer::CheckOut(w/2, h/2, fmt);
-	pFB->Setup(nullptr, bgfx::ViewMode::Sequential, false);
+	pFB->Setup(nullptr, bgfx::ViewMode::Sequential, 0);
 	uint32_t const linearSampler = BGFX_SAMPLER_UVW_CLAMP | BGFX_SAMPLER_MIP_POINT;
 	SetTexture(0, "glow_tex_0", glowFBs[0]->pTex(), linearSampler);
 	SetTexture(1, "glow_tex_1", glowFBs[1]->pTex(), linearSampler);
@@ -199,7 +199,7 @@ void HDR::Render(Texture const *pTex, FrameBuffer const *pFB)
 	FrameBuffer const *pLumFB = ImageStatProcessor::SumLum(pTex);
 	FrameBuffer const *pGlowFB = LensEffect::GlowMerger(pTex);
 
-	pFB->Setup(nullptr, bgfx::ViewMode::Sequential, false);
+	pFB->Setup(nullptr, bgfx::ViewMode::Sequential, 0);
 	uint32_t const linearSampler = BGFX_SAMPLER_UVW_CLAMP | BGFX_SAMPLER_MIP_POINT;
 	uint32_t const pointSampler = linearSampler | BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT;
 	SetTexture(0, "lum_tex", pLumFB->pTex(), pointSampler);

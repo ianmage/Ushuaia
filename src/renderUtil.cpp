@@ -159,14 +159,14 @@ void Copy(Texture const *pSrcTex, FrameBuffer const *pOutFB, uint64_t writeState
 	if (!bilinear)
 		samplerFlag |= BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT;
 
-	pOutFB->Setup(nullptr, bgfx::ViewMode::Sequential, false);
+	pOutFB->Setup(nullptr, bgfx::ViewMode::Sequential, 0);
 	SetTexture(0, "src_tex", pSrcTex, samplerFlag);
 	bgfx::setState(writeState);
 	PostProcess::DrawFullScreen(pCopyTech);
 }
 
 
-void DownQuater(Texture const *pTex, FrameBuffer const *pFB, uint64_t writeState)
+void DownQuater(Texture const *pTex, FrameBuffer const *pOutFB, uint64_t writeState)
 {
 	if (pDown4Tech == nullptr) {
 		pDown4Tech = Shader::Load("screen/vs_down_quater", "screen/fs_down_quater");
@@ -183,7 +183,7 @@ void DownQuater(Texture const *pTex, FrameBuffer const *pFB, uint64_t writeState
 		{+u, +v}, {-u, +v}
 	};
 
-	pFB->Setup(nullptr, bgfx::ViewMode::Sequential, false);
+	pOutFB->Setup(nullptr, bgfx::ViewMode::Sequential, 0);
 	bgfx::setUniform(hTcOffset, offsets, 2);
 	uint32_t const linearSampler = BGFX_SAMPLER_UVW_CLAMP | BGFX_SAMPLER_MIP_POINT;
 	SetTexture(0, "src_tex", pTex, linearSampler);

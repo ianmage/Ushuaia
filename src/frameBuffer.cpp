@@ -21,8 +21,6 @@ bool FrameBuffer::Init()
 	s_backBuf = new FrameBuffer(g_viewState.width, g_viewState.height, bgfx::TextureFormat::Unknown);
 	s_currFB = nullptr;
 
-	s_backBuf->Setup(nullptr, bgfx::ViewMode::Sequential, true);
-
 	return true;
 }
 
@@ -116,7 +114,8 @@ void FrameBuffer::Lost()
 }
 
 
-void FrameBuffer::Setup(Camera const *pCam, bgfx::ViewMode::Enum mode, bool doClear) const
+void FrameBuffer::Setup(Camera const *pCam, bgfx::ViewMode::Enum mode,
+	uint16_t clearFlags , uint32_t rgba, float d, uint8_t s) const
 {
 	uint8_t viewID;
 	if (s_currFB == this && mode == bgfx::ViewMode::Sequential)
@@ -135,7 +134,7 @@ void FrameBuffer::Setup(Camera const *pCam, bgfx::ViewMode::Enum mode, bool doCl
 	else
 		bgfx::setViewTransform(viewID, nullptr, s_mtxOrtho.v);
 	
-	if (doClear)
+	if (clearFlags != 0)
 		bgfx::setViewClear(viewID, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0, 1.f, 0);
 
 	s_currFB = this;

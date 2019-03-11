@@ -38,7 +38,8 @@ public:
 	uint16_t Height() const { return height_; }
 	uint64_t HashCode() const;
 
-	void Setup(Camera const *pCam, bgfx::ViewMode::Enum mode, bool doClear) const;
+	void Setup(Camera const *pCam, bgfx::ViewMode::Enum mode, uint16_t clearFlags,
+		uint32_t rgba = 255U, float d = 1.0f, uint8_t s = 0) const;
 
 private:
 	bgfx::FrameBufferHandle handle_;

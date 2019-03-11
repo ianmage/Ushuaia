@@ -107,9 +107,9 @@ void GaussianBlur::Render(Texture const *pSrcTex, FrameBuffer const *pOutFB)
 	bgfx::setMarker("Gaussian Blur X");
 	Texture const *pRT = pOutFB->pTex();
 
-	FrameBuffer const * pTmpFB = FrameBuffer::CheckOut(pRT->Width(), pRT->Height(), pRT->Format());
+	FrameBuffer const *pTmpFB = FrameBuffer::CheckOut(pRT->Width(), pRT->Height(), pRT->Format());
 
-	pTmpFB->Setup(nullptr, bgfx::ViewMode::Sequential, false);
+	pTmpFB->Setup(nullptr, bgfx::ViewMode::Sequential, 0);
 	bgfx::setUniform(uhTexSize, texSize.v);
 	bgfx::setUniform(uhTcOffsets, tcOffsets_.data(), 2);
 	bgfx::setUniform(uhColorWeights, colorWeights_.data(), 2);
@@ -119,7 +119,7 @@ void GaussianBlur::Render(Texture const *pSrcTex, FrameBuffer const *pOutFB)
 
 	bgfx::setMarker("Gaussian Blur Y");
 
-	pOutFB->Setup(nullptr, bgfx::ViewMode::Sequential, false);
+	pOutFB->Setup(nullptr, bgfx::ViewMode::Sequential, 0);
 	bgfx::setUniform(uhTexSize, texSize.v);
 	bgfx::setUniform(uhTcOffsets, tcOffsets_.data(), 2);
 	bgfx::setUniform(uhColorWeights, colorWeights_.data(), 2);

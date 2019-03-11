@@ -192,7 +192,7 @@ static inline void UpdateViewParams()
 static void LinearizeDepth()
 {
 	bgfx::setMarker("Linear Depth");
-	pDepthFB->Setup(nullptr, bgfx::ViewMode::Sequential, true);
+	pDepthFB->Setup(nullptr, bgfx::ViewMode::Sequential, 0);
 
 	auto pCam = Camera::pCurrent;
 
@@ -219,7 +219,7 @@ static void RenderLight()
 		| BGFX_STATE_BLEND_EQUATION(BGFX_STATE_BLEND_EQUATION_ADD)
 		| BGFX_STATE_WRITE_RGB;
 
-	pLightFB->Setup(pCam, bgfx::ViewMode::Sequential, true);
+	pLightFB->Setup(pCam, bgfx::ViewMode::Sequential, BGFX_CLEAR_COLOR);
 	
 	Light::Submit();
 
@@ -272,7 +272,7 @@ void Shading::Render()
 	auto pCam = Camera::pCurrent;
 
 	bgfx::setMarker("GeoBuffer");
-	pGBufFB->Setup(pCam, bgfx::ViewMode::Default, true);
+	pGBufFB->Setup(pCam, bgfx::ViewMode::Default, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH);
 
 	uint64_t overrideSt0 = BGFX_STATE_MASK;
 	uint64_t overrideSt1 = 0
@@ -297,7 +297,7 @@ void Shading::Render()
 	RenderLight();
 
 	bgfx::setMarker("Shading");
-	pShadeFB->Setup(nullptr, bgfx::ViewMode::Sequential, true);
+	pShadeFB->Setup(nullptr, bgfx::ViewMode::Sequential, 0);
 	UpdateViewParams();
 	SetTexture(0, "s_tex0", pGBufFB->pTex(0), pointSampler);
 	SetTexture(1, "s_tex1", pGBufFB->pTex(1), pointSampler);
@@ -309,7 +309,7 @@ void Shading::Render()
 
 	bgfx::setMarker("Final Combine");
 	uint32_t const linearSampler = BGFX_SAMPLER_UVW_CLAMP | BGFX_SAMPLER_MIP_POINT;
-	FrameBuffer::BackBuf()->Setup(nullptr, bgfx::ViewMode::Sequential, false);
+	FrameBuffer::BackBuf()->Setup(nullptr, bgfx::ViewMode::Sequential, BGFX_CLEAR_COLOR);
 	Vector4 const texTile { 0.2f, 0.1f, 0.8f, 0.8f };
 	bgfx::setUniform(uhParam, texTile.v);
 	SetTexture(0, "s_tex0", pPostFB->pTex(), linearSampler);
