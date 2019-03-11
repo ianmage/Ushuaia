@@ -4,8 +4,8 @@ $input v_tc0
 
 uniform vec4 uParam;
 
-SAMPLER2D(src_tex, 0);
-SAMPLER2D(bloom_tex, 1);
+SAMPLER2D(src_tex, 1);
+SAMPLER2D(bloom_tex, 2);
 
 #define RGB_TO_LUM	vec3(0.2126f, 0.7152f, 0.0722f)
 #define bloomStrength	uParam.x

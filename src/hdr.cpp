@@ -61,8 +61,8 @@ FrameBuffer const * ImageStatProcessor::SumLum(Texture const *pTex)
 	};
 	uint32_t samplerFlag = BGFX_SAMPLER_UVW_CLAMP | BGFX_SAMPLER_MIP_POINT;
 
-	w = static_cast<uint16_t>(std::max(1, w >> 2));
-	h = static_cast<uint16_t>(std::max(1, h >> 2));
+	w = static_cast<uint16_t>(std::max(1, (w+3) >> 2));
+	h = static_cast<uint16_t>(std::max(1, (h+3) >> 2));
 	FrameBuffer const * pLumFB = FrameBuffer::CheckOut(w, h, bgfx::TextureFormat::R16F);
 	bgfx::setMarker("ImgStat");
 	pLumFB->Setup(nullptr, bgfx::ViewMode::Sequential, 0);
@@ -74,8 +74,8 @@ FrameBuffer const * ImageStatProcessor::SumLum(Texture const *pTex)
 	std::array<FrameBuffer const *, 2> pDownFBs = { pLumFB, nullptr };
 	int i = 0;
 	while (w > 1 || h > 1) {
-		w = static_cast<uint16_t>(std::max(1, w >> 2));
-		h = static_cast<uint16_t>(std::max(1, h >> 2));
+		w = static_cast<uint16_t>(std::max(1, (w+3) >> 2));
+		h = static_cast<uint16_t>(std::max(1, (h+3) >> 2));
 
 		pDownFBs[1 - i] = FrameBuffer::CheckOut(w, h, bgfx::TextureFormat::R16F);
 		bgfx::setMarker("Lum DownSample");
@@ -209,8 +209,8 @@ void HDR::Render(Texture const *pTex, FrameBuffer const *pFB)
 	uint32_t const linearSampler = BGFX_SAMPLER_UVW_CLAMP | BGFX_SAMPLER_MIP_POINT;
 	uint32_t const pointSampler = linearSampler | BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT;
 	SetTexture(0, "lum_tex", pLumFB->pTex(), pointSampler);
-	SetTexture(0, "src_tex", pTex, linearSampler);
-	SetTexture(1, "bloom_tex", pGlowFB->pTex(), linearSampler);
+	SetTexture(1, "src_tex", pTex, linearSampler);
+	SetTexture(2, "bloom_tex", pGlowFB->pTex(), linearSampler);
 	bgfx::setState(BGFX_STATE_WRITE_RGB);
 	PostProcess::DrawFullScreen(pTech_);
 
