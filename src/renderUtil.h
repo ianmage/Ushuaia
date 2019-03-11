@@ -20,7 +20,9 @@ inline void SafeDestroy(bgfx::UniformHandle uh)
 }
 
 inline void SetTexture(uint8_t stage, std::string const & name, Texture const *pTex, uint32_t samplerFlag) {
-	bgfx::TextureHandle hTex = pTex ? pTex->Handle() : (bgfx::TextureHandle)BGFX_INVALID_HANDLE;
+	bgfx::TextureHandle hTex = BGFX_INVALID_HANDLE;
+	if (pTex)
+		hTex = pTex->Handle();
 	bgfx::setTexture(stage, SamplerMgr::Get(name), hTex, samplerFlag);
 }
 

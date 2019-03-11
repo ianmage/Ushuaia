@@ -61,8 +61,8 @@ FrameBuffer const * ImageStatProcessor::SumLum(Texture const *pTex)
 	};
 	uint32_t samplerFlag = BGFX_SAMPLER_UVW_CLAMP | BGFX_SAMPLER_MIP_POINT;
 
-	w = std::max(1, w >> 2);
-	h = std::max(1, h >> 2);
+	w = static_cast<uint16_t>(std::max(1, w >> 2));
+	h = static_cast<uint16_t>(std::max(1, h >> 2));
 	FrameBuffer const * pLumFB = FrameBuffer::CheckOut(w, h, bgfx::TextureFormat::R16F);
 	pLumFB->Setup(nullptr, bgfx::ViewMode::Sequential, false);
 	bgfx::setUniform(hTcOffsets, offsets, 2);
@@ -73,8 +73,8 @@ FrameBuffer const * ImageStatProcessor::SumLum(Texture const *pTex)
 	std::array<FrameBuffer const *, 2> pDownFBs = { pLumFB, nullptr };
 	int i = 0;
 	while (w > 1 || h > 1) {
-		w = std::max(1, w >> 2);
-		h = std::max(1, h >> 2);
+		w = static_cast<uint16_t>(std::max(1, w >> 2));
+		h = static_cast<uint16_t>(std::max(1, h >> 2));
 
 		pDownFBs[1 - i] = FrameBuffer::CheckOut(w, h, bgfx::TextureFormat::R16F);
 		DownQuater(pDownFBs[i]->pTex(), pDownFBs[1-i], BGFX_STATE_WRITE_R);

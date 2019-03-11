@@ -7,7 +7,6 @@
 #include "appConf.h"
 #include "../examples/common/bgfx_utils.h"
 #include "../examples/common/imgui/imgui.h"
-#include "bx/timer.h"
 #include "workFlow.h"
 
 
@@ -50,6 +49,14 @@ public:
 		// Enable debug text.
 		bgfx::setDebug(m_debug);
 
+		// Set view 0 clear state.
+		//bgfx::setViewClear(0
+		//	, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH
+		//	, 0x303030ff
+		//	, 1.0f
+		//	, 0
+		//);
+
 		imguiCreate();
 
 		Ushuaia::Init();
@@ -91,21 +98,14 @@ public:
 
 			imguiEndFrame();
 
+			// Set view 0 default viewport.
+			//bgfx::setViewRect(0, 0, 0, uint16_t(width), uint16_t(height));
+
 			// This dummy draw call is here to make sure that view 0 is cleared
 			// if no other draw calls are submitted to view 0.
 			bgfx::touch(0);
 
-			// Timer
-			int64_t now = bx::getHPCounter();
-			static int64_t last = now;
-			int64_t frameTime = now - last;
-			last = now;
-			double const freq = double(bx::getHPFrequency());
-			Ushuaia::AppConf::deltaTime = static_cast<float>(frameTime / freq);
-
 			Ushuaia::Update();
-
-			bgfx::frame();
 
 			return true;
 		}

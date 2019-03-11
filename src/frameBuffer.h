@@ -46,7 +46,6 @@ private:
 	uint16_t width_, height_;
 	std::vector<Texture> rTexs_;
 
-	static uint16_t s_viewCnt;
 	static FrameBuffer const * s_currFB;
 	static FrameBuffer const * s_backBuf;
 	static std::set<FrameBuffer const *> s_rts;

@@ -6,7 +6,6 @@
 namespace Ushuaia
 {
 
-uint16_t FrameBuffer::s_viewCnt = 0;
 FrameBuffer const * FrameBuffer::s_currFB = nullptr;
 FrameBuffer const * FrameBuffer::s_backBuf = nullptr;
 decltype(FrameBuffer::s_rts) FrameBuffer::s_rts;
@@ -20,7 +19,9 @@ bool FrameBuffer::Init()
 	bx::mtxOrtho(s_mtxOrtho.v, 0.f, 1.f, 1.f, 0.f, 0.f, 100.f, 0.f, caps->homogeneousDepth);
 	assert(!s_backBuf);
 	s_backBuf = new FrameBuffer(g_viewState.width, g_viewState.height, bgfx::TextureFormat::Unknown);
-	s_currFB = s_backBuf;
+	s_currFB = nullptr;
+
+	s_backBuf->Setup(nullptr, bgfx::ViewMode::Sequential, true);
 
 	return true;
 }
@@ -96,19 +97,10 @@ void FrameBuffer::Reset()
 		return;
 	assert(!isValid(handle_));
 
-	uint64_t const samplerFlags = 0
-		| BGFX_TEXTURE_RT
-		| BGFX_SAMPLER_MIN_POINT
-		| BGFX_SAMPLER_MAG_POINT
-		| BGFX_SAMPLER_MIP_POINT
-		| BGFX_SAMPLER_U_CLAMP
-		| BGFX_SAMPLER_V_CLAMP
-		;
-
 	bgfx::TextureHandle rts[8];
 
 	for (uint8_t i = 0; i < numRT; ++i) {
-		rts[i] = bgfx::createTexture2D(width_, height_, false, 1, rTexs_[i].Format(), samplerFlags);
+		rts[i] = bgfx::createTexture2D(width_, height_, false, 1, rTexs_[i].Format(), BGFX_TEXTURE_RT);
 		rTexs_[i].Handle(rts[i], true);
 	}
 	handle_ = bgfx::createFrameBuffer(numRT, rts, true);

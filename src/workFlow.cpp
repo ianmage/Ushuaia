@@ -16,7 +16,9 @@
 #include "forwardRendering.h"
 #endif
 #include "script.h"
+#include "bx/timer.h"
 #include "../../cpp_common/strUtil.h"
+#include "appConf.h"
 
 //#pragma optimize("", off)
 #define TEST	0
@@ -122,6 +124,13 @@ bool Fini()
 
 bool Update()
 {
+	// Timer
+	int64_t now = bx::getHPCounter();
+	static int64_t last = now;
+	int64_t frameTime = now - last;
+	last = now;
+	double const freq = double(bx::getHPFrequency());
+	AppConf::deltaTime = static_cast<float>(frameTime / freq);
 #if TEST
 	bgfx::setViewRect(0, 0, 0, bgfx::BackbufferRatio::Equal);
 	// This dummy draw call is here to make sure that view 0 is cleared
@@ -159,8 +168,6 @@ bool Update()
 #else
 	Camera::pCurrent->Update();
 
-	FrameBuffer::Update();
-
 	Light::UpdateAll(Camera::pCurrent);
 
 #if DEFERRED_RENDERING
@@ -184,6 +191,8 @@ bool Update()
 		, stats->width, stats->height
 		, stats->textWidth, stats->textHeight
 	);
+
+	FrameBuffer::Update();
 
 	return true;
 }

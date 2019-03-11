@@ -174,8 +174,8 @@ void DownQuater(Texture const *pTex, FrameBuffer const *pFB, uint64_t writeState
 	}
 
 	uint16_t w = pTex->Width(), h = pTex->Height();
-	w = std::max(1, w >> 2);
-	h = std::max(1, h >> 2);
+	w = static_cast<uint16_t>(std::max(1, w >> 2));
+	h = static_cast<uint16_t>(std::max(1, h >> 2));
 
 	float u = 1.0f / w, v = 1.0f / h;
 	Vector2 offsets[4] = {
