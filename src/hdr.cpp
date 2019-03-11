@@ -64,6 +64,7 @@ FrameBuffer const * ImageStatProcessor::SumLum(Texture const *pTex)
 	w = static_cast<uint16_t>(std::max(1, w >> 2));
 	h = static_cast<uint16_t>(std::max(1, h >> 2));
 	FrameBuffer const * pLumFB = FrameBuffer::CheckOut(w, h, bgfx::TextureFormat::R16F);
+	bgfx::setMarker("ImgStat");
 	pLumFB->Setup(nullptr, bgfx::ViewMode::Sequential, 0);
 	bgfx::setUniform(hTcOffsets, offsets, 2);
 	SetTexture(0, "src_tex", pTex, samplerFlag);
@@ -77,6 +78,7 @@ FrameBuffer const * ImageStatProcessor::SumLum(Texture const *pTex)
 		h = static_cast<uint16_t>(std::max(1, h >> 2));
 
 		pDownFBs[1 - i] = FrameBuffer::CheckOut(w, h, bgfx::TextureFormat::R16F);
+		bgfx::setMarker("Lum DownSample");
 		DownQuater(pDownFBs[i]->pTex(), pDownFBs[1-i], BGFX_STATE_WRITE_R);
 		FrameBuffer::CheckIn(pDownFBs[i]);
 		i = 1 - i;
@@ -116,6 +118,7 @@ void LensEffect::BrightPass(Texture const *pTex, FrameBuffer const *pFB)
 	if (pBrightTech_ == nullptr)
 		pBrightTech_ = Shader::Load("screen/vs_screen_quad", "screen/HDR/fs_bright");
 
+	bgfx::setMarker("Bright");
 	pFB->Setup(nullptr, bgfx::ViewMode::Sequential, 0);
 	uint32_t const linearSampler = BGFX_SAMPLER_UVW_CLAMP | BGFX_SAMPLER_MIP_POINT;
 	SetTexture(0, "src_tex", pTex, linearSampler);
@@ -144,6 +147,7 @@ FrameBuffer const * LensEffect::GlowMerger(Texture const *pTex)
 	uint64_t const writeState = BGFX_STATE_WRITE_RGB;
 
 	BrightPass(pTex, downFBs[0]);
+	bgfx::setMarker("Bright DownSample");
 	DownQuater(downFBs[0]->pTex(), downFBs[1], writeState);
 
 	GaussianBlur::Instance().Render(downFBs[0]->pTex(), glowFBs[0]);
@@ -153,6 +157,7 @@ FrameBuffer const * LensEffect::GlowMerger(Texture const *pTex)
 		FrameBuffer::CheckIn(downFB);
 
 	FrameBuffer const *pFB = FrameBuffer::CheckOut(w/2, h/2, fmt);
+	bgfx::setMarker("GlowMerger");
 	pFB->Setup(nullptr, bgfx::ViewMode::Sequential, 0);
 	uint32_t const linearSampler = BGFX_SAMPLER_UVW_CLAMP | BGFX_SAMPLER_MIP_POINT;
 	SetTexture(0, "glow_tex_0", glowFBs[0]->pTex(), linearSampler);
@@ -199,6 +204,7 @@ void HDR::Render(Texture const *pTex, FrameBuffer const *pFB)
 	FrameBuffer const *pLumFB = ImageStatProcessor::SumLum(pTex);
 	FrameBuffer const *pGlowFB = LensEffect::GlowMerger(pTex);
 
+	bgfx::setMarker("HDR");
 	pFB->Setup(nullptr, bgfx::ViewMode::Sequential, 0);
 	uint32_t const linearSampler = BGFX_SAMPLER_UVW_CLAMP | BGFX_SAMPLER_MIP_POINT;
 	uint32_t const pointSampler = linearSampler | BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT;
