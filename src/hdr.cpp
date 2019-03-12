@@ -15,19 +15,6 @@ static bgfx::UniformHandle hParam;
 static bgfx::UniformHandle hTcOffsets;
 
 
-static inline void UpdateScreenParams()
-{
-	float w = FrameBuffer::CurrFB()->Width();
-	float h = FrameBuffer::CurrFB()->Height();
-	Vector4 vec4Param {
-		w, h,
-		ViewState::texelOffset / w,
-		ViewState::texelOffset / h
-	};
-	bgfx::setUniform(hParam, &vec4Param);
-}
-
-
 class ImageStatProcessor
 {
 public :
@@ -208,6 +195,12 @@ void HDR::Render(Texture const *pTex, FrameBuffer const *pFB)
 	pFB->Setup(nullptr, bgfx::ViewMode::Sequential, 0);
 	uint32_t const linearSampler = BGFX_SAMPLER_UVW_CLAMP | BGFX_SAMPLER_MIP_POINT;
 	uint32_t const pointSampler = linearSampler | BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT;
+	Vector4 vec4Param{
+		1.0f,	// bloomStrength
+		1.0f,	// hdrRescale
+		0, 0
+	};
+	bgfx::setUniform(hParam, &vec4Param);
 	SetTexture(0, "lum_tex", pLumFB->pTex(), pointSampler);
 	SetTexture(1, "src_tex", pTex, linearSampler);
 	SetTexture(2, "bloom_tex", pGlowFB->pTex(), linearSampler);
