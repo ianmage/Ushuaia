@@ -219,7 +219,7 @@ static void RenderLight()
 		| BGFX_STATE_BLEND_EQUATION(BGFX_STATE_BLEND_EQUATION_ADD)
 		| BGFX_STATE_WRITE_RGB;
 
-	pLightFB->Setup(pCam, bgfx::ViewMode::Sequential, BGFX_CLEAR_COLOR);
+	pLightFB->Setup(pCam, bgfx::ViewMode::Sequential, BGFX_CLEAR_COLOR, 0);
 	
 	Light::Submit();
 

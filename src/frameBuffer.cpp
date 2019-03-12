@@ -134,8 +134,7 @@ void FrameBuffer::Setup(Camera const *pCam, bgfx::ViewMode::Enum mode,
 	else
 		bgfx::setViewTransform(viewID, nullptr, s_mtxOrtho.v);
 	
-	if (clearFlags != 0)
-		bgfx::setViewClear(viewID, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0, 1.f, 0);
+	bgfx::setViewClear(viewID, clearFlags, rgba, d, s);
 
 	s_currFB = this;
 }
