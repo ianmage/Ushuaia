@@ -9,10 +9,10 @@ namespace Ushuaia
 {
 
 
-Texture::Texture(bgfx::TextureInfo const & texInfo, std::string const & name)
+Texture::Texture(bgfx::TextureInfo const & texInfo, uint64_t flags, std::string const & name)
 : handle_(BGFX_INVALID_HANDLE), info_(texInfo), name_(name)
 {
-	stateFlag_ = STATE_NORMAL;
+	flags_ = PackTexFlags(flags);
 }
 
 
@@ -41,7 +41,7 @@ void Texture::Handle(bgfx::TextureHandle hTex, bool managed)
 decltype(TexMgr::s_texs) TexMgr::s_texs;
 
 
-TexPtr TexMgr::LoadFromFile(std::string const & name)
+TexPtr TexMgr::LoadFromFile(std::string const & name, uint32_t samplerFlags, bool isSRGB)
 {
 	size_t k = RT_HASH(name.c_str());
 
@@ -53,13 +53,13 @@ TexPtr TexMgr::LoadFromFile(std::string const & name)
 
 	bgfx::TextureInfo texInfo;
 	bgfx::TextureHandle hTex = ::loadTexture(("texture/" + name + ".dds").c_str(),
-		0U, (uint8_t)'\000', &texInfo);
+		samplerFlags, (uint8_t)'\000', &texInfo);
 
-	Texture* pTex = new Texture(texInfo, name);
+	uint64_t flags = samplerFlags;
+	if (isSRGB)
+		flags |= BGFX_TEXTURE_SRGB;
+	Texture* pTex = new Texture(texInfo, flags, name);
 	pTex->Handle(hTex, false);
-	pTex->flag_ = Texture::FROM_FILE;
-	if (!isValid(hTex))
-		pTex->stateFlag_ = Texture::FILE_NOT_FOUND;
 	std::shared_ptr<Texture> ret(pTex);
 	s_texs[k] = ret;
 	return ret;

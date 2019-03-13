@@ -123,6 +123,8 @@ void Material::Serialize(JsonWriter & writer) const
 			writer.String(ts.pTex->Name());
 			writer.Key("Flag");
 			writer.Uint(ts.flags);
+			writer.Key("SRGB");
+			writer.Uint(ts.isSRGB);
 			writer.EndObject();
 		}
 		writer.EndObject();
@@ -166,8 +168,9 @@ bool Material::Deserialize(JsonValue const & jsObj)
 				m.name.GetString(), bgfx::UniformType::Sampler);
 			auto const tsObj = m.value.GetObject();
 			ts.stage = static_cast<uint8_t>(tsObj["Stage"].GetUint());
-			ts.pTex = TexMgr::LoadFromFile(tsObj["Tex"].GetString());
 			ts.flags = tsObj["Flag"].GetUint();
+			ts.isSRGB = tsObj.HasMember("SRGB") ? tsObj["SRGB"].GetBool() : false;
+			ts.pTex = TexMgr::LoadFromFile(tsObj["Tex"].GetString(), ts.flags, ts.isSRGB);
 		}
 	}
 
@@ -210,9 +213,9 @@ void Material::SubmitParams(Shader const * pOverrideShader) const
 
 	for (auto & ts : texStates) {
 		if (ts.pTex)
-			bgfx::setTexture(ts.stage, ts.hSampler, ts.pTex->Handle(), ts.flags);
+			bgfx::setTexture(ts.stage, ts.hSampler, ts.pTex->Handle());
 		else {
-			bgfx::setTexture(ts.stage, ts.hSampler, BGFX_INVALID_HANDLE, ts.flags);
+			bgfx::setTexture(ts.stage, ts.hSampler, BGFX_INVALID_HANDLE);
 		}
 	}
 }

@@ -18,7 +18,8 @@ bool FrameBuffer::Init()
 	bgfx::Caps const * caps = bgfx::getCaps();
 	bx::mtxOrtho(s_mtxOrtho.v, 0.f, 1.f, 1.f, 0.f, 0.f, 100.f, 0.f, caps->homogeneousDepth);
 	assert(!s_backBuf);
-	s_backBuf = new FrameBuffer(g_viewState.width, g_viewState.height, bgfx::TextureFormat::Unknown);
+	s_backBuf = new FrameBuffer(g_viewState.width, g_viewState.height, bgfx::TextureFormat::Unknown,
+		BGFX_TEXTURE_RT | BGFX_TEXTURE_RT_WRITE_ONLY);
 	s_currFB = nullptr;
 
 	return true;
@@ -38,7 +39,7 @@ void FrameBuffer::Fini()
 }
 
 
-FrameBuffer::FrameBuffer(uint16_t w, uint16_t h, bgfx::TextureFormat::Enum fmt, uint8_t mipCnt)
+FrameBuffer::FrameBuffer(uint16_t w, uint16_t h, bgfx::TextureFormat::Enum fmt, uint64_t flags, uint8_t mipCnt)
 : handle_(BGFX_INVALID_HANDLE)
 , width_(w), height_(h)
 {
@@ -57,7 +58,7 @@ FrameBuffer::FrameBuffer(uint16_t w, uint16_t h, bgfx::TextureFormat::Enum fmt, 
 	texInfo.format = fmt;
 	texInfo.cubeMap = false;
 
-	rTexs_.emplace_back(texInfo);
+	rTexs_.emplace_back(texInfo, flags);
 
 	Reset();
 }
@@ -75,7 +76,9 @@ FrameBuffer::FrameBuffer(bgfx::TextureInfo const * texInfos, uint8_t numRT)
 
 	for (uint8_t i = 0; i < numRT; ++i) {
 		assert(texInfos[i].width == width_ && texInfos[i].height == height_);
-		rTexs_.emplace_back(texInfos[i]);
+		uint64_t flags = UnpackTexFlags(static_cast<uint16_t>(texInfos[i].storageSize));
+		assert(flags == BGFX_TEXTURE_RT);
+		rTexs_.emplace_back(texInfos[i], flags);
 	}
 
 	Reset();
@@ -98,7 +101,8 @@ void FrameBuffer::Reset()
 	bgfx::TextureHandle rts[8];
 
 	for (uint8_t i = 0; i < numRT; ++i) {
-		rts[i] = bgfx::createTexture2D(width_, height_, false, 1, rTexs_[i].Format(), BGFX_TEXTURE_RT);
+		assert(rTexs_[i].Flags() == BGFX_TEXTURE_RT);
+		rts[i] = bgfx::createTexture2D(width_, height_, false, 1, rTexs_[i].Format(), rTexs_[i].Flags());
 		rTexs_[i].Handle(rts[i], true);
 	}
 	handle_ = bgfx::createFrameBuffer(numRT, rts, true);
@@ -140,11 +144,12 @@ void FrameBuffer::Setup(Camera const *pCam, bgfx::ViewMode::Enum mode,
 }
 
 
-inline uint64_t MakeFrameBufferKey(uint16_t w, uint16_t h, bgfx::TextureFormat::Enum fmt, uint8_t mipCnt)
+inline uint64_t MakeFrameBufferKey(uint16_t w, uint16_t h, bgfx::TextureFormat::Enum fmt, uint64_t flags, uint8_t mipCnt)
 {
-	uint64_t key = w + (h << 16);
-	key += static_cast<uint64_t>(fmt) << 32;
-	key += static_cast<uint64_t>(mipCnt) << 40;
+	uint64_t key = (w & 0xffff) | ((h & 0xffff) << 16);	// may 0xfff (4k) be enough?
+	key |= static_cast<uint64_t>(fmt) << 32;
+	key |= static_cast<uint64_t>(mipCnt) << 40;
+	key |= static_cast<uint64_t>(PackTexFlags(flags)) << 44;
 	return key;
 }
 
@@ -154,14 +159,14 @@ uint64_t FrameBuffer::HashCode() const
 	if (rTexs_.size() > 1)
 		return 0;
 	Texture const & rt = rTexs_[0];
-	return MakeFrameBufferKey(rt.Width(), rt.Height(), rt.Format(), rt.NumMips());
+	return MakeFrameBufferKey(rt.Width(), rt.Height(), rt.Format(), rt.Flags(), rt.NumMips());
 }
 
 
-FrameBuffer const * FrameBuffer::CheckOut(uint16_t w, uint16_t h, bgfx::TextureFormat::Enum fmt, uint8_t mipCnt)
+FrameBuffer const * FrameBuffer::CheckOut(uint16_t w, uint16_t h, bgfx::TextureFormat::Enum fmt, uint64_t flags, uint8_t mipCnt)
 {
 	assert(w * h > 0 && fmt != bgfx::TextureFormat::Enum::Unknown);
-	uint64_t key = MakeFrameBufferKey(w, h, fmt, mipCnt);
+	uint64_t key = MakeFrameBufferKey(w, h, fmt, flags, mipCnt);
 
 	FrameBuffer const * ret = nullptr;
 	for (auto & pFB : s_rts) {
@@ -173,7 +178,7 @@ FrameBuffer const * FrameBuffer::CheckOut(uint16_t w, uint16_t h, bgfx::TextureF
 	if (ret != nullptr)
 		s_rts.erase(ret);
 	else
-		ret = new FrameBuffer(w, h, fmt, mipCnt);
+		ret = new FrameBuffer(w, h, fmt, flags, mipCnt);
 
 	return ret;
 }

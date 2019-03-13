@@ -76,7 +76,7 @@ void InitScriptData()
 	TexState ts;
 	ts.hSampler = bgfx::createUniform("S_albedoTex", bgfx::UniformType::Sampler);
 	ts.stage = 0;
-	ts.pTex = TexMgr::LoadFromFile("figure-rgba");
+	ts.pTex = TexMgr::LoadFromFile("figure-rgba", BGFX_SAMPLER_UVW_MIRROR | BGFX_SAMPLER_NONE, true);
 	ts.flags = UINT32_MAX;
 	pMtl->texStates.emplace_back(std::move(ts));
 

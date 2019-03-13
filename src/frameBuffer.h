@@ -16,12 +16,12 @@ public:
 	static void Fini();
 	static FrameBuffer const * CurrFB() { return s_currFB; }
 	static FrameBuffer const * BackBuf() { return s_backBuf; }
-	static FrameBuffer const * CheckOut(uint16_t w, uint16_t h, bgfx::TextureFormat::Enum fmt, uint8_t mipCnt=1);
+	static FrameBuffer const * CheckOut(uint16_t w, uint16_t h, bgfx::TextureFormat::Enum fmt, uint64_t flags=BGFX_TEXTURE_RT, uint8_t mipCnt=1);
 	static void CheckIn(FrameBuffer const * &pFB);
 	static void Update();
 	static uint8_t ViewID() { return s_viewChannelID; }
 
-	FrameBuffer(uint16_t w, uint16_t h, bgfx::TextureFormat::Enum fmt, uint8_t mipCnt=1);
+	FrameBuffer(uint16_t w, uint16_t h, bgfx::TextureFormat::Enum fmt, uint64_t flags=BGFX_TEXTURE_RT, uint8_t mipCnt=1);
 	FrameBuffer(bgfx::TextureInfo const * texInfos, uint8_t numRT);
 	FrameBuffer(FrameBuffer const & fb) = delete;
 	virtual ~FrameBuffer();

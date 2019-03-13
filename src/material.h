@@ -12,8 +12,9 @@ namespace Ushuaia
 struct TexState
 {
 	uint32_t flags;
-	bgfx::UniformHandle hSampler;
+	bool isSRGB;
 	uint8_t stage;
+	bgfx::UniformHandle hSampler;
 	std::shared_ptr<Texture> pTex;
 };
 

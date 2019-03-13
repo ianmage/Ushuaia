@@ -11,16 +11,21 @@ namespace Ushuaia
 
 struct TexMgr;
 
+constexpr uint16_t PackTexFlags(uint64_t flags)
+{
+	return static_cast<uint16_t>(flags >> BGFX_TEXTURE_RT_MSAA_SHIFT) & 0xfff;
+}
+
+constexpr uint64_t UnpackTexFlags(uint16_t flags)
+{
+	return static_cast<uint64_t>(flags & 0xfff) << BGFX_TEXTURE_RT_MSAA_SHIFT;
+}
+
 
 struct Texture
 {
 public:
-	enum FLAG {
-		FROM_FILE = 1,
-		FROM_MEM
-	};
-
-	Texture(bgfx::TextureInfo const & texInfo, std::string const & name="");
+	Texture(bgfx::TextureInfo const & texInfo, uint64_t flags, std::string const & name="");
 	virtual ~Texture();
 
 	void Lost();
@@ -37,22 +42,17 @@ public:
 	uint8_t BPP() const { return info_.bitsPerPixel; }
 	bool IsCube() const { return info_.cubeMap; }
 	uint32_t SizeInBytes() const { return info_.storageSize; }
+	uint64_t Flags() const { return UnpackTexFlags(flags_); }
 
 	std::string const & Name() const { return name_; }
 
 private:
-	enum STATE_FLAG {
-		STATE_NORMAL,
-		FILE_NOT_FOUND
-	};
-
 	bgfx::TextureHandle handle_;
 	bool managed_;
 	bgfx::TextureInfo info_;
+	uint16_t flags_;
 
 	std::string name_;
-	uint8_t flag_;
-	uint8_t stateFlag_;
 
 	friend struct TexMgr;
 };
@@ -63,7 +63,7 @@ typedef std::shared_ptr<Texture>	TexPtr;
 struct TexMgr
 {
 public:
-	static TexPtr LoadFromFile(std::string const & name);
+	static TexPtr LoadFromFile(std::string const & name, uint32_t samplerFlags, bool isSRGB);
 	static TexPtr Get(size_t nameKey);
 
 	static void Fini();

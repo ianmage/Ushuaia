@@ -73,6 +73,7 @@ void Shading::Init()
 		gbufRTexInfo[i].depth = 1;
 		gbufRTexInfo[i].numLayers = 1;
 		gbufRTexInfo[i].numMips = 1;
+		gbufRTexInfo[i].storageSize = PackTexFlags(BGFX_TEXTURE_RT);
 	}
 	gbufRTexInfo[0].format = bgfx::TextureFormat::RGBA16F;
 	gbufRTexInfo[1].format = bgfx::TextureFormat::RGBA16F;
