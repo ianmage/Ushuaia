@@ -51,13 +51,12 @@ TexPtr TexMgr::LoadFromFile(std::string const & name, uint32_t samplerFlags, boo
 			return itr->second.lock();
 	}
 
-	bgfx::TextureInfo texInfo;
-	bgfx::TextureHandle hTex = ::loadTexture(("texture/" + name + ".dds").c_str(),
-		samplerFlags, (uint8_t)'\000', &texInfo);
-
 	uint64_t flags = samplerFlags;
 	if (isSRGB)
 		flags |= BGFX_TEXTURE_SRGB;
+	bgfx::TextureInfo texInfo;
+	bgfx::TextureHandle hTex = ::loadTexture(("texture/" + name + ".dds").c_str(), flags, (uint8_t)'\000', &texInfo);
+
 	Texture* pTex = new Texture(texInfo, flags, name);
 	pTex->Handle(hTex, false);
 	std::shared_ptr<Texture> ret(pTex);
