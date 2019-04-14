@@ -2,6 +2,7 @@
 
 #include "model.h"
 #include "serialize.h"
+#include "entt.hpp"
 
 
 namespace Ushuaia
@@ -24,7 +25,7 @@ namespace Ushuaia
 
 		static Entity* Create(std::string const & _name);
 		static Entity* Get(size_t key) {
-			auto const & itr = s_entities.find(key);
+			auto itr = s_entities.find(key);
 			return (itr != s_entities.end()) ? itr->second : nullptr;
 		}
 		static void Load(JsonValue const & jsObj);

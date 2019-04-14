@@ -20,9 +20,10 @@ set(BX_INCLUDE_DIR ${EXT_DIR}/bx/include)
 set(BIMG_INCLUDE_DIR ${EXT_DIR}/bimg/include)
 set(BGFX_INCLUDE_DIR ${EXT_DIR}/bgfx/include)
 set(BOOST_INCLUDE_DIR ${EXT_DIR}/boost_1_66_0)
-set(XML_INCLUDE_DIR ${EXT_DIR}/tinyxml2)
+set(XML_INCLUDE_DIR ${EXT_DIR}/pugixml/src)
 set(JSON_INCLUDE_DIR ${EXT_DIR}/rapidjson/include)
 set(BOOST_LIB_DIR ${BOOST_INCLUDE_DIR}/stage/lib)
+set(ENTT_INCLUDE_DIR ${EXT_DIR}/entt/src/entt)
 if (WIN32)
 	set(BX_COMPAT_DIR ${BX_INCLUDE_DIR}/compat/msvc)
 	set(BGFX_LIB_DIR ${BGFX_INCLUDE_DIR}/../.build/win64_vs2017)
@@ -40,6 +41,7 @@ include_directories(
 	${BOOST_INCLUDE_DIR}
 	${XML_INCLUDE_DIR}
 	${JSON_INCLUDE_DIR}
+	${ENTT_INCLUDE_DIR}
 )
 
 link_directories(
@@ -72,7 +74,7 @@ else ()
 	MESSAGE(STATUS "unknown CMAKE_BUILD_TYPE = " ${CMAKE_BUILD_TYPE})
 endif ()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 
 if (APPLE)
 	link_libraries(-m64
