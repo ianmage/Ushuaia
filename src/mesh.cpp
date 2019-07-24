@@ -1,7 +1,7 @@
 #include "mesh.h"
 #include "bx/readerwriter.h"
 #include "../examples/common/entry/entry.h"
-#include "ib-compress/indexbufferdecompression.h"
+#include "../3rdparty/meshoptimizer/src/meshoptimizer.h"
 #include "../../cpp_common/commUtil.h"
 
 #pragma optimize("", off)
@@ -144,8 +144,7 @@ bool Mesh::Deserialize()
 
 			bx::read(pReader, compressedIndices, compressedSize);
 
-			ReadBitstream rbs((uint8_t const *)compressedIndices, compressedSize);
-			DecompressIndexBuffer((uint16_t*)mem->data, numIndices / 3, rbs);
+			meshopt_decodeIndexBuffer(mem->data, numIndices, 2, (uint8_t*)compressedIndices, compressedSize);
 
 			BX_FREE(allocator, compressedIndices);
 
