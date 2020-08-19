@@ -37,9 +37,9 @@ decltype(PostProcess::processors_) PostProcess::processors_;
 
 void PostProcess::DrawFullScreen(Shader const *pShader)
 {
-	assert(3 == bgfx::getAvailTransientVertexBuffer(3, PosVertex::s_decl));
+	assert(3 == bgfx::getAvailTransientVertexBuffer(3, PosVertex::s_vtxLayout));
 	bgfx::TransientVertexBuffer vb;
-	bgfx::allocTransientVertexBuffer(&vb, 3, PosVertex::s_decl);
+	bgfx::allocTransientVertexBuffer(&vb, 3, PosVertex::s_vtxLayout);
 	PosVertex *pVtx = (PosVertex*)vb.data;
 
 	float const xMin = -3.f;

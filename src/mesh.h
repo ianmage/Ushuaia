@@ -53,7 +53,7 @@ struct PrimitiveGroup
 
 struct Mesh
 {
-	bgfx::VertexDecl vtxDecl;
+	bgfx::VertexLayout vtxLayout;
 
 	std::vector<PrimitiveGroup> groups;
 
@@ -65,7 +65,7 @@ struct Mesh
 	std::string const & Name() const { return name_; }
 
 	static std::shared_ptr<Mesh> Create(std::string const & _name,
-		void const * _vertices, uint32_t _numVertices, bgfx::VertexDecl const & _decl,
+		void const * _vertices, uint32_t _numVertices, bgfx::VertexLayout const & _vtxDecl,
 		uint16_t const * _indices, uint32_t _numIndices);
 	static std::shared_ptr<Mesh> Load(std::string const & _name);
 

@@ -12,14 +12,15 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
 if (WIN32)
-	set(EXT_DIR D:/HELPER/3rdParty)
+	set(EXT_DIR D:/3rdParty)
 elseif (APPLE)
 	set(EXT_DIR ~/Programs/3rdParty)
 endif ()
+set(BOOST_VER "1_73")
 set(BX_INCLUDE_DIR ${EXT_DIR}/bx/include)
 set(BIMG_INCLUDE_DIR ${EXT_DIR}/bimg/include)
 set(BGFX_INCLUDE_DIR ${EXT_DIR}/bgfx/include)
-set(BOOST_INCLUDE_DIR ${EXT_DIR}/boost_1_66_0)
+set(BOOST_INCLUDE_DIR ${EXT_DIR}/boost_${BOOST_VER})
 set(XML_INCLUDE_DIR ${EXT_DIR}/pugixml/src)
 set(JSON_INCLUDE_DIR ${EXT_DIR}/rapidjson/include)
 set(BOOST_LIB_DIR ${BOOST_INCLUDE_DIR}/stage/lib)
@@ -112,20 +113,42 @@ add_executable(executable
 	src/workFlow.cpp
 )
 
-if (WIN32)
+if (WIN32)	# MSVC
+
+	set(CompilerFlags
+		CMAKE_CXX_FLAGS
+		CMAKE_CXX_FLAGS_DEBUG
+		CMAKE_CXX_FLAGS_RELEASE
+		CMAKE_CXX_FLAGS_MINSIZEREL
+		CMAKE_CXX_FLAGS_RELWITHDEBINFO
+		CMAKE_C_FLAGS
+		CMAKE_C_FLAGS_DEBUG
+		CMAKE_C_FLAGS_RELEASE
+		CMAKE_C_FLAGS_MINSIZEREL
+		CMAKE_C_FLAGS_RELWITHDEBINFO
+	)
+	foreach(CompilerFlag ${CompilerFlags})
+		string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
+	endforeach()
+
+	target_compile_features(executable PUBLIC cxx_std_20)
+
+	set_target_properties(executable PROPERTIES VS_USER_PROPS "predef.props")
+
+	set(VC_VER "vc142")
 
 	target_link_libraries(executable
-		bx.lib
-		bimg.lib
-		bimg_decode.lib
-		bgfx.lib
-		example-glue.lib
-		example-common.lib
+		bx$(Configuration).lib
+		bimg$(Configuration).lib
+		bimg_decode$(Configuration).lib
+		bgfx$(Configuration).lib
+		example-glue$(Configuration).lib
+		example-common$(Configuration).lib
 	)
 
 elseif (APPLE)
 
-	set(CFG "Release")
+	set(CFG ${CMAKE_BUILD_TYPE})
 
 	target_link_libraries(executable
 		libbx${CFG}.a

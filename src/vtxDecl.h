@@ -13,14 +13,14 @@ struct PosNormTC0Vertex
 	uint32_t normal;
 	Vector2 tc;
 
-	static bgfx::VertexDecl s_decl;
+	static bgfx::VertexLayout s_vtxLayout;
 };
 
 struct PosVertex
 {
 	Vector3 pos;
 
-	static bgfx::VertexDecl s_decl;
+	static bgfx::VertexLayout s_vtxLayout;
 };
 
 struct PosNormVertex
@@ -28,7 +28,7 @@ struct PosNormVertex
 	Vector3 pos;
 	uint32_t normal;
 
-	static bgfx::VertexDecl s_decl;
+	static bgfx::VertexLayout s_vtxLayout;
 };
 
 

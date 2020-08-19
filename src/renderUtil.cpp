@@ -37,9 +37,9 @@ static void MakeScreenQuad(void * pVerts,
 void DrawScreenQuad(Shader const *pShader
 	, uint64_t state, float x, float y, float w, float h)
 {
-	assert(4 == bgfx::getAvailTransientVertexBuffer(4, PosVertex::s_decl));
+	assert(4 == bgfx::getAvailTransientVertexBuffer(4, PosVertex::s_vtxLayout));
 	bgfx::TransientVertexBuffer vb;
-	bgfx::allocTransientVertexBuffer(&vb, 4, PosVertex::s_decl);
+	bgfx::allocTransientVertexBuffer(&vb, 4, PosVertex::s_vtxLayout);
 
 	MakeScreenQuad(vb.data, x, y, w, h);
 

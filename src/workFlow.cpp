@@ -2,7 +2,7 @@
 #include "../examples/common/bgfx_utils.h"
 #include "../examples/common/entry/entry.h"
 #include "viewState.h"
-#include <boost/filesystem.hpp>
+#include "filesys.h"
 #include <iostream>
 #include "entity.h"
 #include "camera.h"
@@ -23,8 +23,6 @@
 //#pragma optimize("", off)
 #define TEST	0
 
-namespace fs = boost::filesystem;
-
 
 namespace Ushuaia
 {
@@ -43,7 +41,7 @@ bool Init()
 #endif
 	//auto curDir = fs::current_path().c_str();
 	//DBG("curDir : %s", curDir);
-	if (strEndsWith(fs::current_path().string().c_str(), "bin"))
+	if (StrEndsWith(fs::current_path().string().c_str(), "bin"))
 		fs::current_path("../res");
 	else
 		fs::current_path("../../res");

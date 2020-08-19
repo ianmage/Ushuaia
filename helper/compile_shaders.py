@@ -33,7 +33,7 @@ if __name__ == '__main__' :
 	fileList = []
 	listFile('.', fileList)
 	lastModTime = headerLastMod()
-	force = raw_input("force all ? (y/n) : ")
+	force = input("force all ? (y/n) : ")
 
 	vary = fxc.parseVaryDef('varying.predef')
 

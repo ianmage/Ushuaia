@@ -93,7 +93,7 @@ void Shading::Init()
 	std::vector<uint16_t> sphereIdx;
 	CreateSphere(sphereVtx, sphereIdx, nullptr, 1, 1.f);
 	s_pPointLightMesh = Mesh::Create("plSphere", sphereVtx.data(), (uint32_t)sphereVtx.size(),
-		PosVertex::s_decl, sphereIdx.data(), (uint32_t)sphereIdx.size());	// exception on exit
+		PosVertex::s_vtxLayout, sphereIdx.data(), (uint32_t)sphereIdx.size());	// exception on exit
 
 	Reset();
 

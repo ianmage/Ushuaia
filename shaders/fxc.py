@@ -22,36 +22,36 @@ if isOSX :
 
 def press_any_key_exit(msg="Press Any Key Exit...\n") :
 	if isOSX :
-		# »ñÈ¡±ê×¼ÊäÈëµÄÃèÊö·û
+		# è·å–æ ‡å‡†è¾“å…¥çš„æè¿°ç¬¦
 		fd = sys.stdin.fileno()
 
-		# »ñÈ¡±ê×¼ÊäÈë(ÖÕ¶Ë)µÄÉèÖÃ
+		# è·å–æ ‡å‡†è¾“å…¥(ç»ˆç«¯)çš„è®¾ç½®
 		old_ttyinfo = termios.tcgetattr(fd)
 
-		# ÅäÖÃÖÕ¶Ë
+		# é…ç½®ç»ˆç«¯
 		new_ttyinfo = old_ttyinfo[:]
 
-		# Ê¹ÓÃ·Ç¹æ·¶Ä£Ê½(Ë÷Òı3ÊÇc_lflag Ò²¾ÍÊÇ±¾µØÄ£Ê½)
+		# ä½¿ç”¨éè§„èŒƒæ¨¡å¼(ç´¢å¼•3æ˜¯c_lflag ä¹Ÿå°±æ˜¯æœ¬åœ°æ¨¡å¼)
 		new_ttyinfo[3] &= ~termios.ICANON
-		# ¹Ø±Õ»ØÏÔ(ÊäÈë²»»á±»ÏÔÊ¾)
+		# å…³é—­å›æ˜¾(è¾“å…¥ä¸ä¼šè¢«æ˜¾ç¤º)
 		new_ttyinfo[3] &= ~termios.ECHO
 
-		# Êä³öĞÅÏ¢
+		# è¾“å‡ºä¿¡æ¯
 		sys.stdout.write(msg)
 		sys.stdout.flush()
-		# Ê¹ÉèÖÃÉúĞ§
+		# ä½¿è®¾ç½®ç”Ÿæ•ˆ
 		termios.tcsetattr(fd, termios.TCSANOW, new_ttyinfo)
-		# ´ÓÖÕ¶Ë¶ÁÈ¡
+		# ä»ç»ˆç«¯è¯»å–
 		os.read(fd, 7)
 
-		# »¹Ô­ÖÕ¶ËÉèÖÃ
+		# è¿˜åŸç»ˆç«¯è®¾ç½®
 		termios.tcsetattr(fd, termios.TCSANOW, old_ttyinfo)
 	elif isWin :
 		os.system('pause')
 
 
 def printErr(msg) :
-	print msg
+	print(msg)
 	press_any_key_exit()
 	exit()
 
@@ -79,8 +79,8 @@ def parseVaryDef(fName) :
 
 def proc(inFile, varyName, preDefs, srcModTime=None) :
 	if isWin :
-		curDir = 'D:/HELPER/3rdParty/bgfx'
-		cmd = '%s/.build/win64_vs2017/bin/shadercDebug.exe' % curDir
+		curDir = 'D:/3rdParty/bgfx'
+		cmd = '%s/.build/win64_vs2019/bin/shadercDebug.exe' % curDir
 	elif isOSX :
 		curDir = '~/Programs/3rdParty/bgfx'
 		cmd = '~/Programs/bgfx_tools/shaderc'
@@ -91,6 +91,8 @@ def proc(inFile, varyName, preDefs, srcModTime=None) :
 		outPath = '../res/shaders/dx11/'
 	elif isOSX :
 		outPath = '../res/shaders/metal/'
+	if not os.path.exists(outPath) :
+		os.mkdir(outPath)
 	outPath += '%sbin' % inFile[:-2]
 	cmd += ' -o %s' % outPath
 
@@ -130,7 +132,7 @@ def proc(inFile, varyName, preDefs, srcModTime=None) :
 	if not os.path.exists(outDir) :
 		os.mkdir(outDir)
 
-	#print cmd
+	print(cmd)
 	os.system(cmd)
 
 

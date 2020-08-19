@@ -1,6 +1,6 @@
 #include "serialize.h"
 #include <stdio.h>
-#include <boost/filesystem.hpp>
+#include "filesys.h"
 
 //#pragma optimize("", off)
 
@@ -32,7 +32,6 @@ bool JsonReader::Load(std::string _fPath)
 {
 	_fPath += ".json";
 
-	namespace fs = boost::filesystem;
 	if (!fs::is_regular_file(_fPath))
 		return false;
 

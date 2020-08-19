@@ -65,7 +65,7 @@ void InitScriptData()
 	pModel = pEnt->pModel.get();
 	assert(!pModel->pMesh);
 	pModel->pMesh = Mesh::Create("floor", hPlaneVert, BX_COUNTOF(hPlaneVert),
-		PosNormTC0Vertex::s_decl, planeIndices, BX_COUNTOF(planeIndices));
+		PosNormTC0Vertex::s_vtxLayout, planeIndices, BX_COUNTOF(planeIndices));
 	pModel->materials.emplace_back();
 	pMtl = &pModel->materials.back();
 	pMtl->SetShader(Shader::Load("material/vs_tex", "material/fs_tex"));
@@ -91,7 +91,7 @@ void InitScriptData()
 	auto sphereVtx = MakeVertice(spherePos, sphereNorm);
 	assert(!pModel->pMesh);
 	pModel->pMesh = Mesh::Create("sphere", sphereVtx.data(), (uint32_t)sphereVtx.size(),
-		PosNormVertex::s_decl, sphereIdx.data(), (uint32_t)sphereIdx.size());
+		PosNormVertex::s_vtxLayout, sphereIdx.data(), (uint32_t)sphereIdx.size());
 	pModel->materials.emplace_back();
 	pMtl = &pModel->materials.back();
 	pMtl->SetShader(Shader::Load("material/vs_clay", "material/fs_clay"));
