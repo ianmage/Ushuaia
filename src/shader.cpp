@@ -105,7 +105,7 @@ Shader::~Shader()
 
 std::string Shader::Name() const
 {
-	std::string vsName = ::StrEndsWith(vsName_.c_str(), "_instance") ?
+	std::string vsName = ::strEndsWith(vsName_.c_str(), "_instance") ?
 		vsName_.substr(0, vsName_.length() - sizeof("_instance") + 1) : vsName_;
 	return vsName + "^" + fsName_;
 }
@@ -151,7 +151,7 @@ void Shader::ParseUniform(bgfx::ShaderHandle hShader)
 	bgfx::getShaderUniforms(hShader, uHandles.data(), numUniform);
 	for (auto h : uHandles) {
 		char const * uName = bgfx::getName(h);
-		if (StrStartsWith(uName, "PM_")) {
+		if (strStartsWith(uName, "PM_")) {
 			uint16_t offset = static_cast<uint16_t>(paramSize_);
 			uniforms_.emplace(RT_HASH(uName), std::make_pair(h, offset));
 			bgfx::getUniformInfo(h, ui);

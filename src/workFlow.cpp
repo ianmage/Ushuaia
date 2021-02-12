@@ -41,7 +41,7 @@ bool Init()
 #endif
 	//auto curDir = fs::current_path().c_str();
 	//DBG("curDir : %s", curDir);
-	if (StrEndsWith(fs::current_path().string().c_str(), "bin"))
+	if (strEndsWith(fs::current_path().string().c_str(), "bin"))
 		fs::current_path("../res");
 	else
 		fs::current_path("../../res");
