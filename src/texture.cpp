@@ -1,5 +1,5 @@
-#include "texture.h"
-#include "../../cpp_common/commUtil.h"
+#include "Texture.h"
+#include "../../cpp_common/CommUtil.h"
 #include "../examples/common/bgfx_utils.h"
 
 //#pragma optimize("", off)

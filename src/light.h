@@ -1,10 +1,10 @@
 #pragma once
 
-#include "color.h"
-#include "bgfx/bgfx.h"
 #include <vector>
-#include "serialize.h"
-#include "camera.h"
+#include <bgfx/bgfx.h>
+#include "Color.h"
+#include "Serialize.h"
+#include "Camera.h"
 
 
 namespace Ushuaia

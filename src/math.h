@@ -269,4 +269,4 @@ struct Box
 
 }
 
-#include "math.inl"
+#include "Math.inl"

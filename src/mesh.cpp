@@ -1,8 +1,8 @@
-#include "mesh.h"
-#include "bx/readerwriter.h"
+#include "Mesh.h"
+#include <bx/readerwriter.h>
 #include "../examples/common/entry/entry.h"
 #include "../3rdparty/meshoptimizer/src/meshoptimizer.h"
-#include "../../cpp_common/commUtil.h"
+#include "../../cpp_common/CommUtil.h"
 
 #pragma optimize("", off)
 

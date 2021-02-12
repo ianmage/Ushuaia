@@ -1,7 +1,7 @@
+#include <cmath>
 #include <limits>
 #include <cassert>
 #include <bx/math.h>
-#include <math.h>
 
 
 namespace Ushuaia

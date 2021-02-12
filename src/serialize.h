@@ -1,12 +1,12 @@
 #pragma once
 
+#include <vector>
 #define RAPIDJSON_HAS_STDSTRING	1
 #define RAPIDJSON_HAS_CXX11_RVALUE_REFS	1
-#include "rapidjson/prettywriter.h"
-#include "rapidjson/document.h"
-#include <vector>
-#include "math.h"
-#include "../../cpp_common/commUtil.h"
+#include <rapidjson/prettywriter.h>
+#include <rapidjson/document.h>
+#include "Math.h"
+#include "../../cpp_common/CommUtil.h"
 
 
 namespace Ushuaia

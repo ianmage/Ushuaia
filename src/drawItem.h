@@ -1,7 +1,7 @@
 #pragma once
 
-#include "material.h"
-#include "mesh.h"
+#include "Material.h"
+#include "Mesh.h"
 
 
 namespace Ushuaia

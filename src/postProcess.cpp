@@ -1,6 +1,6 @@
-#include "postProcess.h"
-#include "viewState.h"
-#include "renderUtil.h"
+#include "PostProcess.h"
+#include "ViewState.h"
+#include "RenderUtil.h"
 
 #pragma optimize("", off)
 

@@ -1,24 +1,24 @@
-#include "workFlow.h"
+#include "Workflow.h"
+#include <iostream>
+#include <bx/timer.h>
 #include "../examples/common/bgfx_utils.h"
 #include "../examples/common/entry/entry.h"
-#include "viewState.h"
-#include "filesys.h"
-#include <iostream>
-#include "entity.h"
-#include "camera.h"
-#include "vtxDecl.h"
-#include "drawItem.h"
-#include "postProcess.h"
+#include "ViewState.h"
+#include "FileSys.h"
+#include "Entity.h"
+#include "Camera.h"
+#include "VtxDecl.h"
+#include "DrawItem.h"
+#include "PostProcess.h"
 #define DEFERRED_RENDERING	1
 #if DEFERRED_RENDERING
-#include "shading.h"
+#include "Shading.h"
 #else
-#include "forwardRendering.h"
+#include "ForwardRendering.h"
 #endif
-#include "script.h"
-#include "bx/timer.h"
-#include "../../cpp_common/strUtil.h"
-#include "appConf.h"
+#include "Script.h"
+#include "../../cpp_common/StrUtil.h"
+#include "AppConf.h"
 
 //#pragma optimize("", off)
 #define TEST	0
@@ -41,7 +41,7 @@ bool Init()
 #endif
 	//auto curDir = fs::current_path().c_str();
 	//DBG("curDir : %s", curDir);
-	if (strEndsWith(fs::current_path().string().c_str(), "bin"))
+	if (StrEndsWith(fs::current_path().string().c_str(), "bin"))
 		fs::current_path("../res");
 	else
 		fs::current_path("../../res");

@@ -1,10 +1,10 @@
-#include "renderHelper.h"
-#include "bx/math.h"
+#include "RenderHelper.h"
 #include <cmath>
-#include "math.h"
 #include <map>
 #include <array>
-#include "renderUtil.h"
+#include <bx/math.h>
+#include "Math.h"
+#include "RenderUtil.h"
 #include "../examples/common/bgfx_utils.h"
 
 

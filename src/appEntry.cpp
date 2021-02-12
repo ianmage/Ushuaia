@@ -3,11 +3,11 @@
  * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
  */
 
-#include "viewState.h"
-#include "appConf.h"
+#include "ViewState.h"
+#include "AppConf.h"
 #include "../examples/common/bgfx_utils.h"
 #include "../examples/common/imgui/imgui.h"
-#include "workFlow.h"
+#include "Workflow.h"
 
 
 class MyApp : public entry::AppI

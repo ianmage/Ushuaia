@@ -1,5 +1,5 @@
-#include "light.h"
-#include "shader.h"
+#include "Light.h"
+#include "Shader.h"
 
 
 namespace Ushuaia

@@ -1,5 +1,5 @@
-#include "scene.h"
-#include "light.h"
+#include "Scene.h"
+#include "Light.h"
 
 
 namespace Ushuaia

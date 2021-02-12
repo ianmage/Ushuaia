@@ -1,6 +1,6 @@
-#include "viewState.h"
-#include "appConf.h"
-#include "entity.h"
+#include "ViewState.h"
+#include "AppConf.h"
+#include "Entity.h"
 
 
 namespace Ushuaia

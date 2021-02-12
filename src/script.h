@@ -1,9 +1,9 @@
 #pragma once
 
-#include "entity.h"
-#include "light.h"
 #include <vector>
-#include "renderState.h"
+#include "Entity.h"
+#include "Light.h"
+#include "RenderState.h"
 
 
 namespace Ushuaia

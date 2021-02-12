@@ -1,12 +1,12 @@
-#include "renderUtil.h"
-#include "viewState.h"
-#include "bx/math.h"
-#include "vtxDecl.h"
-#include "../examples/common/bgfx_utils.h"
+#include "RenderUtil.h"
 #include <cmath>
-#include "math.h"
 #include <map>
-#include "frameBuffer.h"
+#include <bx/math.h>
+#include "ViewState.h"
+#include "VtxDecl.h"
+#include "../examples/common/bgfx_utils.h"
+#include "Math.h"
+#include "FrameBuffer.h"
 
 //#pragma optimize("", off)
 

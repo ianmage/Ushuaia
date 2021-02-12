@@ -1,9 +1,9 @@
-#include "forwardRendering.h"
-#include "viewState.h"
-#include "script.h"
-#include "camera.h"
-#include "bx/math.h"
-#include "drawItem.h"
+#include <bx/math.h>
+#include "ForwardRendering.h"
+#include "ViewState.h"
+#include "Script.h"
+#include "Camera.h"
+#include "DrawItem.h"
 
 //#pragma optimize("", off)
 #define TEST	0

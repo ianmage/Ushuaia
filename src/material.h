@@ -1,9 +1,9 @@
 #pragma once
 
-#include "shader.h"
-#include "renderState.h"
-#include "texture.h"
-#include "color.h"
+#include "Shader.h"
+#include "RenderState.h"
+#include "Texture.h"
+#include "Color.h"
 
 
 namespace Ushuaia

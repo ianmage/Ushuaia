@@ -1,8 +1,8 @@
 #pragma once
 
-#include "shader.h"
-#include "vtxDecl.h"
-#include "frameBuffer.h"
+#include "Shader.h"
+#include "VtxDecl.h"
+#include "FrameBuffer.h"
 
 
 namespace Ushuaia

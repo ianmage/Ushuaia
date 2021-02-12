@@ -1,6 +1,6 @@
-#include "blur.h"
-#include "renderUtil.h"
-#include "postProcess.h"
+#include "Blur.h"
+#include "RenderUtil.h"
+#include "PostProcess.h"
 
 #pragma optimize("", off)
 

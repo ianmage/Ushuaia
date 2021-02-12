@@ -1,6 +1,6 @@
 #pragma once
 
-#include "math.h"
+#include "Math.h"
 
 
 namespace Ushuaia
@@ -85,4 +85,4 @@ inline void ToGammaAccurate(Color4F & cOut, Color4F const & cIn);
 }
 
 
-#include "color.inl"
+#include "Color.inl"

@@ -1,6 +1,6 @@
-#include "frameBuffer.h"
-#include "viewState.h"
+#include "FrameBuffer.h"
 #include <cassert>
+#include "ViewState.h"
 
 
 namespace Ushuaia

@@ -1,4 +1,4 @@
-#include "vtxDecl.h"
+#include "VtxDecl.h"
 
 
 namespace Ushuaia

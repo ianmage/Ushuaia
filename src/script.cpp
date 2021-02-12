@@ -1,10 +1,10 @@
-#include "script.h"
-#include "scene.h"
+#include "Script.h"
 #include <string>
-#include "appConf.h"
-#include "vtxDecl.h"
+#include "Scene.h"
+#include "AppConf.h"
+#include "VtxDecl.h"
 #include "../examples/common/bgfx_utils.h"
-#include "renderHelper.h"
+#include "RenderHelper.h"
 #ifdef _APPLE
 //#include <mach/mach.h>
 #endif

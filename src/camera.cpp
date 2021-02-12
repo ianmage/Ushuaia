@@ -1,9 +1,9 @@
-#include "camera.h"
-#include "bgfx/bgfx.h"
+#include "Camera.h"
+#include <bgfx/bgfx.h>
+#include <bx/math.h>
 #include "../examples/common/camera.h"
-#include "bx/math.h"
-#include "viewState.h"
-#include "appConf.h"
+#include "ViewState.h"
+#include "AppConf.h"
 #include "../examples/common/bounds.h"
 #ifdef _APPLE
 #include <tgmath.h>

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "bgfx/bgfx.h"
-#include "math.h"
+#include <bgfx/bgfx.h>
+#include "Math.h"
 
 
 namespace Ushuaia

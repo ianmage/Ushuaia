@@ -1,9 +1,9 @@
 #pragma once
-#include <bgfx/bgfx.h>
-#include "camera.h"
-#include "texture.h"
 #include <vector>
 #include <set>
+#include <bgfx/bgfx.h>
+#include "Camera.h"
+#include "Texture.h"
 
 
 namespace Ushuaia

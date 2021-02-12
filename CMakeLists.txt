@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-project (my3D)
+project (Ushuaia)
 
 cmake_policy(SET CMP0054 NEW) 
 cmake_policy(SET CMP0045 NEW)
@@ -87,30 +87,30 @@ if (APPLE)
 endif ()
 
 add_executable(executable
-	src/appEntry.cpp
-	src/blur.cpp
-	src/camera.cpp
-	src/confDef.cpp
-	src/drawItem.cpp
-	src/entity.cpp
-	src/forwardRendering.cpp
-	src/frameBuffer.cpp
-	src/hdr.cpp
-	src/light.cpp
-	src/material.cpp
-	src/mesh.cpp
-	src/model.cpp
-	src/postProcess.cpp
-	src/renderHelper.cpp
-	src/renderUtil.cpp
-	src/script.cpp
-	src/scene.cpp
-	src/serialize.cpp
-	src/shader.cpp
-	src/shading.cpp
-	src/texture.cpp
-	src/vtxDecl.cpp
-	src/workFlow.cpp
+	src/AppEntry.cpp
+	src/Blur.cpp
+	src/Camera.cpp
+	src/ConfDef.cpp
+	src/DrawItem.cpp
+	src/Entity.cpp
+	src/ForwardRendering.cpp
+	src/FrameBuffer.cpp
+	src/HDR.cpp
+	src/Light.cpp
+	src/Material.cpp
+	src/Mesh.cpp
+	src/Model.cpp
+	src/PostProcess.cpp
+	src/RenderHelper.cpp
+	src/RenderUtil.cpp
+	src/Script.cpp
+	src/Scene.cpp
+	src/Serialize.cpp
+	src/Shader.cpp
+	src/Shading.cpp
+	src/Texture.cpp
+	src/VtxDecl.cpp
+	src/Workflow.cpp
 )
 
 if (WIN32)	# MSVC

@@ -2,10 +2,10 @@
 
 #include <array>
 #include <vector>
-#include "shader.h"
-#include "camera.h"
-#include "texture.h"
-#include "postProcess.h"
+#include "Shader.h"
+#include "Camera.h"
+#include "Texture.h"
+#include "PostProcess.h"
 
 
 namespace Ushuaia

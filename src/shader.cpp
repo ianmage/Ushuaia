@@ -1,6 +1,6 @@
-#include "shader.h"
+#include "Shader.h"
 #include "../examples/common/bgfx_utils.h"
-#include "../../cpp_common/strUtil.h"
+#include "../../cpp_common/StrUtil.h"
 #include "../src/bgfx_p.h"
 #ifdef GetObject
 #undef GetObject
@@ -105,7 +105,7 @@ Shader::~Shader()
 
 std::string Shader::Name() const
 {
-	std::string vsName = ::strEndsWith(vsName_.c_str(), "_instance") ?
+	std::string vsName = ::StrEndsWith(vsName_.c_str(), "_instance") ?
 		vsName_.substr(0, vsName_.length() - sizeof("_instance") + 1) : vsName_;
 	return vsName + "^" + fsName_;
 }
@@ -151,7 +151,7 @@ void Shader::ParseUniform(bgfx::ShaderHandle hShader)
 	bgfx::getShaderUniforms(hShader, uHandles.data(), numUniform);
 	for (auto h : uHandles) {
 		char const * uName = bgfx::getName(h);
-		if (strStartsWith(uName, "PM_")) {
+		if (StrStartsWith(uName, "PM_")) {
 			uint16_t offset = static_cast<uint16_t>(paramSize_);
 			uniforms_.emplace(RT_HASH(uName), std::make_pair(h, offset));
 			bgfx::getUniformInfo(h, ui);

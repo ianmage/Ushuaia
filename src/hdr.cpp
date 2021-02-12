@@ -1,11 +1,11 @@
-#include "hdr.h"
-#include "viewState.h"
-#include "camera.h"
-#include "bx/math.h"
-#include "renderUtil.h"
-#include "postProcess.h"
-#include "../../cpp_common/commUtil.h"
-#include "blur.h"
+#include "HDR.h"
+#include <bx/math.h>
+#include "ViewState.h"
+#include "Camera.h"
+#include "RenderUtil.h"
+#include "PostProcess.h"
+#include "../../cpp_common/CommUtil.h"
+#include "Blur.h"
 
 
 namespace Ushuaia

@@ -1,6 +1,6 @@
-#include "drawItem.h"
-#include "scene.h"
-#include "frameBuffer.h"
+#include "DrawItem.h"
+#include "Scene.h"
+#include "FrameBuffer.h"
 
 //#pragma optimize("", off)
 

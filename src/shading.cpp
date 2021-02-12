@@ -1,14 +1,14 @@
-#include "shading.h"
-#include "viewState.h"
-#include "script.h"
-#include "camera.h"
-#include "bx/math.h"
-#include "drawItem.h"
-#include "renderUtil.h"
-#include "renderHelper.h"
-#include "postProcess.h"
-#include "hdr.h"
-#include "../../cpp_common/commUtil.h"
+#include "Shading.h"
+#include <bx/math.h>
+#include "ViewState.h"
+#include "Script.h"
+#include "Camera.h"
+#include "DrawItem.h"
+#include "RenderUtil.h"
+#include "RenderHelper.h"
+#include "PostProcess.h"
+#include "HDR.h"
+#include "../../cpp_common/CommUtil.h"
 
 #pragma optimize("", off)
 

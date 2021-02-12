@@ -1,8 +1,8 @@
 #pragma once
 
-#include "mesh.h"
-#include "material.h"
-#include "renderState.h"
+#include "Mesh.h"
+#include "Material.h"
+#include "RenderState.h"
 
 
 namespace Ushuaia

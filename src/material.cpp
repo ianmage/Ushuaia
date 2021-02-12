@@ -1,6 +1,6 @@
-#include "material.h"
-#include "../../cpp_common/commUtil.h"
-#include "serialize.h"
+#include "Material.h"
+#include "../../cpp_common/CommUtil.h"
+#include "Serialize.h"
 
 #pragma optimize("", off)
 
